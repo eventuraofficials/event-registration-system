@@ -3,7 +3,7 @@ services:
     name: event-registration-system
     runtime: node
     buildCommand: npm install
-    startCommand: npm start
+    startCommand: node start-render.js
     envVars:
       - key: NODE_ENV
         value: production
