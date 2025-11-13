@@ -4,11 +4,10 @@ const path = require('path');
 const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
-const fs = require('fs');
 require('dotenv').config();
 
 // Import backup utility
-const { scheduleAutoBackup, createBackup } = require('./utils/backup');
+const { scheduleAutoBackup } = require('./utils/backup');
 
 // Import logger
 const logger = require('./utils/logger');
