@@ -63,6 +63,11 @@ if (process.env.NODE_ENV === 'production') {
   app.use(logger.requestLogger());
 }
 
+// Root route - redirect to admin login page (MUST be before static middleware)
+app.get('/', (req, res) => {
+  res.redirect('/admin.html');
+});
+
 // Static files - Serve public folder with no-cache for JS files
 // Use process.cwd() for deployment compatibility
 const publicPath = path.join(process.cwd(), 'public');
@@ -97,11 +102,6 @@ app.use('/api/guests', guestRoutes);
 
 // Export loginLimiter for use in routes
 app.set('loginLimiter', loginLimiter);
-
-// Root route - redirect to admin login page
-app.get('/', (req, res) => {
-  res.redirect('/admin.html');
-});
 
 // Health check
 app.get('/api/health', (req, res) => {
