@@ -1,6 +1,8 @@
 // API Configuration
-// Automatically detect if accessing via localhost or network IP
-const API_BASE_URL = `http://${window.location.hostname}:5000/api`;
+// Automatically detect protocol and use current origin for API calls
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname.startsWith('192.168')
+    ? `http://${window.location.hostname}:5000/api`  // Local development
+    : `${window.location.origin}/api`;                // Production (uses same protocol and no port)
 
 // API Endpoints
 const API = {
