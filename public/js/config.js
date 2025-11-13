@@ -147,12 +147,15 @@ if (typeof document !== 'undefined') {
 // Fetch wrapper with error handling and auto-retry
 const fetchAPI = async (url, options = {}) => {
     try {
+        // Extract headers from options to avoid overwriting
+        const { headers: customHeaders, ...restOptions } = options;
+
         const response = await fetch(url, {
+            ...restOptions,
             headers: {
                 'Content-Type': 'application/json',
-                ...options.headers
-            },
-            ...options
+                ...customHeaders
+            }
         });
 
         // Handle different response types

@@ -39,10 +39,19 @@ exports.getAvailableEvents = async (req, res) => {
  */
 exports.createEvent = async (req, res) => {
   try {
+    console.log('📥 CREATE EVENT - Request body:', JSON.stringify(req.body, null, 2));
+
     const { event_name, event_code, event_date, event_time, venue, description, max_capacity, registration_open } = req.body;
+
+    console.log('📋 Extracted fields:', { event_name, event_code, event_date });
 
     // Validate required fields
     if (!event_name || !event_code || !event_date) {
+      console.log('❌ Validation failed - Missing fields:', {
+        has_event_name: !!event_name,
+        has_event_code: !!event_code,
+        has_event_date: !!event_date
+      });
       return res.status(400).json({
         success: false,
         message: 'Event name, code, and date are required'
