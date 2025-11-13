@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Background circle with gradient -->
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Main circle background -->
+  <circle cx="50" cy="50" r="48" fill="url(#grad1)" stroke="#fff" stroke-width="2"/>
+
+  <!-- QR code icon -->
+  <rect x="25" y="25" width="50" height="50" fill="#fff" rx="3"/>
+  <rect x="28" y="28" width="15" height="15" fill="#667eea"/>
+  <rect x="57" y="28" width="15" height="15" fill="#667eea"/>
+  <rect x="28" y="57" width="15" height="15" fill="#667eea"/>
+
+  <!-- Center squares pattern -->
+  <rect x="48" y="48" width="4" height="4" fill="#764ba2"/>
+  <rect x="54" y="48" width="4" height="4" fill="#764ba2"/>
+  <rect x="48" y="54" width="4" height="4" fill="#764ba2"/>
+  <rect x="54" y="54" width="4" height="4" fill="#764ba2"/>
+
+  <!-- Small decorative dots -->
+  <circle cx="65" cy="65" r="2" fill="#fff"/>
+  <circle cx="70" cy="65" r="2" fill="#fff"/>
+  <circle cx="65" cy="70" r="2" fill="#fff"/>
+</svg>

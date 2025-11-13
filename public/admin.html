@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Admin Dashboard - Event Registration System</title>
+    <meta name="description" content="Admin dashboard for event management and guest tracking">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="css/style.css?v=20251109092000">
+    <link rel="stylesheet" href="css/admin.css?v=20251109092000">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-body">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen active">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <i class="fas fa-user-shield"></i>
+                    <h1>Admin Login</h1>
+                </div>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Username or Email</label>
+                        <input type="text" id="username" required autofocus>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="dashboardScreen" class="dashboard-screen">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-cog"></i> Admin Panel</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" onclick="showSection('overview')" class="nav-item active" data-section="overview">
+                    <i class="fas fa-chart-line"></i> Overview
+                </a>
+                <a href="#" onclick="showSection('events')" class="nav-item" data-section="events">
+                    <i class="fas fa-calendar"></i> Events
+                </a>
+                <a href="#" onclick="showSection('guests')" class="nav-item" data-section="guests">
+                    <i class="fas fa-users"></i> Guests
+                </a>
+                <a href="#" onclick="showSection('upload')" class="nav-item" data-section="upload">
+                    <i class="fas fa-file-upload"></i> Import Guests
+                </a>
+                <a href="#" onclick="showSection('reports')" class="nav-item" data-section="reports">
+                    <i class="fas fa-chart-bar"></i> Reports & Export
+                </a>
+
+                <!-- External Tools -->
+                <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0; padding-top: 15px;">
+                    <p style="padding: 5px 20px 10px; font-size: 0.75rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
+                        <i class="fas fa-tools"></i> Event Tools
+                    </p>
+                </div>
+
+                <a href="/checkin.html" target="_blank" class="nav-item" style="background: rgba(255,255,255,0.05);" title="Open QR scanner for guest check-in at event entrance (New Tab)">
+                    <i class="fas fa-qrcode"></i>
+                    <span>QR Scanner</span>
+                    <i class="fas fa-external-link-alt" style="margin-left: auto; font-size: 0.7rem; opacity: 0.6;"></i>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <div>
+                        <div class="user-name" id="adminName">Administrator</div>
+                        <div class="user-role" id="adminRole">Super Admin</div>
+                    </div>
+                </div>
+                <button onclick="logout()" class="btn btn-secondary btn-block">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-dashboard">
+            <!-- Overview Section -->
+            <section id="overviewSection" class="dashboard-section active">
+                <div class="section-header">
+                    <h1>Dashboard Overview</h1>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card blue clickable" onclick="showSection('events')" title="Click to view events">
+                        <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalEvents">0</div>
+                            <div class="stat-label">Total Events</div>
+                        </div>
+                    </div>
+                    <div class="stat-card green clickable" onclick="showSection('guests')" title="Click to view guests">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalGuests">0</div>
+                            <div class="stat-label">Total Guests</div>
+                        </div>
+                    </div>
+                    <div class="stat-card purple clickable" onclick="showSection('guests')" title="Click to view guests">
+                        <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalAttended">0</div>
+                            <div class="stat-label">Attended</div>
+                        </div>
+                    </div>
+                    <div class="stat-card orange clickable" onclick="showSection('reports')" title="Click to view reports">
+                        <div class="stat-icon"><i class="fas fa-percentage"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="attendanceRate">0%</div>
+                            <div class="stat-label">Attendance Rate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Quick Links</h2>
+                    <div class="button-group" style="margin-bottom: 20px;">
+                        <a href="/checkin.html" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-qrcode"></i> Open Check-In Scanner
+                        </a>
+                    </div>
+                    <p style="color: #666; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Use the Check-In Scanner to scan guest QR codes at the event entrance.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h2>Recent Events</h2>
+                    <div id="recentEventsList" class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Event Name</th>
+                                    <th>Date</th>
+                                    <th>Guests</th>
+                                    <th>Attended</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentEventsBody">
+                                <tr><td colspan="5">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Events Section -->
+            <section id="eventsSection" class="dashboard-section">
+                <div class="section-header">
+                    <h1>Event Management</h1>
+                    <button onclick="showCreateEventForm()" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create New Event
+                    </button>
+                </div>
+
+                <div id="eventsListCard" class="card">
+                    <div class="card-header">
+                        <h2>All Events</h2>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="eventSearchInput" placeholder="Search events...">
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Event Code</th>
+                                    <th>Event Name</th>
+                                    <th>Date</th>
+                                    <th>Venue</th>
+                                    <th>Guests</th>
+                                    <th>Registration</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="eventsTableBody">
+                                <tr><td colspan="7">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Create Event Form (Hidden by default) -->
+                <div id="createEventForm" class="card" style="display: none;">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2><i class="fas fa-plus-circle"></i> Create New Event</h2>
+                        <button type="button" onclick="hideCreateEventForm()" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                    <form id="newEventForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="eventName">Event Name *</label>
+                                <input type="text" id="eventName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="eventCodeInput">Event Code *</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="text" id="eventCodeInput" required style="flex: 1;">
+                                    <button type="button" onclick="generateEventCode()" class="btn btn-outline" title="Auto-generate event code">
+                                        <i class="fas fa-magic"></i> Auto
+                                    </button>
+                                </div>
+                                <small style="color: #666; font-size: 0.85rem;">Auto-generated from event name or click "Auto" button</small>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="eventDate">Event Date *</label>
+                                <input type="date" id="eventDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="eventTime">Event Time</label>
+                                <input type="time" id="eventTime">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="eventVenue">Venue</label>
+                            <input type="text" id="eventVenue">
+                        </div>
+                        <div class="form-group">
+                            <label for="eventDescription">Description</label>
+                            <textarea id="eventDescription" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="eventMaxCapacity">Maximum Capacity</label>
+                            <input type="number" id="eventMaxCapacity" min="1" placeholder="Leave empty for unlimited">
+                            <small style="color: #666; font-size: 0.85rem;">Optional: Set maximum number of guests allowed to register</small>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Create Event
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Guests Section -->
+            <section id="guestsSection" class="dashboard-section">
+                <div class="section-header">
+                    <h1>Guest Management</h1>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Select Event</h2>
+                    </div>
+                    <div class="form-group">
+                        <select id="guestEventSelect" onchange="loadGuestsForEvent()">
+                            <option value="">-- Select Event --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="guestsListCard" class="card" style="display: none;">
+                    <div class="card-header">
+                        <h2>Guest List</h2>
+                        <div class="filter-group">
+                            <button onclick="exportGuestList()" class="btn btn-success" title="Export to Excel">
+                                <i class="fas fa-file-excel"></i> Export to Excel
+                            </button>
+                            <select id="guestStatusFilter" onchange="loadGuestsForEvent()">
+                                <option value="">All Status</option>
+                                <option value="attended">Attended</option>
+                                <option value="not_attended">Not Attended</option>
+                            </select>
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="guestSearchInput" placeholder="Search guests...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Guest Code</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Company</th>
+                                    <th>Status</th>
+                                    <th>Check-in Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="guestsTableBody">
+                                <tr><td colspan="7">Select an event to view guests</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Upload Excel Section -->
+            <section id="uploadSection" class="dashboard-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-file-upload"></i> Import Guest List</h1>
+                    <p style="font-size: 0.9rem; color: #666; margin-top: 10px;">
+                        Upload Excel/CSV file to add multiple guests at once
+                    </p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header" style="background: #f8f9fa; padding: 20px; border-bottom: 2px solid #e9ecef;">
+                        <h2><i class="fas fa-cloud-upload-alt"></i> Upload Guest List File</h2>
+                        <p style="margin: 10px 0 0; color: #666;">
+                            <strong>Purpose:</strong> Quickly add many guests to your event by uploading an Excel or CSV file
+                        </p>
+                    </div>
+                    <div style="padding: 20px;">
+                        <div class="alert" style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 20px;">
+                            <p style="margin: 0; color: #856404;">
+                                <i class="fas fa-info-circle"></i> <strong>How it works:</strong>
+                            </p>
+                            <ul style="margin: 10px 0 0; padding-left: 20px; color: #856404;">
+                                <li>Download template below</li>
+                                <li>Fill in guest details (name, email, phone, etc.)</li>
+                                <li>Upload file here</li>
+                                <li>System generates QR codes for all guests</li>
+                            </ul>
+                        </div>
+
+                    <div class="form-group">
+                        <label for="uploadEventSelect">Select Event *</label>
+                        <select id="uploadEventSelect">
+                            <option value="">-- Select Event --</option>
+                        </select>
+                    </div>
+
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h3>Drag & Drop Excel File Here</h3>
+                        <p>or click to browse</p>
+                        <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" style="display:none;">
+                        <button onclick="document.getElementById('excelFileInput').click()" class="btn btn-primary">
+                            <i class="fas fa-file-upload"></i> Select File
+                        </button>
+                    </div>
+
+                    <div id="uploadProgress" class="upload-progress" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <p id="uploadStatus">Uploading...</p>
+                    </div>
+
+                    <div id="uploadResults" style="display: none;"></div>
+                </div>
+
+                <div class="card">
+                    <h2>Excel File Format</h2>
+                    <p>Your Excel file should have the following columns:</p>
+                    <ul>
+                        <li><strong>Full Name</strong> (Required)</li>
+                        <li><strong>Email</strong> (Optional)</li>
+                        <li><strong>Contact Number</strong> (Optional)</li>
+                        <li><strong>Home Address</strong> (Optional)</li>
+                        <li><strong>Company Name</strong> (Optional)</li>
+                    </ul>
+                    <button onclick="downloadTemplate()" class="btn btn-outline">
+                        <i class="fas fa-download"></i> Download Excel Template
+                    </button>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reportsSection" class="dashboard-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-chart-bar"></i> Reports & Export</h1>
+                    <p style="font-size: 0.9rem; color: #666; margin-top: 10px;">
+                        Download attendance data and generate reports
+                    </p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header" style="background: #f8f9fa; padding: 20px; border-bottom: 2px solid #e9ecef;">
+                        <h2><i class="fas fa-file-download"></i> Download Attendance Report</h2>
+                        <p style="margin: 10px 0 0; color: #666;">
+                            <strong>Purpose:</strong> Export guest list and attendance data to Excel/CSV format
+                        </p>
+                    </div>
+                    <div style="padding: 20px;">
+                        <div class="alert" style="background: #d1ecf1; border-left: 4px solid #0c5460; padding: 15px; margin-bottom: 20px;">
+                            <p style="margin: 0; color: #0c5460;">
+                                <i class="fas fa-info-circle"></i> <strong>What you'll get:</strong>
+                            </p>
+                            <ul style="margin: 10px 0 0; padding-left: 20px; color: #0c5460;">
+                                <li>List of all registered guests</li>
+                                <li>Attendance status (attended/not attended)</li>
+                                <li>Check-in times</li>
+                                <li>Contact information</li>
+                            </ul>
+                        </div>
+
+                    <div class="form-group">
+                        <label for="reportEventSelect"><strong>Select Event to Export</strong></label>
+                        <select id="reportEventSelect">
+                            <option value="">-- Choose Event --</option>
+                        </select>
+                    </div>
+                    <div class="button-group">
+                        <button onclick="exportToExcel()" class="btn btn-success">
+                            <i class="fas fa-file-excel"></i> Export to Excel
+                        </button>
+                        <button onclick="exportToPDF()" class="btn btn-danger">
+                            <i class="fas fa-file-pdf"></i> Export to PDF
+                        </button>
+                        <button onclick="exportToCSV()" class="btn btn-primary">
+                            <i class="fas fa-file-csv"></i> Export to CSV
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+    </div>
+
+    <script src="js/security-utils.js?v=20251109092000"></script>
+    <script src="js/config.js?v=20251109092000"></script>
+    <script src="js/admin.js?v=20251109092000"></script>
+</body>
+</html>

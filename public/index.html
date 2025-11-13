@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Registration Portal</title>
+    <meta name="description" content="Register for events and get your QR code entry ticket instantly">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-logo">
+                <i class="fas fa-qrcode"></i>
+            </div>
+            <h1><i class="fas fa-calendar-check"></i> Event Registration Portal</h1>
+            <p class="subtitle">Register now and get your QR code entry ticket instantly</p>
+        </header>
+
+        <main class="main-content">
+            <!-- Event Info & Registration Form -->
+            <div id="registrationSection" class="section active">
+                <!-- Event Info Card -->
+                <div id="eventInfo" class="card">
+                    <div id="loadingEvent" style="text-align: center; padding: 40px;">
+                        <div class="spinner"></div>
+                        <p style="margin-top: 15px; color: #666;">Loading event information...</p>
+                    </div>
+                    <div id="eventDetails" style="display: none;">
+                        <h2><i class="fas fa-calendar-alt"></i> <span id="eventName"></span></h2>
+                        <div class="event-details" style="margin: 20px 0;">
+                            <p><i class="fas fa-calendar"></i> <span id="eventDate"></span></p>
+                            <p><i class="fas fa-clock"></i> <span id="eventTime"></span></p>
+                            <p><i class="fas fa-map-marker-alt"></i> <span id="eventVenue"></span></p>
+                        </div>
+                        <p id="eventDescription" style="color: #666;"></p>
+                    </div>
+                </div>
+
+                <!-- Registration Form -->
+                <div id="registrationFormCard" class="card" style="display: none;">
+                    <h2><i class="fas fa-clipboard-list"></i> Registration Form</h2>
+                    <form id="guestForm">
+                        <div class="form-group">
+                            <label for="fullName">Full Name *</label>
+                            <input type="text" id="fullName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contactNumber">Contact Number *</label>
+                            <input type="tel" id="contactNumber" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="homeAddress">Home Address</label>
+                            <textarea id="homeAddress" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="companyName">Company Name</label>
+                            <input type="text" id="companyName">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="guestCategory">Guest Category</label>
+                            <select id="guestCategory">
+                                <option value="Regular">Regular Guest</option>
+                                <option value="VIP">VIP</option>
+                                <option value="Speaker">Speaker</option>
+                                <option value="Sponsor">Sponsor</option>
+                                <option value="Media">Media</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i> Complete Registration
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- QR Code Display -->
+            <div id="qrCodeSection" class="section">
+                <div class="card success-card">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h2>Registration Successful!</h2>
+                    <p class="success-message">Your QR code has been generated. Please save or screenshot this for event entry.</p>
+
+                    <div class="qr-container">
+                        <img id="qrCodeImage" src="" alt="QR Code">
+                        <p class="guest-code">Code: <strong id="guestCodeDisplay"></strong></p>
+                    </div>
+
+                    <div class="guest-info">
+                        <h3>Guest Information</h3>
+                        <p><strong>Name:</strong> <span id="confirmName"></span></p>
+                        <p><strong>Email:</strong> <span id="confirmEmail"></span></p>
+                        <p><strong>Event:</strong> <span id="confirmEvent"></span></p>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button onclick="downloadQRCode()" class="btn btn-primary">
+                            <i class="fas fa-download"></i> Download QR Code
+                        </button>
+                        <button onclick="printQRCode()" class="btn btn-secondary">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                        <button onclick="window.location.reload()" class="btn btn-outline">
+                            <i class="fas fa-plus"></i> Register Another Guest
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2025 Event Registration System. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/register.js"></script>
+</body>
+</html>

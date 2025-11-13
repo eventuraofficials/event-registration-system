@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Check-In Scanner - QR Code</title>
+    <meta name="description" content="Scan guest QR codes for event check-in and attendance tracking">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/checkin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body class="checkin-body">
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-qrcode"></i> Event Check-In Scanner</h1>
+            <p class="subtitle"><i class="fas fa-camera"></i> Scan guest QR codes with camera for attendance verification</p>
+        </header>
+
+        <main class="main-content">
+            <!-- Event Selection for Check-in -->
+            <div id="eventSelectSection" class="section active">
+                <div class="card">
+                    <h2>Select Event</h2>
+
+                    <!-- Dropdown Option -->
+                    <div class="form-group">
+                        <label for="eventSelectDropdown">Choose Event to Start Scanning</label>
+                        <select id="eventSelectDropdown" onchange="loadEventFromDropdown()" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; cursor: pointer;">
+                            <option value="">-- Select an Event --</option>
+                        </select>
+                    </div>
+
+                    <p style="text-align: center; margin-top: 15px; color: #666;">
+                        <i class="fas fa-camera"></i> Camera will activate after selecting an event
+                    </p>
+                </div>
+            </div>
+
+            <!-- Scanner Section -->
+            <div id="scannerSection" class="section">
+                <div class="card">
+                    <div class="scanner-header">
+                        <h2 id="currentEventName"></h2>
+                        <button onclick="resetScanner()" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Exit
+                        </button>
+                    </div>
+
+                    <div class="stats-bar">
+                        <div class="stat-item">
+                            <i class="fas fa-users"></i>
+                            <div>
+                                <div class="stat-value" id="totalScanned">0</div>
+                                <div class="stat-label">Total Scanned</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <div class="stat-value" id="successCount">0</div>
+                                <div class="stat-label">Success</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <div>
+                                <div class="stat-value" id="errorCount">0</div>
+                                <div class="stat-label">Errors</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QR Scanner -->
+                    <div class="scanner-container">
+                        <div id="qr-reader"></div>
+                        <div class="scanner-overlay">
+                            <div class="scanner-line"></div>
+                        </div>
+                    </div>
+
+                    <!-- Manual Input -->
+                    <div class="manual-input">
+                        <h3>Or Enter Guest Code Manually</h3>
+                        <div class="form-group">
+                            <input type="text" id="manualGuestCode" placeholder="Enter guest code">
+                            <button onclick="manualCheckIn()" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> Check In
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Check-ins -->
+                <div class="card">
+                    <h3><i class="fas fa-history"></i> Recent Check-ins</h3>
+                    <div id="recentCheckIns" class="recent-list">
+                        <p class="empty-state">No check-ins yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guest Details Modal -->
+            <div id="guestModal" class="modal">
+                <div class="modal-content">
+                    <div id="guestDetails"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+    </div>
+
+    <!-- Audio for feedback -->
+    <audio id="successSound" src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBi2K1vPPeTAHIHDD7+OZSA0PVqzn77BdGAk+ltryxnMpBSh+zPLaizsIGGS57OihUBELTKXh8bllHAU2jdXzzn0vBSF1xe/glEILElyx6O+rWBUIQ5zd8sFuJAYqhM/y1YU2Bhxqvu7mnlIRC0qk4fK8aB8GM4/X8sx7LgYhccXv45ZFCxJbsOjvq1oVCEKc3fK9cCUGKoTP8tWFNgYcab/u56BUEA1LpOHyvG0fBjKP1/LLfC4FIXLF7+OYRQsSWrHo76tcFQdBnN3yvnElBiiEz/LVhTYGHGm/7uelVBANS6Th8rxuIAYyjdfyy3wuBSFyxe/jmEULElqx6O+rXBUHQZzd8r5xJQYohM/y1YU2BhxpwO7lpVUSC0ul4PG9byAFMY7Y8st9LgUhcsXv45hGCxFasejvq1wVB0Gc3fK+cSYGKITP8tWGNQYcacDu5qVVEgtLpeDxvW8hBTGO2fLLfS4FIXLFz+SYRgsRWrDo76tcFAdBnN3yvnEnBiiEz/LUhjUFHGnA7ualVRILS6Xf8b1vIQUxjtnyyX0uBSByxc/kmEYLEVqw6O+rWxUHQpzd8L1xJgYniNHy0oY1BRxpwO7mpVURDEuk3/G9byEFMI7Z8sl9LgUgcsXP5JhFCxBbsejvq1sVB0Kc3fC9cCYGJ4jR8tCGNQUcaMDu5qZUEQxLpN/xvW8hBS+O2fLJfS4FIXLFz+SYRQsQW7Ho76tcFQZCnNzwvXAmBieI0fLQhjUFHGjA7ualVBEMS6Tf8b1vIQUvjtryyX0uBSBzxc/kmEUKEFux6O6rWxUGQpzc8L1wJgYniNHy0IY1BRxowO7mpVURDEuk3/C+byEFL47a8sl9LgUgc8XP5JhFChBbsejuq1sVBkKc3PC9cCYGJ4jR8tCGNQUcaMDu5qZUEQxLpN/wvm8hBS+O2vLJfS4FIHPFz+SYRQoQW7Ho7qtbFQZCnN3wvXAmBieI0fLQhjUFHGjA7ualVBEMS6Tf8L5vIQUvjtryyX0uBSBzxc/kmEUKEFux6O6rWxUGQpzc8L1wJgYniNHy0IY1BRxowO7mpVQRC0uk3/C+byEFL47a8sl9LgUgc8XP5JhFChBbsejuq1sVBkKc3PC9cCYGJ4jR8s+GNQUcaMDu56ZUEQtLpN/wvm8hBS+O2vLJfS4FIHPFz+SYRQoQW7Ho7qtbFQZCnN3wvXAmBieI0fLPhjUFHGjA7uelVBELS6Tf8L5vIQUvjtryyX0uBSBzxc/kmEUKEFux6O6rWxUGQpzc8L1wJgYniNHy0IY1BRxowO7npVURDEuk3/C+byEFL47a8sl9LgUgc8XP5JhFChBbsejuq1sVBkKc3PC9cCYGJ4jR8s+GNQUcaMDu56VUEQxLpN/wvm8hBS+O2vLJfS4FIHPFz+SYRQoQW7Ho7qtbFQZCnN3wvXAmBieI0fLPhjUFHGjA7uelVBEMS6Tf8L5vIQUvjtryyX0uBSBzxc/kmEUKEFux6O6rWxUGQpzc8L1wJgYniNHyz4Y1BRxowO7npVQRDEuk3/C+byEFL47a8sl9LgUgc8XP5JhFChBbsejuq1sVBkKc3PC9cCYGJ4jR8s+GNQUcaMDu56VUEQxLpN/wvm8hBS+O2vLJfS4FIHPFz+SYRQoQW7Ho7qtbFQZCnN3wvXAmBieI0fLPhjUFHGjA7uelVBEMS6Tf8L5vIQUvjtryyX0uBSBzxc/kmEUKEFux6O6rWxUGQpzc8L1wJgYniNHyz4Y1BRxowO7npVQRDEuk3/C+byEFL47a8sl9LgUgc8XP5JhFChBbsejuq1sVBkKc3PC9cCYGJ4jR8s+GNQUcaMDu56VUEQxLpN/wvm8hBS+O2vLJfS4FIHPFz+SYRQoQW7Ho7qtbFQZCnN3wvXAmBieI0fLPhjUFHGjA7uelVBEMS6Tf8L5vIQUvjtryyX0uBSBzxc/kmEUKEFux6O6rWxUGQpzc8L1wJgYniNHyz4Y1BRxowO7npVQRDEuk3/C+byEFL47a8sl9LgUgc8XP5JhFChBbsejuq1sVBkKc3PC9cCYGJ4jR8s+GNQUcaMDu56VUEQxLpN/wvm8hBS+O2vLJfS4FIHPFz+SYRQoQW7Ho7qtbFQZCnN3wvXAmBieI0fLPhjUFHGjA7uelVBEMS6Tf8L5vIQUvjtryyX0uBSBzxc/kmEUKEFux" preload="auto"></audio>
+    <audio id="errorSound" src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBi2K1vPPeTAHIHDD7+OZSA0PVqzn77BdGAk+ltryxnMpBSh+zPLaizsIGGS57OihUBELTKXh8bllHAU2jdXzzn0vBSF1xe/glEILElyx6O+rWBUIQ5zd8sFuJAYqhM/y1YU2Bhxqvu7mnlIRC0qk4fK8aB8GM4/X8sx7LgYhccXv45ZFCxJbsOjvq1oVCEKc3fK9cCUGKoTP8tWFNgYcab/u56BUEA1LpOHyvG0fBjKP1/LLfC4FIXLFz+OYRQsSWrHo76tcFQdBnN3yvnElBiiEz/LVhTYGHGm/7uelVBANS6Th8rxuIAYyjdfyy3wuBSFyxe/jmEULElqx6O+rXBUHQZzd8r5xJQYohM/y1YU2BhxpwO7lpVUSC0ul4PG9byAFMY7Y8st9LgUhcsXv45hGCxFasejvq1wVB0Gc3fK+cSYGKITP8tWGNQYcacDu5qVVEgtLpeDxvW8hBTGO2fLLfS4FIXLFz+SYRgsRWrDo76tcFAdBnN3yvnEnBiiEz/LUhjUFHGnA7ualVRILS6Xf8b1vIQUxjtnyyX0uBSByxc/kmEYLEVqw6O+rWxUHQpzd8L1xJgYniNHy0oY1BRxpwO7mpVURDEuk3/G9byEFMI7Z8sl9LgUgcsXP5JhFCxBbsejvq1sVB0Kc3fC9cCYGJ4jR8tCGNQUcaMDu5qZUEQxLpN/xvW8hBS+O2fLJfS4FIXLFz+SYRQsQW7Ho76tcFQZCnNzwvXAmBieI0fLQhjUFHGjA7ualVBEMS6Tf8b1vIQUvjtryyX0uBSBzxc/kmEUKEFux6O6rWxUGQpzc8L1wJgYniNHy0IY1BRxowO7mpVURDEuk3/C+byEFL47a8sl9LgUgc8XP5JhFChBbsejuq1sVBkKc3PC9cCYGJ4jR8tCGNQUcaMDu5qZUEQxLpN/wvm8hBS+O2vLJfS4FIHPFz+SYRQoQW7Ho7qtbFQZCnN3wvXAmBieI0fLQhjUFHGjA7ualVBEMS6Tf8L5vIQUvjtryyX0uBSBzxc/kmEUKEFux6O6rWxUGQpzc8L1wJgYniNHyz4Y1BRxowO7npVQRC0uk3/C+byEFL47a8sl9LgUgc8XP5JhFChBbsejuq1sVBkKc3PC9cCYGJ4jR8s+GNQUcaMDu56VUEQtLpN/wvm8hBS+O2vLJfS4FIHPFz+SYRQoQW7Ho7qtbFQZCnN3wvXAmBieI0fLPhjUFHGjA7uelVBELS6Tf8L5vIQUvjtryyX0uBSBzxc/kmEUKEFux6O6rWxUGQpzc8L1wJgYniNHyz4Y1BRxowO7npVQRDEuk3/C+byEFL47a8sl9LgUgc8XP5JhFChBbsejuq1sVBkKc3PC9cCYGJ4jR8s+GNQUcaMDu56VUEQxLpN/wvm8hBS+O2vLJfS4FIHPFz+SYRQoQW7Ho7qtbFQZCnN3wvXAmBieI0fLPhjUFHGjA7uelVBEMS6Tf8L5vIQUvjtryyX0uBSBzxc/kmEUKEFux6O6rWxUGQpzc8L1wJgYniNHyz4Y1BRxowO7npVQRDEuk3/C+byEFL47a8sl9LgUgc8XP5JhFChBbsejuq1sVBkKc3PC9cCYGJ4jR8s+GNQUcaMDu56VUEQxLpN/wvm8hBS+O2vLJfS4FIHPFz+SYRQoQW7Ho7qtbFQZCnN3wvXAmBieI0fLPhjUFHGjA7uelVBEMS6Tf8L5vIQUvjtryyX0uBSBzxc/kmEUKEFux" preload="auto"></audio>
+
+    <script src="js/config.js"></script>
+    <script src="js/checkin.js"></script>
+</body>
+</html>
