@@ -98,9 +98,9 @@ app.use('/api/guests', guestRoutes);
 // Export loginLimiter for use in routes
 app.set('loginLimiter', loginLimiter);
 
-// Root route - redirect to registration page
+// Root route - redirect to admin login page
 app.get('/', (req, res) => {
-  res.redirect('/index.html');
+  res.redirect('/admin.html');
 });
 
 // Health check
