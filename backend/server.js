@@ -64,7 +64,14 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Static files - Serve public folder with no-cache for JS files
-app.use(express.static(path.join(__dirname, '../public'), {
+// Use process.cwd() for deployment compatibility
+const publicPath = path.join(process.cwd(), 'public');
+const uploadsPath = path.join(process.cwd(), 'uploads');
+
+console.log('📁 Serving static files from:', publicPath);
+console.log('📁 Serving uploads from:', uploadsPath);
+
+app.use(express.static(publicPath, {
   setHeaders: (res, filePath) => {
     // Disable caching for JavaScript, HTML, AND CSS files to ensure updates are loaded
     if (filePath.endsWith('.js') || filePath.endsWith('.html') || filePath.endsWith('.css')) {
@@ -76,7 +83,7 @@ app.use(express.static(path.join(__dirname, '../public'), {
     }
   }
 }));
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(uploadsPath));
 
 // Import routes
 const adminRoutes = require('./routes/adminRoutes');
