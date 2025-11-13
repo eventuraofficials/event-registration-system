@@ -73,9 +73,6 @@ app.get('/', (req, res) => {
 const publicPath = path.join(process.cwd(), 'public');
 const uploadsPath = path.join(process.cwd(), 'uploads');
 
-console.log('📁 Serving static files from:', publicPath);
-console.log('📁 Serving uploads from:', uploadsPath);
-
 app.use(express.static(publicPath, {
   setHeaders: (res, filePath) => {
     // Disable caching for JavaScript, HTML, AND CSS files to ensure updates are loaded
