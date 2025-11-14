@@ -63,7 +63,20 @@ exports.createEvent = async (req, res) => {
     }
 
     // Generate Event QR Code (contains registration URL)
-    const registrationURL = `${process.env.APP_URL || 'http://localhost:5000'}/index.html?event=${event_code}`;
+    // Auto-detect production URL if APP_URL not set
+    let baseURL;
+    if (process.env.APP_URL) {
+      baseURL = process.env.APP_URL.trim(); // Remove any whitespace/newlines
+    } else if (process.env.RENDER) {
+      // Render.com environment - use RENDER_EXTERNAL_URL
+      baseURL = process.env.RENDER_EXTERNAL_URL || 'https://event-registration-system-vaj3.onrender.com';
+    } else {
+      baseURL = 'http://localhost:5000';
+    }
+
+    const registrationURL = `${baseURL}/index.html?event=${event_code}`;
+    console.log('Generated registration URL:', registrationURL);
+
     const eventQRCode = await QRCode.toDataURL(registrationURL, {
       errorCorrectionLevel: 'H',
       type: 'image/png',
