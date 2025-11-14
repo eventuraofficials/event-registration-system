@@ -4,6 +4,23 @@ let currentAdmin = null;
 let allEvents = [];
 let currentEventGuests = [];
 
+// Helper function to get fresh auth token
+function getAuthToken() {
+    authToken = localStorage.getItem('admin_token');
+    return authToken;
+}
+
+// Helper function to get auth headers
+function getAuthHeaders() {
+    const token = getAuthToken();
+    if (!token) {
+        throw new Error('No authentication token found');
+    }
+    return {
+        'Authorization': `Bearer ${token}`
+    };
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     // Check if already logged in
@@ -1155,9 +1172,7 @@ async function loadGuestsForEvent() {
         }
 
         const data = await fetchAPI(url, {
-            headers: {
-                'Authorization': `Bearer ${authToken}`
-            }
+            headers: getAuthHeaders()
         });
 
         if (!data.success) {
@@ -1171,6 +1186,7 @@ async function loadGuestsForEvent() {
 
     } catch (error) {
         hideLoading();
+        console.error('Load guests error:', error);
         showAlert(error.message || 'Failed to load guests', 'danger');
     }
 }
