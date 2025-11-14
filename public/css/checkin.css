@@ -292,10 +292,12 @@
 @media (max-width: 768px) {
     .stats-bar {
         grid-template-columns: 1fr;
+        gap: 10px;
     }
 
     .scanner-container {
         max-width: 100%;
+        padding: 15px;
     }
 
     .manual-input .form-group {
@@ -305,5 +307,73 @@
     .manual-input input,
     .manual-input button {
         width: 100%;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+
+    .checkin-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .event-selector select {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 14px;
+    }
+
+    #qrReader {
+        max-width: 100%;
+    }
+
+    .recent-checkins {
+        padding: 15px;
+    }
+
+    .checkin-item {
+        padding: 12px;
+    }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+    .checkin-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .stat-card {
+        padding: 12px;
+    }
+
+    .stat-card h3 {
+        font-size: 1.5rem;
+    }
+
+    .scanner-container {
+        padding: 10px;
+    }
+}
+
+/* iPad and Tablet */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .stats-bar {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .scanner-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+}
+
+/* Landscape mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .checkin-header {
+        padding: 15px;
+    }
+
+    .checkin-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .stats-bar {
+        grid-template-columns: repeat(3, 1fr);
     }
 }

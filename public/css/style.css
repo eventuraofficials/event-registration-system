@@ -3,6 +3,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0); /* Remove tap highlight on mobile */
 }
 
 :root {
@@ -394,14 +395,36 @@ body {
     .btn {
         width: 100%;
         justify-content: center;
+        font-size: 1rem;
+        padding: 14px 20px;
     }
 
     .action-buttons {
         flex-direction: column;
+        gap: 10px;
     }
 
     .qr-container img {
         max-width: 250px;
+    }
+
+    .form-group label {
+        font-size: 1rem;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 14px;
+    }
+
+    .event-details {
+        padding: 15px;
+    }
+
+    .event-details p {
+        font-size: 1rem;
     }
 }
 
@@ -420,6 +443,56 @@ body {
 
     .card {
         padding: 15px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .qr-container img {
+        max-width: 200px;
+    }
+
+    .success-icon i {
+        font-size: 3rem;
+    }
+}
+
+/* iPad and Tablet Optimization */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .container {
+        max-width: 700px;
+    }
+
+    .qr-container img {
+        max-width: 350px;
+    }
+
+    .btn {
+        font-size: 1.1rem;
+        padding: 14px 28px;
+    }
+}
+
+/* iPhone X and newer with notch */
+@media (max-width: 428px) {
+    .container {
+        padding: env(safe-area-inset-top, 10px) env(safe-area-inset-right, 10px) env(safe-area-inset-bottom, 10px) env(safe-area-inset-left, 10px);
+    }
+}
+
+/* Landscape mobile optimization */
+@media (max-width: 768px) and (orientation: landscape) {
+    .header {
+        padding: 20px 10px;
+    }
+
+    .header h1 {
+        font-size: 1.8rem;
+    }
+
+    .card {
+        padding: 20px;
     }
 }
 
