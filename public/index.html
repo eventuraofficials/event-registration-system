@@ -8,6 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="stylesheet" href="css/modern-theme.css">
     <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/qr-ticket.css">
     <link rel="stylesheet" href="css/mobile-responsive.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -82,31 +83,100 @@
 
             <!-- QR Code Display -->
             <div id="qrCodeSection" class="section">
-                <div class="card success-card">
-                    <div class="success-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <h2>Registration Successful!</h2>
-                    <p class="success-message">Your QR code has been generated. Please save or screenshot this for event entry.</p>
-
-                    <div class="qr-container">
-                        <img id="qrCodeImage" src="" alt="QR Code">
-                        <p class="guest-code">Code: <strong id="guestCodeDisplay"></strong></p>
+                <div class="qr-success-container">
+                    <!-- Success Header -->
+                    <div class="qr-success-header">
+                        <div class="success-icon-large">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h1 class="qr-success-title">Registration Successful!</h1>
+                        <p class="qr-success-subtitle">Your digital ticket is ready</p>
                     </div>
 
-                    <div class="guest-info">
-                        <h3>Guest Information</h3>
-                        <p><strong>Name:</strong> <span id="confirmName"></span></p>
-                        <p><strong>Email:</strong> <span id="confirmEmail"></span></p>
-                        <p><strong>Event:</strong> <span id="confirmEvent"></span></p>
+                    <!-- QR Code Card -->
+                    <div class="qr-ticket-card">
+                        <!-- Event Name Prominent -->
+                        <div class="qr-event-header">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h2 id="qrEventName"></h2>
+                        </div>
+
+                        <!-- Attendee Name -->
+                        <div class="qr-attendee-name">
+                            <i class="fas fa-user"></i>
+                            <span id="qrAttendeeName"></span>
+                        </div>
+
+                        <!-- QR Code Display - Centered -->
+                        <div class="qr-code-display">
+                            <img id="qrCodeImage" src="" alt="QR Code" class="qr-code-img">
+                        </div>
+
+                        <!-- Guest Code -->
+                        <div class="qr-code-number">
+                            <span class="qr-label">Entry Code</span>
+                            <span class="qr-code-value" id="guestCodeDisplay"></span>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="qr-divider"></div>
+
+                        <!-- Guest Details -->
+                        <div class="qr-details-grid">
+                            <div class="qr-detail-item">
+                                <i class="fas fa-envelope"></i>
+                                <div class="qr-detail-content">
+                                    <span class="qr-detail-label">Email</span>
+                                    <span class="qr-detail-value" id="confirmEmail"></span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="action-buttons">
-                        <button onclick="downloadQRCode()" class="btn btn-primary">
+                    <!-- Scan Instructions Card -->
+                    <div class="qr-instructions-card">
+                        <h3 class="qr-instructions-title">
+                            <i class="fas fa-info-circle"></i> How to Use Your QR Code
+                        </h3>
+                        <ol class="qr-instructions-list">
+                            <li>
+                                <i class="fas fa-download"></i>
+                                <div>
+                                    <strong>Save Your QR Code</strong>
+                                    <p>Download or screenshot this QR code for offline access</p>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fas fa-mobile-alt"></i>
+                                <div>
+                                    <strong>Bring on Event Day</strong>
+                                    <p>Have this QR code ready on your phone or printed</p>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fas fa-qrcode"></i>
+                                <div>
+                                    <strong>Scan at Entry</strong>
+                                    <p>Show this code to the scanner at the registration desk</p>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fas fa-check-double"></i>
+                                <div>
+                                    <strong>You're All Set!</strong>
+                                    <p>Once scanned, you'll be checked in instantly</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="qr-action-buttons">
+                        <button onclick="downloadQRCode()" class="btn btn-primary btn-lg">
                             <i class="fas fa-download"></i> Download QR Code
                         </button>
-                        <button onclick="printQRCode()" class="btn btn-secondary">
-                            <i class="fas fa-print"></i> Print
+                        <button onclick="printQRCode()" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-print"></i> Print Ticket
                         </button>
                         <button onclick="window.location.reload()" class="btn btn-outline">
                             <i class="fas fa-plus"></i> Register Another Guest

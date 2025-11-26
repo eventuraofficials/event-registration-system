@@ -265,14 +265,19 @@ function displayQRCode(guest) {
     document.getElementById('qrCodeImage').src = guest.qrCode;
     document.getElementById('guestCodeDisplay').textContent = guest.guestCode;
 
-    // Update guest information
-    document.getElementById('confirmName').textContent = guest.full_name;
+    // Update event and attendee names (prominent display)
+    document.getElementById('qrEventName').textContent = guest.event_name || currentEvent.event_name;
+    document.getElementById('qrAttendeeName').textContent = guest.full_name;
+
+    // Update guest details
     document.getElementById('confirmEmail').textContent = guest.email;
-    document.getElementById('confirmEvent').textContent = guest.event_name || currentEvent.event_name;
 
     // Show QR code section, hide registration
     document.getElementById('registrationSection').classList.remove('active');
     document.getElementById('qrCodeSection').classList.add('active');
+
+    // Scroll to top to show the QR code
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Show success alert
     showAlert('Registration successful! Please save your QR code for event entry.', 'success');
