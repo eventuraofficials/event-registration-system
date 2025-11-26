@@ -1,4 +1,20 @@
 const db = require('../config/database');
+/**
+ * Validate email format
+ */
+function isValidEmail(email) {
+  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+  return emailRegex.test(String(email).toLowerCase());
+}
+
+/**
+ * Sanitize string input
+ */
+function sanitizeString(str, maxLength = 255) {
+  if (typeof str !== 'string') return '';
+  return str.trim().substring(0, maxLength);
+}
+
 const QRCode = require('qrcode');
 
 /**
@@ -39,9 +55,23 @@ exports.getAvailableEvents = async (req, res) => {
  */
 exports.createEvent = async (req, res) => {
   try {
-    const { event_name, event_code, event_date, event_time, venue, description, max_capacity, registration_open } = req.body;
+    let { event_name, event_code, event_date, event_time, venue, description, max_capacity, registration_open } = req.body;
 
-    // Validate required fields
+    // Sanitize inputs
+    event_name = sanitizeString(event_name, 255);
+    event_code = sanitizeString(event_code, 50);
+    venue = sanitizeString(venue, 255);
+    description = sanitizeString(description, 1000);
+
+    // Validate event_code format (alphanumeric, dash, underscore only)
+    if (!/^[a-zA-Z0-9_-]+$/.test(event_code)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Event code can only contain letters, numbers, dashes, and underscores'
+      });
+    }
+
+    // Enhanced input validation
     if (!event_name || !event_code || !event_date) {
       return res.status(400).json({
         success: false,

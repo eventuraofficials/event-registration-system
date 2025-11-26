@@ -1,0 +1,100 @@
+{
+  "date": "2025-11-26T11:58:00.399Z",
+  "summary": {
+    "critical": 0,
+    "high": 3,
+    "medium": 3,
+    "low": 3,
+    "passed": 4,
+    "total": 9
+  },
+  "vulnerabilities": {
+    "critical": [],
+    "high": [
+      {
+        "file": "public/js/admin.js",
+        "type": "XSS",
+        "description": "innerHTML with unescaped data",
+        "count": 1,
+        "severity": "HIGH"
+      },
+      {
+        "file": "public/js/admin.js",
+        "type": "XSS",
+        "description": "innerHTML with template literal",
+        "count": 4,
+        "severity": "HIGH"
+      },
+      {
+        "file": "public/js/checkin.js",
+        "type": "XSS",
+        "description": "innerHTML with template literal",
+        "count": 2,
+        "severity": "HIGH"
+      }
+    ],
+    "medium": [
+      {
+        "file": "backend/server.js",
+        "type": "CSRF",
+        "description": "No CSRF protection middleware detected",
+        "severity": "MEDIUM",
+        "recommendation": "Implement csurf middleware"
+      },
+      {
+        "file": "backend/middleware/upload.js",
+        "type": "File Upload",
+        "description": "No filename sanitization",
+        "severity": "MEDIUM"
+      },
+      {
+        "file": "backend/controllers/eventController.js",
+        "type": "Input Validation",
+        "description": "Limited input validation",
+        "severity": "MEDIUM"
+      }
+    ],
+    "low": [
+      {
+        "file": "public/js/admin.js",
+        "type": "CSRF",
+        "description": "No CSRF token in requests",
+        "severity": "LOW"
+      },
+      {
+        "file": "public/js/register.js",
+        "type": "CSRF",
+        "description": "No CSRF token in requests",
+        "severity": "LOW"
+      },
+      {
+        "file": "backend/controllers/eventController.js",
+        "type": "Input Validation",
+        "description": "No email format validation",
+        "severity": "LOW"
+      }
+    ],
+    "passed": [
+      {
+        "file": "public/js/admin.js",
+        "type": "XSS Protection",
+        "description": "Uses sanitization functions"
+      },
+      {
+        "file": "public/js/checkin.js",
+        "type": "XSS Protection",
+        "description": "Uses sanitization functions"
+      },
+      {
+        "file": "backend/controllers/guestController.js",
+        "type": "Input Validation",
+        "description": "Input validation/sanitization present"
+      },
+      {
+        "file": "backend/controllers/adminController.js",
+        "type": "Input Validation",
+        "description": "Input validation/sanitization present"
+      }
+    ]
+  }
+}

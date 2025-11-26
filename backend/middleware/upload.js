@@ -8,6 +8,29 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
+
+/**
+ * Sanitize filename to prevent directory traversal and malicious filenames
+ */
+function sanitizeFilename(filename) {
+  // Remove path separators and null bytes
+  let safe = filename.replace(/[\/\0]/g, '');
+
+  // Remove leading dots (hidden files)
+  safe = safe.replace(/^\.+/, '');
+
+  // Replace special characters with underscore
+  safe = safe.replace(/[^a-zA-Z0-9._-]/g, '_');
+
+  // Limit length
+  if (safe.length > 100) {
+    const ext = path.extname(safe);
+    safe = safe.substring(0, 100 - ext.length) + ext;
+  }
+
+  return safe || 'upload';
+}
+
 // Configure storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -15,7 +38,9 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'guest-list-' + uniqueSuffix + path.extname(file.originalname));
+    const sanitizedName = sanitizeFilename(file.originalname);
+    const ext = path.extname(sanitizedName);
+    cb(null, 'guest-list-' + uniqueSuffix + ext);
   }
 });
 
