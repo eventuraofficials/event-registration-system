@@ -7,27 +7,20 @@
     <meta name="description" content="Register for events and get your QR code entry ticket instantly">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="stylesheet" href="css/modern-theme.css">
+    <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <header class="header">
-            <div class="header-logo">
-                <i class="fas fa-qrcode"></i>
-            </div>
-            <h1><i class="fas fa-calendar-check"></i> Event Registration Portal</h1>
-            <p class="subtitle">Register now and get your QR code entry ticket instantly</p>
-        </header>
+        <!-- Header Component -->
+        <div id="headerContainer"></div>
 
         <main class="main-content">
             <!-- Event Info & Registration Form -->
             <div id="registrationSection" class="section active">
                 <!-- Event Info Card -->
                 <div id="eventInfo" class="card">
-                    <div id="loadingEvent" style="text-align: center; padding: 40px;">
-                        <div class="spinner"></div>
-                        <p style="margin-top: 15px; color: #666;">Loading event information...</p>
-                    </div>
+                    <div id="loadingEvent"></div>
                     <div id="eventDetails" style="display: none;">
                         <h2><i class="fas fa-calendar-alt"></i> <span id="eventName"></span></h2>
                         <div class="event-details" style="margin: 20px 0;">
@@ -122,9 +115,8 @@
             </div>
         </main>
 
-        <footer class="footer">
-            <p>&copy; 2025 Event Registration System. All rights reserved.</p>
-        </footer>
+        <!-- Footer Component -->
+        <div id="footerContainer"></div>
     </div>
 
     <!-- Loading Overlay -->
@@ -133,7 +125,38 @@
         <p>Processing...</p>
     </div>
 
+    <!-- Component System -->
+    <script src="js/security-utils.js"></script>
+    <script src="js/components.js"></script>
+    <script src="components/Header.js"></script>
+    <script src="components/Footer.js"></script>
+    <script src="components/LoadingSpinner.js"></script>
+
+    <!-- App Scripts -->
     <script src="js/config.js"></script>
     <script src="js/register.js"></script>
+
+    <!-- Initialize Components -->
+    <script>
+        // Render Header
+        Components.mount('#headerContainer', 'Header', {
+            title: 'Event Registration Portal',
+            subtitle: 'Register now and get your QR code entry ticket instantly',
+            icon: 'fa-calendar-check',
+            showLogo: 'true'
+        });
+
+        // Render Footer
+        Components.mount('#footerContainer', 'Footer', {
+            year: '2025',
+            text: 'Event Registration System. All rights reserved.'
+        });
+
+        // Render Loading Spinner for event info
+        document.getElementById('loadingEvent').innerHTML = Components.render('LoadingSpinner', {
+            text: 'Loading event information...',
+            size: 'default'
+        });
+    </script>
 </body>
 </html>
