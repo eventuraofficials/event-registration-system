@@ -14,7 +14,7 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
 }
 
 if (process.env.JWT_SECRET === 'your-secret-key-change-this-in-production') {
-  console.warn('⚠️  WARNING: Using default JWT_SECRET. Please change it immediately!');
+
 }
 
 // Import backup utility
@@ -222,17 +222,17 @@ app.use((err, req, res, next) => {
 
 // Graceful shutdown handler
 process.on('SIGTERM', () => {
-  console.log('SIGTERM received, closing server gracefully...');
+
   server.close(() => {
-    console.log('Server closed');
+
     process.exit(0);
   });
 });
 
 process.on('SIGINT', () => {
-  console.log('\nSIGINT received, closing server gracefully...');
+
   server.close(() => {
-    console.log('Server closed');
+
     process.exit(0);
   });
 });
@@ -242,25 +242,8 @@ const server = app.listen(PORT, HOST, () => {
   const env = process.env.NODE_ENV || 'development';
   const isProduction = env === 'production';
 
-  console.log(`
-╔═══════════════════════════════════════════════════════════════╗
-║         Event Registration System - Server Started           ║
-╠═══════════════════════════════════════════════════════════════╣
-║  Status: ${isProduction ? '🟢 PRODUCTION' : '🟡 DEVELOPMENT'}                                       ║
-║  Port: ${PORT}                                                    ║
-║  Host: ${HOST}                                             ║
-║  Security: ✅ Helmet, Rate Limiting, Compression          ║
-║                                                               ║
-║  📱 Access URLs:                                              ║
-║  Admin:    http://localhost:${PORT}/admin.html                   ║
-║  Register: http://localhost:${PORT}/index.html                   ║
-║  Check-In: http://localhost:${PORT}/checkin.html                 ║
-║  Health:   http://localhost:${PORT}/api/health                   ║
-╚═══════════════════════════════════════════════════════════════╝
-  `);
-
   if (!isProduction) {
-    console.log('⚠️  Running in development mode. Set NODE_ENV=production for production use.\n');
+
   }
 
   // Start automatic database backups (every 24 hours)

@@ -103,8 +103,6 @@ async function selectEventForCheckIn() {
         const eventSelectSection = document.getElementById('eventSelectSection');
         const scannerSection = document.getElementById('scannerSection');
 
-
-
         if (eventSelectSection && scannerSection) {
             eventSelectSection.classList.remove('active');
             scannerSection.classList.add('active');
@@ -114,7 +112,7 @@ async function selectEventForCheckIn() {
         }
 
         // Initialize QR scanner
-        console.info('Calling initializeScanner()...');
+        ...');
         initializeScanner();
 
         hideLoading();

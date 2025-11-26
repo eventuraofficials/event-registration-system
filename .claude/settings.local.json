@@ -63,7 +63,8 @@
       "Bash(npm uninstall:*)",
       "Bash(git rm:*)",
       "Bash(timeout /t 5)",
-      "Bash(render.yaml)"
+      "Bash(render.yaml)",
+      "Bash(del ui-ux-improvements.js)"
     ],
     "deny": [],
     "ask": []
