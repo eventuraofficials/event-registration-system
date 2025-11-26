@@ -158,20 +158,30 @@ async function loadDashboardData() {
 // Load all events
 async function loadEvents() {
     try {
+        console.info('Loading events...');
         const data = await fetchAPI(`${API_BASE_URL}/events`, {
             headers: {
                 'Authorization': `Bearer ${authToken}`
             }
         });
 
+        console.info('Events API response:', data);
+
         if (data.success) {
-            allEvents = data.events;
+            allEvents = data.events || [];
+            console.info(`Loaded ${allEvents.length} events`);
             renderEventsTable();
             populateEventSelects();
             renderRecentEvents();
+        } else {
+            console.warn('Events API returned success=false:', data.message);
+            allEvents = [];
+            renderEventsTable();
         }
     } catch (error) {
         console.error('Failed to load events:', error);
+        allEvents = [];
+        renderEventsTable();
     }
 }
 
