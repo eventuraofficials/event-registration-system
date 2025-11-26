@@ -63,12 +63,7 @@ function loadEventFromDropdown() {
     }
 }
 
-// Format date for display
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
-}
+// Note: formatDate is defined in config.js
 
 // Select event for check-in
 async function selectEventForCheckIn() {
