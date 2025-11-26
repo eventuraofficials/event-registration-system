@@ -1,4 +1,4 @@
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 const path = require('path');
 
 /**
@@ -6,19 +6,40 @@ const path = require('path');
  * @param {string} filePath - Path to Excel file
  * @returns {Array} Array of guest objects
  */
-function parseExcelFile(filePath) {
+async function parseExcelFile(filePath) {
   try {
-    // Read the Excel file
-    const workbook = XLSX.readFile(filePath);
+    // Create workbook and read file
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(filePath);
 
-    // Get first sheet
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
+    // Get first worksheet
+    const worksheet = workbook.worksheets[0];
 
-    // Convert to JSON
-    const data = XLSX.utils.sheet_to_json(worksheet, {
-      raw: false,
-      defval: ''
+    if (!worksheet) {
+      throw new Error('No worksheet found in Excel file');
+    }
+
+    // Extract data from rows
+    const data = [];
+    const headers = [];
+
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) {
+        // First row is headers
+        row.eachCell((cell) => {
+          headers.push(cell.value ? cell.value.toString() : '');
+        });
+      } else {
+        // Data rows
+        const rowData = {};
+        row.eachCell((cell, colNumber) => {
+          const header = headers[colNumber - 1];
+          if (header) {
+            rowData[header] = cell.value ? cell.value.toString() : '';
+          }
+        });
+        data.push(rowData);
+      }
     });
 
     // Validate and transform data

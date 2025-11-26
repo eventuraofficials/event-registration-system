@@ -29,8 +29,8 @@ exports.uploadExcel = async (req, res) => {
 
     filePath = req.file.path;
 
-    // Parse Excel file
-    const guests = parseExcelFile(filePath);
+    // Parse Excel file (now async with exceljs)
+    const guests = await parseExcelFile(filePath);
 
     if (guests.length === 0) {
       return res.status(400).json({

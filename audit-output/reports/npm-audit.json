@@ -1,0 +1,147 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "express-validator": {
+      "name": "express-validator",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "validator"
+      ],
+      "effects": [],
+      "range": "0.2.0 - 6.4.1 || 7.1.0 - 7.2.1",
+      "nodes": [
+        "node_modules/express-validator"
+      ],
+      "fixAvailable": true
+    },
+    "nodemailer": {
+      "name": "nodemailer",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        {
+          "source": 1109804,
+          "name": "nodemailer",
+          "dependency": "nodemailer",
+          "title": "Nodemailer: Email to an unintended domain can occur due to Interpretation Conflict",
+          "url": "https://github.com/advisories/GHSA-mm7p-fcc7-pg87",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-20",
+            "CWE-436"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<7.0.7"
+        }
+      ],
+      "effects": [],
+      "range": "<7.0.7",
+      "nodes": [
+        "node_modules/nodemailer"
+      ],
+      "fixAvailable": {
+        "name": "nodemailer",
+        "version": "7.0.11",
+        "isSemVerMajor": true
+      }
+    },
+    "validator": {
+      "name": "validator",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1109241,
+          "name": "validator",
+          "dependency": "validator",
+          "title": "validator.js has a URL validation bypass vulnerability in its isURL function",
+          "url": "https://github.com/advisories/GHSA-9965-vmph-33xx",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-79"
+          ],
+          "cvss": {
+            "score": 6.1,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N"
+          },
+          "range": "<13.15.20"
+        }
+      ],
+      "effects": [
+        "express-validator"
+      ],
+      "range": "<13.15.20",
+      "nodes": [
+        "node_modules/validator"
+      ],
+      "fixAvailable": true
+    },
+    "xlsx": {
+      "name": "xlsx",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        {
+          "source": 1108110,
+          "name": "xlsx",
+          "dependency": "xlsx",
+          "title": "Prototype Pollution in sheetJS",
+          "url": "https://github.com/advisories/GHSA-4r6h-8v6p-xvw6",
+          "severity": "high",
+          "cwe": [
+            "CWE-1321"
+          ],
+          "cvss": {
+            "score": 7.8,
+            "vectorString": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H"
+          },
+          "range": "<0.19.3"
+        },
+        {
+          "source": 1108111,
+          "name": "xlsx",
+          "dependency": "xlsx",
+          "title": "SheetJS Regular Expression Denial of Service (ReDoS)",
+          "url": "https://github.com/advisories/GHSA-5pgg-2g8v-p4x9",
+          "severity": "high",
+          "cwe": [
+            "CWE-1333"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<0.20.2"
+        }
+      ],
+      "effects": [],
+      "range": "*",
+      "nodes": [
+        "node_modules/xlsx"
+      ],
+      "fixAvailable": false
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 3,
+      "high": 1,
+      "critical": 0,
+      "total": 4
+    },
+    "dependencies": {
+      "prod": 215,
+      "dev": 34,
+      "optional": 72,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 319
+    }
+  }
+}

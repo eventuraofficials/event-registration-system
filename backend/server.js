@@ -18,10 +18,19 @@ const HOST = process.env.HOST || '0.0.0.0';
 
 // Security Middleware
 app.use(helmet({
-  contentSecurityPolicy: false, // Allow inline scripts for QR codes
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      "default-src": ["'self'"],
+      "script-src": ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://unpkg.com"],
+      "style-src": ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
+      "font-src": ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com"],
+      "img-src": ["'self'", "data:", "blob:"],
+      "connect-src": ["'self'"]
+    }
+  },
   crossOriginEmbedderPolicy: false,
-  crossOriginOpenerPolicy: false,
-  crossOriginResourcePolicy: false
+  crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
 // Compression Middleware (gzip)

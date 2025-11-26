@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "ISSUE-001",
+      "priority": "P2",
+      "category": "code-quality",
+      "file": "eslint config",
+      "line": 0,
+      "description": "No ESLint configuration found",
+      "root_cause": "ESLint helps maintain code quality and consistency",
+      "suggested_fix": "Add .eslintrc.json configuration",
+      "fix_commit": null,
+      "pr_link_or_patch": null,
+      "tests_added": false
+    }
+  ],
+  "summary": {
+    "p0": 0,
+    "p1": 0,
+    "p2": 1,
+    "total": 1
+  }
+}

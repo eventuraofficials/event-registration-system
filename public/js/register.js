@@ -207,8 +207,6 @@ function createFormField(id, type, label, required, options) {
 async function handleRegistration(e) {
     e.preventDefault();
 
-    console.log('Registration form submitted');
-
     if (!currentEvent) {
         showAlert('Please select an event first', 'danger');
         return;
@@ -224,8 +222,6 @@ async function handleRegistration(e) {
         company_name: document.getElementById('companyName')?.value.trim() || '',
         guest_category: document.getElementById('guestCategory')?.value || 'Regular'
     };
-
-    console.log('Form data:', formData);
 
     // Validate required fields
     if (!formData.full_name || !formData.email || !formData.contact_number) {
@@ -243,13 +239,10 @@ async function handleRegistration(e) {
     showLoading();
 
     try {
-        console.log('Sending registration request to:', API.registerGuest);
         const data = await fetchAPI(API.registerGuest, {
             method: 'POST',
             body: JSON.stringify(formData)
         });
-
-        console.log('Registration response:', data);
 
         if (!data.success) {
             throw new Error(data.message);
@@ -261,7 +254,6 @@ async function handleRegistration(e) {
         hideLoading();
 
     } catch (error) {
-        console.error('Registration error:', error);
         hideLoading();
         showAlert(error.message || 'Registration failed. Please try again.', 'danger');
     }

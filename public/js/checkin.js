@@ -26,12 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // Load available events for dropdown
 async function loadAvailableEventsForCheckIn() {
     try {
-        console.log('Loading events from:', `${API_BASE_URL}/events/checkin-available`);
-
         const response = await fetch(`${API_BASE_URL}/events/checkin-available`);
         const data = await response.json();
-
-        console.log('Events response:', data);
 
         if (data.success && data.events && data.events.length > 0) {
             const select = document.getElementById('eventSelectDropdown');
@@ -46,15 +42,11 @@ async function loadAvailableEventsForCheckIn() {
                 option.textContent = `${event.event_name} (${event.event_code}) - ${formatDate(event.event_date)} [${regStatus}]`;
                 select.appendChild(option);
             });
-
-            console.log(`Loaded ${data.events.length} events successfully`);
         } else {
-            console.warn('No events found or invalid response:', data);
             const select = document.getElementById('eventSelectDropdown');
             select.innerHTML = '<option value="">-- No Events Available --</option>';
         }
     } catch (error) {
-        console.error('Failed to load events:', error);
         const select = document.getElementById('eventSelectDropdown');
         select.innerHTML = '<option value="">-- Error Loading Events --</option>';
     }
@@ -377,14 +369,14 @@ function resetScanner() {
 function playSuccessSound() {
     const audio = document.getElementById('successSound');
     audio.currentTime = 0;
-    audio.play().catch(err => console.log('Audio play failed:', err));
+    audio.play().catch(err => {/* Audio play silently failed */});
 }
 
 // Play error sound
 function playErrorSound() {
     const audio = document.getElementById('errorSound');
     audio.currentTime = 0;
-    audio.play().catch(err => console.log('Audio play failed:', err));
+    audio.play().catch(err => {/* Audio play silently failed */});
 }
 
 // Format date and time
