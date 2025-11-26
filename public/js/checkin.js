@@ -57,9 +57,13 @@ function loadEventFromDropdown() {
     const select = document.getElementById('eventSelectDropdown');
     const eventCode = select.value;
 
+    console.info('Event selected from dropdown:', eventCode);
+
     if (eventCode) {
         document.getElementById('checkInEventCode').value = eventCode;
         selectEventForCheckIn();
+    } else {
+        console.warn('No event code selected');
     }
 }
 
@@ -69,30 +73,57 @@ function loadEventFromDropdown() {
 async function selectEventForCheckIn() {
     const eventCode = document.getElementById('checkInEventCode').value.trim();
 
+    console.info('selectEventForCheckIn called with:', eventCode);
+
     if (!eventCode) {
+        console.warn('No event code provided');
         showAlert('Please enter an event code', 'danger');
         return;
     }
 
     showLoading();
+    console.info('Loading event...', eventCode);
 
     try {
+        console.info('Fetching event data from API...');
         const data = await fetchAPI(API.getEventByCode(eventCode));
+        console.info('API response:', data);
 
         if (!data.success) {
+            console.error('API returned success=false:', data.message);
             throw new Error(data.message);
         }
 
         currentCheckInEvent = data.event;
+        console.info('Event loaded:', currentCheckInEvent);
 
         // Display event name
-        document.getElementById('currentEventName').textContent = currentCheckInEvent.event_name;
+        const eventNameElement = document.getElementById('currentEventName');
+        if (eventNameElement) {
+            eventNameElement.textContent = currentCheckInEvent.event_name;
+            console.info('Event name displayed:', currentCheckInEvent.event_name);
+        } else {
+            console.error('❌ currentEventName element not found!');
+        }
 
         // Show scanner section
-        document.getElementById('eventSelectSection').classList.remove('active');
-        document.getElementById('scannerSection').classList.add('active');
+        const eventSelectSection = document.getElementById('eventSelectSection');
+        const scannerSection = document.getElementById('scannerSection');
+
+        console.info('Switching sections...');
+        console.info('eventSelectSection:', eventSelectSection);
+        console.info('scannerSection:', scannerSection);
+
+        if (eventSelectSection && scannerSection) {
+            eventSelectSection.classList.remove('active');
+            scannerSection.classList.add('active');
+            console.info('✅ Sections switched successfully');
+        } else {
+            console.error('❌ Section elements not found!');
+        }
 
         // Initialize QR scanner
+        console.info('Calling initializeScanner()...');
         initializeScanner();
 
         hideLoading();
@@ -105,23 +136,54 @@ async function selectEventForCheckIn() {
 
 // Initialize QR Code Scanner
 function initializeScanner() {
-    html5QrCode = new Html5Qrcode("qr-reader");
+    console.info('initializeScanner called');
 
-    const config = {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0
-    };
+    // Check if Html5Qrcode library is loaded
+    if (typeof Html5Qrcode === 'undefined') {
+        console.error('❌ Html5Qrcode library not loaded!');
+        showAlert('QR Scanner library failed to load. Please refresh the page.', 'danger');
+        return;
+    }
 
-    html5QrCode.start(
-        { facingMode: "environment" },
-        config,
-        onScanSuccess,
-        onScanFailure
-    ).catch(err => {
-        console.error("Scanner initialization error:", err);
-        showAlert('Failed to start camera. Please check camera permissions.', 'danger');
-    });
+    console.info('Html5Qrcode library is available');
+
+    // Check if qr-reader element exists
+    const qrReaderElement = document.getElementById('qr-reader');
+    if (!qrReaderElement) {
+        console.error('❌ qr-reader element not found!');
+        showAlert('Scanner element not found. Please refresh the page.', 'danger');
+        return;
+    }
+
+    console.info('qr-reader element found:', qrReaderElement);
+
+    try {
+        html5QrCode = new Html5Qrcode("qr-reader");
+        console.info('Html5Qrcode instance created successfully');
+
+        const config = {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0
+        };
+
+        console.info('Starting camera with config:', config);
+
+        html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            onScanSuccess,
+            onScanFailure
+        ).then(() => {
+            console.info('✅ Camera started successfully!');
+        }).catch(err => {
+            console.error("❌ Scanner initialization error:", err);
+            showAlert('Failed to start camera. Please check camera permissions.', 'danger');
+        });
+    } catch (error) {
+        console.error('❌ Error creating Html5Qrcode instance:', error);
+        showAlert('Failed to initialize scanner. Please refresh the page.', 'danger');
+    }
 }
 
 // Handle successful QR scan
