@@ -39,6 +39,20 @@ if (missingEnvVars.length > 0) {
     process.exit(1);
 }
 
+// Set APP_URL dynamically for production (Render, Railway, etc.)
+if (process.env.NODE_ENV === 'production' && !process.env.APP_URL) {
+    const port = process.env.PORT || 10000;
+    // Try to detect cloud platform
+    if (process.env.RENDER) {
+        process.env.APP_URL = `https://${process.env.RENDER_EXTERNAL_HOSTNAME}`;
+    } else if (process.env.RAILWAY_STATIC_URL) {
+        process.env.APP_URL = process.env.RAILWAY_STATIC_URL;
+    } else {
+        process.env.APP_URL = `http://localhost:${port}`;
+    }
+    console.log(`🌐 Auto-detected APP_URL: ${process.env.APP_URL}`);
+}
+
 // Initialize database if it doesn't exist
 const dbPath = path.join(__dirname, 'data', 'event_registration.db');
 if (!fs.existsSync(dbPath)) {

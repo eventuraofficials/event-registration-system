@@ -1,8 +1,39 @@
+# Dependencies
 node_modules/
+
+# Environment variables
 .env
+.env.local
+
+# Database files
 *.db
+data/*.db
+events.db
+event_registration.db
+dataevent_registration.db
+
+# Uploads and temporary files
 uploads/
+backups/
+
+# Logs
 *.log
+logs/
+
+# OS specific
 .DS_Store
+Thumbs.db
+
+# Backup files
 events_backup_*.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary
 nul
+temp/
+tmp/

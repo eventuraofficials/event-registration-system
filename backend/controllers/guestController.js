@@ -2,7 +2,6 @@ const db = require('../config/database');
 const { generateGuestCode, generateQRCode } = require('../utils/qrGenerator');
 const { parseExcelFile, validateGuestData, checkDuplicates } = require('../utils/excelParser');
 const fs = require('fs');
-const XLSX = require('xlsx');
 
 /**
  * Upload Excel file and bulk import guests
