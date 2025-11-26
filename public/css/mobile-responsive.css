@@ -357,7 +357,64 @@
         width: 100%;
     }
 
-    /* === EVENT CARD === */
+    /* === PREMIUM EVENT CARD === */
+    .premium-event-card {
+        padding: var(--space-lg);
+        margin-bottom: var(--space-md);
+    }
+
+    .premium-event-card:hover {
+        transform: none; /* Disable lift on mobile */
+    }
+
+    .event-card-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-sm);
+    }
+
+    .event-card-title h3 {
+        font-size: 16px;
+    }
+
+    .event-status-badge {
+        padding: 5px 10px;
+        font-size: 0.75rem;
+    }
+
+    .event-card-datetime {
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+
+    .datetime-item,
+    .event-card-venue {
+        font-size: 0.813rem;
+    }
+
+    .event-card-description {
+        font-size: 0.813rem;
+    }
+
+    .event-card-stats {
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+
+    .stat-mini {
+        font-size: 0.75rem;
+    }
+
+    .event-card-cta {
+        flex-direction: column;
+    }
+
+    .event-card-cta .btn {
+        width: 100%;
+        min-width: auto;
+    }
+
+    /* === LEGACY EVENT CARD === */
     .event-card {
         margin-bottom: var(--space-md);
     }
