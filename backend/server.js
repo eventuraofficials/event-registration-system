@@ -31,8 +31,9 @@ app.use(helmet({
       "base-uri": ["'self'"],
       "form-action": ["'self'"],
       "frame-ancestors": ["'none'"],
-      "object-src": ["'none'"],
-      "upgrade-insecure-requests": []
+      "object-src": ["'none'"]
+      // Note: upgrade-insecure-requests removed for local HTTP development
+      // Add back in production with HTTPS
     }
   },
   crossOriginEmbedderPolicy: false,
