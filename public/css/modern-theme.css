@@ -357,6 +357,68 @@ input[type="button"]:disabled:hover {
     color: #991B1B;
 }
 
+/* === SMART STATUS BADGES === */
+/* Premium polished badges for event statuses */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.status-badge-upcoming {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3B82F6;
+}
+
+.status-badge-ongoing {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10B981;
+}
+
+.status-badge-completed {
+    background: rgba(139, 92, 246, 0.2);
+    color: #8B5CF6;
+}
+
+.status-badge-cancelled {
+    background: rgba(239, 68, 68, 0.2);
+    color: #EF4444;
+}
+
+/* Icon inside smart badges */
+.status-badge i {
+    font-size: 11px;
+}
+
+/* Badge utility classes for tables and lists */
+.status-cell {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Hover effect for interactive badges */
+.status-badge.clickable {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.status-badge.clickable:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+}
+
 /* === MODERN ALERTS === */
 .alert {
     padding: var(--space-lg);

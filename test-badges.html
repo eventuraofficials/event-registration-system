@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Badge Test</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="public/css/modern-theme.css">
+    <link rel="stylesheet" href="public/css/components.css">
+    <style>
+        body {
+            padding: 40px;
+            background: #f9fafb;
+        }
+        .test-section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .test-section h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #1f2937;
+        }
+        .badge-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .test-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .test-table th,
+        .test-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .test-table th {
+            background: #f9fafb;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="margin-bottom: 30px; color: #111827;">Smart Status Badges Test</h1>
+
+        <!-- Badge Variations -->
+        <div class="test-section">
+            <h2>All Status Badge Variations</h2>
+            <div class="badge-row">
+                <span class="status-badge status-badge-upcoming">
+                    <i class="fas fa-clock"></i> Upcoming
+                </span>
+                <span class="status-badge status-badge-ongoing">
+                    <i class="fas fa-play-circle"></i> Ongoing
+                </span>
+                <span class="status-badge status-badge-completed">
+                    <i class="fas fa-check-circle"></i> Completed
+                </span>
+                <span class="status-badge status-badge-cancelled">
+                    <i class="fas fa-times-circle"></i> Cancelled
+                </span>
+            </div>
+
+            <h3 style="margin-top: 30px; margin-bottom: 15px;">Without Icons</h3>
+            <div class="badge-row">
+                <span class="status-badge status-badge-upcoming">Upcoming</span>
+                <span class="status-badge status-badge-ongoing">Ongoing</span>
+                <span class="status-badge status-badge-completed">Completed</span>
+                <span class="status-badge status-badge-cancelled">Cancelled</span>
+            </div>
+        </div>
+
+        <!-- Table Usage -->
+        <div class="test-section">
+            <h2>Badge Usage in Tables</h2>
+            <table class="test-table">
+                <thead>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Date</th>
+                        <th class="status-cell">Status</th>
+                        <th>Guests</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Tech Conference 2025</td>
+                        <td>March 15, 2025</td>
+                        <td class="status-cell">
+                            <span class="status-badge status-badge-upcoming">
+                                <i class="fas fa-clock"></i> Upcoming
+                            </span>
+                        </td>
+                        <td>250</td>
+                    </tr>
+                    <tr>
+                        <td>Summer Music Festival</td>
+                        <td>June 20, 2025</td>
+                        <td class="status-cell">
+                            <span class="status-badge status-badge-ongoing">
+                                <i class="fas fa-play-circle"></i> Ongoing
+                            </span>
+                        </td>
+                        <td>1,500</td>
+                    </tr>
+                    <tr>
+                        <td>Annual Gala 2024</td>
+                        <td>December 31, 2024</td>
+                        <td class="status-cell">
+                            <span class="status-badge status-badge-completed">
+                                <i class="fas fa-check-circle"></i> Completed
+                            </span>
+                        </td>
+                        <td>180</td>
+                    </tr>
+                    <tr>
+                        <td>Spring Showcase</td>
+                        <td>April 10, 2025</td>
+                        <td class="status-cell">
+                            <span class="status-badge status-badge-cancelled">
+                                <i class="fas fa-times-circle"></i> Cancelled
+                            </span>
+                        </td>
+                        <td>0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Component Integration -->
+        <div class="test-section">
+            <h2>EventCard Component Integration</h2>
+            <div id="card-test-upcoming"></div>
+            <div id="card-test-ongoing"></div>
+            <div id="card-test-completed"></div>
+            <div id="card-test-cancelled"></div>
+        </div>
+    </div>
+
+    <script src="public/js/security-utils.js"></script>
+    <script src="public/js/components.js"></script>
+    <script src="public/components/EventCard.js"></script>
+
+    <script>
+        // Test EventCard with different statuses
+        Components.mount('#card-test-upcoming', 'EventCard', {
+            eventName: 'Web Development Workshop',
+            eventCode: 'WDW2025',
+            eventDate: 'March 25, 2025',
+            eventTime: '2:00 PM - 5:00 PM',
+            venue: 'Tech Hub Manila',
+            description: 'Learn modern web development techniques with hands-on exercises.',
+            totalGuests: 50,
+            checkedIn: 0,
+            status: 'upcoming',
+            showActions: 'false'
+        });
+
+        Components.mount('#card-test-ongoing', 'EventCard', {
+            eventName: 'Digital Marketing Summit',
+            eventCode: 'DMS2025',
+            eventDate: 'February 14, 2025',
+            eventTime: '9:00 AM - 6:00 PM',
+            venue: 'Convention Center',
+            description: 'Explore the latest trends in digital marketing and social media.',
+            totalGuests: 200,
+            checkedIn: 150,
+            status: 'ongoing',
+            showActions: 'false'
+        });
+
+        Components.mount('#card-test-completed', 'EventCard', {
+            eventName: 'Product Launch Event',
+            eventCode: 'PLE2024',
+            eventDate: 'December 10, 2024',
+            eventTime: '6:00 PM - 9:00 PM',
+            venue: 'Grand Ballroom',
+            description: 'Successfully launched our flagship product with amazing turnout.',
+            totalGuests: 300,
+            checkedIn: 285,
+            status: 'completed',
+            showActions: 'false'
+        });
+
+        Components.mount('#card-test-cancelled', 'EventCard', {
+            eventName: 'Outdoor Concert',
+            eventCode: 'OC2025',
+            eventDate: 'May 5, 2025',
+            eventTime: '5:00 PM - 10:00 PM',
+            venue: 'City Park',
+            description: 'Event cancelled due to unforeseen circumstances.',
+            totalGuests: 0,
+            checkedIn: 0,
+            status: 'cancelled',
+            showActions: 'false'
+        });
+    </script>
+</body>
+</html>

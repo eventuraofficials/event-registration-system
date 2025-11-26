@@ -14,6 +14,7 @@ Components.register('EventCard', function({
     totalGuests = 0,
     checkedIn = 0,
     registrationOpen = true,
+    status = 'upcoming', // upcoming, ongoing, completed, cancelled
     showActions = 'false',
     ctaText = 'Manage',
     ctaAction = ''
@@ -22,10 +23,34 @@ Components.register('EventCard', function({
     const hasActions = showActions === 'true';
     const hasDescription = description && description.trim().length > 0;
 
-    // Determine status badge
-    const statusBadge = registrationOpen
-        ? '<span class="event-status-badge status-open"><i class="fas fa-check-circle"></i> Open</span>'
-        : '<span class="event-status-badge status-closed"><i class="fas fa-times-circle"></i> Closed</span>';
+    // Smart status badge detection
+    let statusBadge = '';
+    let statusIcon = '';
+
+    switch(status.toLowerCase()) {
+        case 'upcoming':
+            statusIcon = 'fa-clock';
+            statusBadge = `<span class="status-badge status-badge-upcoming"><i class="fas ${statusIcon}"></i> Upcoming</span>`;
+            break;
+        case 'ongoing':
+            statusIcon = 'fa-play-circle';
+            statusBadge = `<span class="status-badge status-badge-ongoing"><i class="fas ${statusIcon}"></i> Ongoing</span>`;
+            break;
+        case 'completed':
+            statusIcon = 'fa-check-circle';
+            statusBadge = `<span class="status-badge status-badge-completed"><i class="fas ${statusIcon}"></i> Completed</span>`;
+            break;
+        case 'cancelled':
+            statusIcon = 'fa-times-circle';
+            statusBadge = `<span class="status-badge status-badge-cancelled"><i class="fas ${statusIcon}"></i> Cancelled</span>`;
+            break;
+        default:
+            // Fallback to registration status
+            statusIcon = registrationOpen ? 'fa-check-circle' : 'fa-times-circle';
+            const badgeClass = registrationOpen ? 'status-badge-ongoing' : 'status-badge-completed';
+            const badgeText = registrationOpen ? 'Open' : 'Closed';
+            statusBadge = `<span class="status-badge ${badgeClass}"><i class="fas ${statusIcon}"></i> ${badgeText}</span>`;
+    }
 
     return `
         <div class="premium-event-card">
