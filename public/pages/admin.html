@@ -9,10 +9,10 @@
     <title>Admin Dashboard - Event Registration System</title>
     <meta name="description" content="Admin dashboard for event management and guest tracking">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="stylesheet" href="css/modern-theme.css?v=20251126">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/mobile-responsive.css">
-    <link rel="stylesheet" href="css/admin.css?v=20251126">
+    <link rel="stylesheet" href="../css/theme/modern-theme.css?v=20251126">
+    <link rel="stylesheet" href="../css/components/components.css">
+    <link rel="stylesheet" href="../css/layouts/mobile-responsive.css">
+    <link rel="stylesheet" href="../css/layouts/admin.css?v=20251126">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="admin-body">
@@ -72,7 +72,7 @@
                     </p>
                 </div>
 
-                <a href="/checkin.html" target="_blank" class="nav-item" style="background: rgba(255,255,255,0.05);" title="Open QR scanner for guest check-in at event entrance (New Tab)">
+                <a href="/pages/checkin.html" target="_blank" class="nav-item" style="background: rgba(255,255,255,0.05);" title="Open QR scanner for guest check-in at event entrance (New Tab)">
                     <i class="fas fa-qrcode"></i>
                     <span>QR Scanner</span>
                     <i class="fas fa-external-link-alt" style="margin-left: auto; font-size: 0.7rem; opacity: 0.6;"></i>
@@ -134,7 +134,7 @@
                 <div class="card">
                     <h2>Quick Links</h2>
                     <div class="button-group" style="margin-bottom: 20px;">
-                        <a href="/checkin.html" target="_blank" class="btn btn-primary">
+                        <a href="/pages/checkin.html" target="_blank" class="btn btn-primary">
                             <i class="fas fa-qrcode"></i> Open Check-In Scanner
                         </a>
                     </div>
@@ -442,19 +442,19 @@
     </div>
 
     <!-- Component System -->
-    <script src="js/security-utils.js?v=20251109092000"></script>
-    <script src="js/components.js"></script>
-    <script src="components/StatsCard.js"></script>
-    <script src="components/EventCard.js"></script>
-    <script src="components/UserTable.js"></script>
-    <script src="components/LoadingSpinner.js"></script>
-    <script src="components/Alert.js"></script>
+    <script src="../js/core/security-utils.js?v=20251109092000"></script>
+    <script src="../js/core/components.js"></script>
+    <script src="../components/StatsCard.js"></script>
+    <script src="../components/EventCard.js"></script>
+    <script src="../components/UserTable.js"></script>
+    <script src="../components/LoadingSpinner.js"></script>
+    <script src="../components/Alert.js"></script>
 
     <!-- Mobile Menu -->
-    <script src="js/mobile-menu.js"></script>
+    <script src="../js/utils/mobile-menu.js"></script>
 
     <!-- App Scripts -->
-    <script src="js/config.js?v=20251109092000"></script>
-    <script src="js/admin.js?v=20251109092000"></script>
+    <script src="../js/core/config.js?v=20251109092000"></script>
+    <script src="../js/pages/admin.js?v=20251109092000"></script>
 </body>
 </html>

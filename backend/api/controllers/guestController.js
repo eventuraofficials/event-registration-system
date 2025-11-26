@@ -1,4 +1,4 @@
-const db = require('../config/database');
+const db = require('../db/config/database');
 const { generateGuestCode, generateQRCode } = require('../utils/qrGenerator');
 const { parseExcelFile, validateGuestData, checkDuplicates } = require('../utils/excelParser');
 const fs = require('fs');

@@ -1,5 +1,5 @@
 
-const db = require('../config/database');
+const db = require('../db/config/database');
 
 /**
  * Security Audit Logger

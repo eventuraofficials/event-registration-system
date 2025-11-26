@@ -93,7 +93,7 @@ if (process.env.NODE_ENV === 'production') {
 
 // Root route - redirect to admin login page (MUST be before static middleware)
 app.get('/', (req, res) => {
-  res.redirect('/admin.html');
+  res.redirect('/pages/admin.html');
 });
 
 // Static files - Serve public folder with no-cache for JS files
@@ -116,9 +116,9 @@ app.use(express.static(publicPath, {
 app.use('/uploads', express.static(uploadsPath));
 
 // Import routes
-const adminRoutes = require('./routes/adminRoutes');
-const eventRoutes = require('./routes/eventRoutes');
-const guestRoutes = require('./routes/guestRoutes');
+const adminRoutes = require('./api/routes/adminRoutes');
+const eventRoutes = require('./api/routes/eventRoutes');
+const guestRoutes = require('./api/routes/guestRoutes');
 
 // API Routes
 app.use('/api/admin', adminRoutes);
@@ -140,7 +140,7 @@ app.get('/api/health', (req, res) => {
 // System diagnostics endpoint (detailed health check)
 app.get('/api/diagnostics', async (req, res) => {
   try {
-    const db = require('./config/database');
+    const db = require('./db/config/database');
 
     // Check database tables
     const tables = db.db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();

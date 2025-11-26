@@ -6,7 +6,7 @@
     <title>Share Event - Registration Links & QR Codes</title>
     <meta name="description" content="Generate shareable registration links and QR codes for your event">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="stylesheet" href="css/modern-theme.css">
+    <link rel="stylesheet" href="../css/theme/modern-theme.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
@@ -216,7 +216,7 @@
 </head>
 <body>
     <div class="share-container">
-        <a href="/admin.html" class="back-link">
+        <a href="/pages/admin.html" class="back-link">
             <i class="fas fa-arrow-left"></i> Back to Dashboard
         </a>
 
@@ -327,7 +327,7 @@
         </div>
     </div>
 
-    <script src="js/config.js"></script>
+    <script src="../js/core/config.js"></script>
     <script>
         let currentEvent = null;
         let registrationUrl = '';
@@ -338,7 +338,7 @@
 
         if (!eventCode) {
             alert('No event code provided!');
-            window.location.href = '/admin.html';
+            window.location.href = '/pages/admin.html';
         }
 
         // Load event details
@@ -355,7 +355,7 @@
                     loadStatistics();
                 } else {
                     alert('Event not found!');
-                    window.location.href = '/admin.html';
+                    window.location.href = '/pages/admin.html';
                 }
             } catch (error) {
                 console.error('Error loading event:', error);
@@ -383,7 +383,7 @@
 
         function generateLinks() {
             const baseUrl = window.location.origin;
-            registrationUrl = `${baseUrl}/index.html?event=${currentEvent.event_code}`;
+            registrationUrl = `${baseUrl}/pages/index.html?event=${currentEvent.event_code}`;
             const shortUrl = `${baseUrl}/?e=${currentEvent.event_code}`;
 
             document.getElementById('registrationLink').value = registrationUrl;
