@@ -6,6 +6,17 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+// Validate critical environment variables
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+  console.error('❌ CRITICAL: JWT_SECRET must be set and at least 32 characters long');
+  console.error('Please set a strong JWT_SECRET in your .env file');
+  process.exit(1);
+}
+
+if (process.env.JWT_SECRET === 'your-secret-key-change-this-in-production') {
+  console.warn('⚠️  WARNING: Using default JWT_SECRET. Please change it immediately!');
+}
+
 // Import backup utility
 const { scheduleAutoBackup } = require('./utils/backup');
 
@@ -65,8 +76,10 @@ const loginLimiter = rateLimit({
 
 // CORS Configuration
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
-  credentials: true
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Body Parser Middleware

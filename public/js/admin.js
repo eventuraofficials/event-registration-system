@@ -158,23 +158,21 @@ async function loadDashboardData() {
 // Load all events
 async function loadEvents() {
     try {
-        console.info('Loading events...');
+
         const data = await fetchAPI(`${API_BASE_URL}/events`, {
             headers: {
                 'Authorization': `Bearer ${authToken}`
             }
         });
 
-        console.info('Events API response:', data);
-
         if (data.success) {
             allEvents = data.events || [];
-            console.info(`Loaded ${allEvents.length} events`);
+
             renderEventsTable();
             populateEventSelects();
             renderRecentEvents();
         } else {
-            console.warn('Events API returned success=false:', data.message);
+
             allEvents = [];
             renderEventsTable();
         }
@@ -400,9 +398,7 @@ async function handleCreateEvent(e) {
         max_capacity: maxCapacityValue ? parseInt(maxCapacityValue) : null
     };
 
-    console.log('📤 Creating event with data:', eventData);
-    console.log('🔑 Using token:', authToken ? 'Token exists' : 'NO TOKEN!');
-    console.log('🌐 API URL:', `${API_BASE_URL}/events`);
+
 
     showLoading();
 
@@ -706,7 +702,6 @@ function showEditEventModal(event) {
 // Handle edit event form submission
 async function handleEditEventSubmit(e) {
     e.preventDefault();
-    console.log('🟢 NEW CODE LOADED - FormData version v20251109');
 
     // Get form and directly access input elements
     const form = e.target;
@@ -723,15 +718,6 @@ async function handleEditEventSubmit(e) {
 
     const eventId = eventIdInput?.value;
 
-    console.log('🔍 Debug - Form elements:', {
-        eventId: eventId,
-        eventName: eventNameInput?.value,
-        eventDate: eventDateInput?.value,
-        hasForm: !!form,
-        hasEventIdInput: !!eventIdInput,
-        hasEventNameInput: !!eventNameInput
-    });
-
     if (!eventId) {
         showAlert('Event ID not found', 'danger');
         return false;
@@ -746,8 +732,6 @@ async function handleEditEventSubmit(e) {
         max_capacity: maxCapacityInput?.value ? parseInt(maxCapacityInput.value) : null,
         registration_open: registrationOpenInput?.checked ? 1 : 0
     };
-
-    console.log('📤 Sending Event Data:', eventData);
 
     // Validate required fields
     if (!eventData.event_name || !eventData.event_date) {

@@ -2,6 +2,15 @@ const db = require('../config/database');
 const { generateGuestCode, generateQRCode } = require('../utils/qrGenerator');
 const { parseExcelFile, validateGuestData, checkDuplicates } = require('../utils/excelParser');
 const fs = require('fs');
+const ExcelJS = require('exceljs');
+
+// Security: Input sanitization function
+const sanitizeInput = (input) => {
+  if (typeof input !== 'string') return input;
+  if (!input) return input;
+  // Remove HTML tags and trim
+  return input.replace(/<[^>]*>/g, '').trim();
+};
 
 /**
  * Upload Excel file and bulk import guests
@@ -133,13 +142,47 @@ exports.uploadExcel = async (req, res) => {
  */
 exports.selfRegister = async (req, res) => {
   try {
-    const { event_id, full_name, email, contact_number, home_address, company_name, guest_category } = req.body;
+    let { event_id, full_name, email, contact_number, home_address, company_name, guest_category } = req.body;
+
+  // Sanitize all text inputs
+  full_name = sanitizeInput(full_name);
+  email = sanitizeInput(email);
+  contact_number = sanitizeInput(contact_number);
+  home_address = sanitizeInput(home_address);
+  company_name = sanitizeInput(company_name);
+  guest_category = sanitizeInput(guest_category);
 
     // Validate required fields
     if (!event_id || !full_name || !email || !contact_number) {
       return res.status(400).json({
         success: false,
         message: 'Event ID, full name, email, and contact number are required'
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid email address'
+      });
+    }
+
+    // Validate name length
+    if (full_name.length < 2 || full_name.length > 100) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name must be between 2 and 100 characters'
+      });
+    }
+
+    // Validate phone format (basic)
+    const phoneRegex = /^[+]?[0-9\s\-()]{7,20}$/;
+    if (!phoneRegex.test(contact_number)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid contact number'
       });
     }
 
@@ -551,26 +594,35 @@ exports.exportGuestList = async (req, res) => {
       'Registration Date': guest.registration_date
     }));
 
-    // Create workbook and worksheet
-    const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    // Create workbook and worksheet using ExcelJS
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Guest List');
 
-    // Set column widths
-    worksheet['!cols'] = [
-      { wch: 15 }, // Guest Code
-      { wch: 25 }, // Full Name
-      { wch: 30 }, // Email
-      { wch: 18 }, // Contact Number
-      { wch: 35 }, // Home Address
-      { wch: 25 }, // Company Name
-      { wch: 15 }, // Guest Category
-      { wch: 18 }, // Check-in Status
-      { wch: 20 }, // Check-in Time
-      { wch: 15 }, // Check-in Gate
-      { wch: 20 }  // Registration Date
+    // Define columns with widths
+    worksheet.columns = [
+      { header: 'Guest Code', key: 'Guest Code', width: 15 },
+      { header: 'Full Name', key: 'Full Name', width: 25 },
+      { header: 'Email', key: 'Email', width: 30 },
+      { header: 'Contact Number', key: 'Contact Number', width: 18 },
+      { header: 'Home Address', key: 'Home Address', width: 35 },
+      { header: 'Company Name', key: 'Company Name', width: 25 },
+      { header: 'Guest Category', key: 'Guest Category', width: 15 },
+      { header: 'Check-in Status', key: 'Check-in Status', width: 18 },
+      { header: 'Check-in Time', key: 'Check-in Time', width: 20 },
+      { header: 'Check-in Gate', key: 'Check-in Gate', width: 15 },
+      { header: 'Registration Date', key: 'Registration Date', width: 20 }
     ];
 
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Guest List');
+    // Add rows
+    worksheet.addRows(excelData);
+
+    // Style header row
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFE0E0E0' }
+    };
 
     // Generate filename
     const eventDate = new Date(event.event_date).toISOString().split('T')[0];
@@ -578,7 +630,7 @@ exports.exportGuestList = async (req, res) => {
     const filename = `${event.event_code}-GuestList${statusSuffix}-${eventDate}.xlsx`;
 
     // Write to buffer
-    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    const buffer = await workbook.xlsx.writeBuffer();
 
     // Set response headers
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);

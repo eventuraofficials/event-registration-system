@@ -57,13 +57,11 @@ function loadEventFromDropdown() {
     const select = document.getElementById('eventSelectDropdown');
     const eventCode = select.value;
 
-    console.info('Event selected from dropdown:', eventCode);
-
     if (eventCode) {
         document.getElementById('checkInEventCode').value = eventCode;
         selectEventForCheckIn();
     } else {
-        console.warn('No event code selected');
+
     }
 }
 
@@ -73,21 +71,17 @@ function loadEventFromDropdown() {
 async function selectEventForCheckIn() {
     const eventCode = document.getElementById('checkInEventCode').value.trim();
 
-    console.info('selectEventForCheckIn called with:', eventCode);
-
     if (!eventCode) {
-        console.warn('No event code provided');
+
         showAlert('Please enter an event code', 'danger');
         return;
     }
 
     showLoading();
-    console.info('Loading event...', eventCode);
 
     try {
-        console.info('Fetching event data from API...');
+
         const data = await fetchAPI(API.getEventByCode(eventCode));
-        console.info('API response:', data);
 
         if (!data.success) {
             console.error('API returned success=false:', data.message);
@@ -95,13 +89,12 @@ async function selectEventForCheckIn() {
         }
 
         currentCheckInEvent = data.event;
-        console.info('Event loaded:', currentCheckInEvent);
 
         // Display event name
         const eventNameElement = document.getElementById('currentEventName');
         if (eventNameElement) {
             eventNameElement.textContent = currentCheckInEvent.event_name;
-            console.info('Event name displayed:', currentCheckInEvent.event_name);
+
         } else {
             console.error('❌ currentEventName element not found!');
         }
@@ -110,14 +103,12 @@ async function selectEventForCheckIn() {
         const eventSelectSection = document.getElementById('eventSelectSection');
         const scannerSection = document.getElementById('scannerSection');
 
-        console.info('Switching sections...');
-        console.info('eventSelectSection:', eventSelectSection);
-        console.info('scannerSection:', scannerSection);
+
 
         if (eventSelectSection && scannerSection) {
             eventSelectSection.classList.remove('active');
             scannerSection.classList.add('active');
-            console.info('✅ Sections switched successfully');
+
         } else {
             console.error('❌ Section elements not found!');
         }
@@ -136,7 +127,6 @@ async function selectEventForCheckIn() {
 
 // Initialize QR Code Scanner
 function initializeScanner() {
-    console.info('initializeScanner called');
 
     // Check if Html5Qrcode library is loaded
     if (typeof Html5Qrcode === 'undefined') {
@@ -144,8 +134,6 @@ function initializeScanner() {
         showAlert('QR Scanner library failed to load. Please refresh the page.', 'danger');
         return;
     }
-
-    console.info('Html5Qrcode library is available');
 
     // Check if qr-reader element exists
     const qrReaderElement = document.getElementById('qr-reader');
@@ -155,11 +143,8 @@ function initializeScanner() {
         return;
     }
 
-    console.info('qr-reader element found:', qrReaderElement);
-
     try {
         html5QrCode = new Html5Qrcode("qr-reader");
-        console.info('Html5Qrcode instance created successfully');
 
         const config = {
             fps: 10,
@@ -167,15 +152,13 @@ function initializeScanner() {
             aspectRatio: 1.0
         };
 
-        console.info('Starting camera with config:', config);
-
         html5QrCode.start(
             { facingMode: "environment" },
             config,
             onScanSuccess,
             onScanFailure
         ).then(() => {
-            console.info('✅ Camera started successfully!');
+
         }).catch(err => {
             console.error("❌ Scanner initialization error:", err);
             showAlert('Failed to start camera. Please check camera permissions.', 'danger');

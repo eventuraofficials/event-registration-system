@@ -60,7 +60,10 @@
       "Bash(npm audit:*)",
       "Bash(audit-output/reports/npm-audit.json)",
       "Bash(cat:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(git rm:*)",
+      "Bash(timeout /t 5)",
+      "Bash(render.yaml)"
     ],
     "deny": [],
     "ask": []
