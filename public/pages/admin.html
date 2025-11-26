@@ -98,8 +98,10 @@
             <section id="overviewSection" class="dashboard-section active">
                 <div class="section-header">
                     <h1>Dashboard Overview</h1>
+                    <p style="color: #718096; font-size: 0.95rem; margin: 5px 0 0 0;">Welcome back! Here's what's happening today</p>
                 </div>
 
+                <!-- Stats Summary Cards -->
                 <div class="stats-grid">
                     <div class="stat-card blue clickable" onclick="showSection('events')" title="Click to view events">
                         <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
@@ -112,14 +114,14 @@
                         <div class="stat-icon"><i class="fas fa-users"></i></div>
                         <div class="stat-content">
                             <div class="stat-value" id="totalGuests">0</div>
-                            <div class="stat-label">Total Guests</div>
+                            <div class="stat-label">Total Registered</div>
                         </div>
                     </div>
                     <div class="stat-card purple clickable" onclick="showSection('guests')" title="Click to view guests">
                         <div class="stat-icon"><i class="fas fa-user-check"></i></div>
                         <div class="stat-content">
                             <div class="stat-value" id="totalAttended">0</div>
-                            <div class="stat-label">Attended</div>
+                            <div class="stat-label">Checked-In Today</div>
                         </div>
                     </div>
                     <div class="stat-card orange clickable" onclick="showSection('reports')" title="Click to view reports">
@@ -131,36 +133,136 @@
                     </div>
                 </div>
 
-                <div class="card">
-                    <h2>Quick Links</h2>
-                    <div class="button-group" style="margin-bottom: 20px;">
-                        <a href="/pages/checkin.html" target="_blank" class="btn btn-primary">
-                            <i class="fas fa-qrcode"></i> Open Check-In Scanner
-                        </a>
-                    </div>
-                    <p style="color: #666; font-size: 0.9rem;">
-                        <i class="fas fa-info-circle"></i> Use the Check-In Scanner to scan guest QR codes at the event entrance.
-                    </p>
-                </div>
+                <!-- Dashboard Grid Layout -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; margin-top: 30px;">
 
-                <div class="card">
-                    <h2>Recent Events</h2>
-                    <div id="recentEventsList" class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Event Name</th>
-                                    <th>Date</th>
-                                    <th>Guests</th>
-                                    <th>Attended</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recentEventsBody">
-                                <tr><td colspan="5">Loading...</td></tr>
-                            </tbody>
-                        </table>
+                    <!-- Today's Events Section -->
+                    <div class="card" style="height: fit-content;">
+                        <div class="card-header" style="margin-bottom: 20px;">
+                            <h2 style="display: flex; align-items: center; gap: 10px; margin: 0;">
+                                <i class="fas fa-calendar-day" style="color: var(--primary-color);"></i>
+                                Today's Events
+                            </h2>
+                        </div>
+                        <div id="todaysEventsList">
+                            <div style="text-align: center; padding: 40px 20px; color: #a0aec0;">
+                                <i class="fas fa-calendar-check" style="font-size: 3rem; opacity: 0.3; margin-bottom: 15px;"></i>
+                                <p style="margin: 0; font-size: 0.95rem;">Loading today's events...</p>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Quick Actions Section -->
+                    <div class="card" style="height: fit-content;">
+                        <div class="card-header" style="margin-bottom: 20px;">
+                            <h2 style="display: flex; align-items: center; gap: 10px; margin: 0;">
+                                <i class="fas fa-bolt" style="color: var(--primary-color);"></i>
+                                Quick Actions
+                            </h2>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                            <!-- Create Event Card -->
+                            <div onclick="showSection('events'); setTimeout(() => showCreateEventForm(), 100);"
+                                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                        color: white;
+                                        padding: 25px 20px;
+                                        border-radius: 12px;
+                                        cursor: pointer;
+                                        transition: all 0.3s ease;
+                                        text-align: center;
+                                        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);"
+                                 onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 20px rgba(102, 126, 234, 0.4)';"
+                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(102, 126, 234, 0.3)';">
+                                <i class="fas fa-plus-circle" style="font-size: 2.5rem; margin-bottom: 10px; opacity: 0.9;"></i>
+                                <h3 style="margin: 0; font-size: 1rem; font-weight: 600;">Create Event</h3>
+                                <p style="margin: 5px 0 0 0; font-size: 0.8rem; opacity: 0.9;">Start a new event</p>
+                            </div>
+
+                            <!-- Import Guests Card -->
+                            <div onclick="showSection('upload')"
+                                 style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+                                        color: white;
+                                        padding: 25px 20px;
+                                        border-radius: 12px;
+                                        cursor: pointer;
+                                        transition: all 0.3s ease;
+                                        text-align: center;
+                                        box-shadow: 0 2px 8px rgba(72, 187, 120, 0.3);"
+                                 onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 20px rgba(72, 187, 120, 0.4)';"
+                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(72, 187, 120, 0.3)';">
+                                <i class="fas fa-file-upload" style="font-size: 2.5rem; margin-bottom: 10px; opacity: 0.9;"></i>
+                                <h3 style="margin: 0; font-size: 1rem; font-weight: 600;">Import Guests</h3>
+                                <p style="margin: 5px 0 0 0; font-size: 0.8rem; opacity: 0.9;">Upload guest list</p>
+                            </div>
+
+                            <!-- Download Reports Card -->
+                            <div onclick="showSection('reports')"
+                                 style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+                                        color: white;
+                                        padding: 25px 20px;
+                                        border-radius: 12px;
+                                        cursor: pointer;
+                                        transition: all 0.3s ease;
+                                        text-align: center;
+                                        box-shadow: 0 2px 8px rgba(237, 137, 54, 0.3);"
+                                 onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 20px rgba(237, 137, 54, 0.4)';"
+                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(237, 137, 54, 0.3)';">
+                                <i class="fas fa-download" style="font-size: 2.5rem; margin-bottom: 10px; opacity: 0.9;"></i>
+                                <h3 style="margin: 0; font-size: 1rem; font-weight: 600;">Download Reports</h3>
+                                <p style="margin: 5px 0 0 0; font-size: 0.8rem; opacity: 0.9;">Export attendance data</p>
+                            </div>
+
+                            <!-- QR Scanner Card -->
+                            <div onclick="window.open('/pages/checkin.html', '_blank')"
+                                 style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+                                        color: white;
+                                        padding: 25px 20px;
+                                        border-radius: 12px;
+                                        cursor: pointer;
+                                        transition: all 0.3s ease;
+                                        text-align: center;
+                                        box-shadow: 0 2px 8px rgba(66, 153, 225, 0.3);"
+                                 onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 20px rgba(66, 153, 225, 0.4)';"
+                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(66, 153, 225, 0.3)';">
+                                <i class="fas fa-qrcode" style="font-size: 2.5rem; margin-bottom: 10px; opacity: 0.9;"></i>
+                                <h3 style="margin: 0; font-size: 1rem; font-weight: 600;">QR Scanner</h3>
+                                <p style="margin: 5px 0 0 0; font-size: 0.8rem; opacity: 0.9;">Check-in guests</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity Feed -->
+                    <div class="card" style="height: fit-content;">
+                        <div class="card-header" style="margin-bottom: 20px;">
+                            <h2 style="display: flex; align-items: center; gap: 10px; margin: 0;">
+                                <i class="fas fa-history" style="color: var(--primary-color);"></i>
+                                Recent Activity
+                            </h2>
+                        </div>
+                        <div id="recentActivityList">
+                            <div style="text-align: center; padding: 40px 20px; color: #a0aec0;">
+                                <i class="fas fa-clock" style="font-size: 3rem; opacity: 0.3; margin-bottom: 15px;"></i>
+                                <p style="margin: 0; font-size: 0.95rem;">Loading recent activities...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Events Section -->
+                    <div class="card" style="height: fit-content;">
+                        <div class="card-header" style="margin-bottom: 20px;">
+                            <h2 style="display: flex; align-items: center; gap: 10px; margin: 0;">
+                                <i class="fas fa-list" style="color: var(--primary-color);"></i>
+                                Recent Events
+                            </h2>
+                        </div>
+                        <div id="recentEventsList">
+                            <div style="text-align: center; padding: 40px 20px; color: #a0aec0;">
+                                <i class="fas fa-calendar" style="font-size: 3rem; opacity: 0.3; margin-bottom: 15px;"></i>
+                                <p style="margin: 0; font-size: 0.95rem;">Loading recent events...</p>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </section>
 

@@ -153,6 +153,8 @@ function showDashboard() {
 async function loadDashboardData() {
     await loadEvents();
     updateOverviewStats();
+    renderTodaysEvents();
+    renderRecentActivity();
 }
 
 // Load all events
@@ -237,33 +239,223 @@ function renderEventsTable() {
 
 // Render recent events
 function renderRecentEvents() {
-    const tbody = document.getElementById('recentEventsBody');
+    const container = document.getElementById('recentEventsList');
     const recentEvents = allEvents.slice(0, 5);
 
     if (recentEvents.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No events found</td></tr>';
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px 20px; color: #a0aec0;">
+                <i class="fas fa-calendar" style="font-size: 3rem; opacity: 0.3; margin-bottom: 15px;"></i>
+                <p style="margin: 0; font-size: 0.95rem;">No events found</p>
+            </div>
+        `;
         return;
     }
 
-    tbody.innerHTML = recentEvents.map(event => {
+    container.innerHTML = recentEvents.map(event => {
         const attendanceRate = event.total_guests > 0
             ? Math.round((event.total_attended / event.total_guests) * 100)
             : 0;
 
         return `
-            <tr>
-                <td>${SecurityUtils.escapeHtml(event.event_name)}</td>
-                <td>${formatDate(event.event_date)}</td>
-                <td>${event.total_guests || 0}</td>
-                <td>${event.total_attended || 0} (${attendanceRate}%)</td>
-                <td>
-                    <span class="badge ${event.registration_open ? 'success' : 'danger'}">
+            <div style="padding: 15px; border-bottom: 1px solid #e2e8f0; transition: all 0.2s ease; cursor: pointer;"
+                 onmouseover="this.style.background='#f7fafc'"
+                 onmouseout="this.style.background='transparent'"
+                 onclick="showSection('events')">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                    <h3 style="margin: 0; font-size: 0.95rem; font-weight: 600; color: #2d3748;">
+                        ${SecurityUtils.escapeHtml(event.event_name)}
+                    </h3>
+                    <span class="badge ${event.registration_open ? 'success' : 'warning'}" style="font-size: 0.75rem;">
                         ${event.registration_open ? 'Open' : 'Closed'}
                     </span>
-                </td>
-            </tr>
+                </div>
+                <div style="display: flex; gap: 15px; font-size: 0.85rem; color: #718096;">
+                    <span><i class="fas fa-calendar" style="margin-right: 5px;"></i>${formatDate(event.event_date)}</span>
+                    <span><i class="fas fa-users" style="margin-right: 5px;"></i>${event.total_guests || 0} guests</span>
+                    <span><i class="fas fa-check-circle" style="margin-right: 5px;"></i>${attendanceRate}% attended</span>
+                </div>
+            </div>
         `;
     }).join('');
+}
+
+// Render today's events
+function renderTodaysEvents() {
+    const container = document.getElementById('todaysEventsList');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const todaysEvents = allEvents.filter(event => {
+        const eventDate = new Date(event.event_date);
+        eventDate.setHours(0, 0, 0, 0);
+        return eventDate.getTime() === today.getTime();
+    });
+
+    if (todaysEvents.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px 20px; color: #a0aec0;">
+                <i class="fas fa-calendar-check" style="font-size: 3rem; opacity: 0.3; margin-bottom: 15px;"></i>
+                <p style="margin: 0; font-size: 0.95rem;">No events scheduled for today</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = todaysEvents.map(event => {
+        const attendanceRate = event.total_guests > 0
+            ? Math.round((event.total_attended / event.total_guests) * 100)
+            : 0;
+
+        return `
+            <div style="background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+                        padding: 20px;
+                        border-radius: 12px;
+                        margin-bottom: 15px;
+                        border-left: 4px solid #667eea;
+                        transition: all 0.3s ease;"
+                 onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'; this.style.transform='translateX(5px)'"
+                 onmouseout="this.style.boxShadow='none'; this.style.transform='translateX(0)'">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                    <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #2d3748;">
+                        ${SecurityUtils.escapeHtml(event.event_name)}
+                    </h3>
+                    <span class="badge success" style="font-size: 0.75rem;">
+                        <i class="fas fa-circle" style="font-size: 0.5rem;"></i> Today
+                    </span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+                    ${event.event_time ? `
+                        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #4a5568;">
+                            <i class="fas fa-clock" style="color: #667eea; width: 16px;"></i>
+                            <span>${event.event_time}</span>
+                        </div>
+                    ` : ''}
+                    ${event.venue ? `
+                        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #4a5568;">
+                            <i class="fas fa-map-marker-alt" style="color: #667eea; width: 16px;"></i>
+                            <span>${SecurityUtils.escapeHtml(event.venue)}</span>
+                        </div>
+                    ` : ''}
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 12px 0; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; margin-bottom: 12px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #667eea;">${event.total_guests || 0}</div>
+                        <div style="font-size: 0.75rem; color: #718096; text-transform: uppercase; letter-spacing: 0.5px;">Registered</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #48bb78;">${event.total_attended || 0}</div>
+                        <div style="font-size: 0.75rem; color: #718096; text-transform: uppercase; letter-spacing: 0.5px;">Checked-In</div>
+                    </div>
+                </div>
+                <button onclick="event.stopPropagation(); showSection('events')"
+                        class="btn btn-primary"
+                        style="width: 100%; padding: 10px; font-size: 0.9rem;">
+                    <i class="fas fa-cog"></i> Manage Event
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+
+// Render recent activity feed
+function renderRecentActivity() {
+    const container = document.getElementById('recentActivityList');
+
+    // Collect all activities from events
+    let activities = [];
+
+    allEvents.forEach(event => {
+        // Add event creation activity
+        if (event.created_at) {
+            activities.push({
+                type: 'event_created',
+                icon: 'fa-calendar-plus',
+                color: '#667eea',
+                title: 'Event Created',
+                description: event.event_name,
+                timestamp: new Date(event.created_at),
+                event: event
+            });
+        }
+
+        // Add guest registration activities (simulated - you can enhance this with real data)
+        if (event.total_guests > 0) {
+            activities.push({
+                type: 'guests_registered',
+                icon: 'fa-user-plus',
+                color: '#48bb78',
+                title: `${event.total_guests} Guest${event.total_guests > 1 ? 's' : ''} Registered`,
+                description: event.event_name,
+                timestamp: new Date(event.updated_at || event.created_at),
+                event: event
+            });
+        }
+
+        // Add check-in activities
+        if (event.total_attended > 0) {
+            activities.push({
+                type: 'guests_checkedin',
+                icon: 'fa-check-circle',
+                color: '#9f7aea',
+                title: `${event.total_attended} Guest${event.total_attended > 1 ? 's' : ''} Checked-In`,
+                description: event.event_name,
+                timestamp: new Date(event.updated_at || event.created_at),
+                event: event
+            });
+        }
+    });
+
+    // Sort by timestamp (most recent first)
+    activities.sort((a, b) => b.timestamp - a.timestamp);
+
+    // Take only the 10 most recent
+    activities = activities.slice(0, 10);
+
+    if (activities.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px 20px; color: #a0aec0;">
+                <i class="fas fa-clock" style="font-size: 3rem; opacity: 0.3; margin-bottom: 15px;"></i>
+                <p style="margin: 0; font-size: 0.95rem;">No recent activities</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = activities.map((activity, index) => `
+        <div style="display: flex; gap: 15px; padding: 15px; border-bottom: ${index === activities.length - 1 ? 'none' : '1px solid #e2e8f0'}; transition: all 0.2s ease;"
+             onmouseover="this.style.background='#f7fafc'"
+             onmouseout="this.style.background='transparent'">
+            <div style="flex-shrink: 0;">
+                <div style="width: 40px; height: 40px; border-radius: 10px; background: ${activity.color}15; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas ${activity.icon}" style="color: ${activity.color}; font-size: 1.1rem;"></i>
+                </div>
+            </div>
+            <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 600; font-size: 0.9rem; color: #2d3748; margin-bottom: 4px;">
+                    ${activity.title}
+                </div>
+                <div style="font-size: 0.85rem; color: #718096; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    ${SecurityUtils.escapeHtml(activity.description)}
+                </div>
+                <div style="font-size: 0.75rem; color: #a0aec0;">
+                    <i class="fas fa-clock" style="margin-right: 4px;"></i>${formatTimeAgo(activity.timestamp)}
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Format time ago helper
+function formatTimeAgo(date) {
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+
+    if (seconds < 60) return 'Just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)} days ago`;
+    return formatDate(date);
 }
 
 // Populate event select dropdowns

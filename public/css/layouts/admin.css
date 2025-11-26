@@ -846,6 +846,47 @@
     }
 }
 
+/* ======================== DASHBOARD OVERVIEW RESPONSIVE ======================== */
+
+/* Mobile responsive for dashboard grid */
+@media (max-width: 768px) {
+    /* Dashboard grid becomes single column on mobile */
+    #overviewSection > div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+
+    /* Quick action cards become 1 column on very small screens */
+    .card > div[style*="grid-template-columns: repeat(2, 1fr)"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Adjust section header */
+    .section-header p {
+        font-size: 0.85rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Even smaller padding for cards on tiny screens */
+    #overviewSection .card {
+        padding: 15px !important;
+    }
+
+    /* Smaller icons in quick action cards */
+    .card > div > div[onclick] i {
+        font-size: 2rem !important;
+    }
+
+    .card > div > div[onclick] h3 {
+        font-size: 0.9rem !important;
+    }
+
+    .card > div > div[onclick] p {
+        font-size: 0.75rem !important;
+    }
+}
+
 /* ======================== MODAL STYLES ======================== */
 
 /* Modal Overlay */
