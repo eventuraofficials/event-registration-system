@@ -19,14 +19,19 @@ const HOST = process.env.HOST || '0.0.0.0';
 // Security Middleware
 app.use(helmet({
   contentSecurityPolicy: {
-    useDefaults: true,
+    useDefaults: false,
     directives: {
       "default-src": ["'self'"],
-      "script-src": ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://unpkg.com"],
+      "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdnjs.cloudflare.com", "https://unpkg.com"],
       "style-src": ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
       "font-src": ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com"],
       "img-src": ["'self'", "data:", "blob:"],
-      "connect-src": ["'self'"]
+      "connect-src": ["'self'"],
+      "base-uri": ["'self'"],
+      "form-action": ["'self'"],
+      "frame-ancestors": ["'none'"],
+      "object-src": ["'none'"],
+      "upgrade-insecure-requests": []
     }
   },
   crossOriginEmbedderPolicy: false,
