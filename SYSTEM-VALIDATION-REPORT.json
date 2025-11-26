@@ -1,0 +1,61 @@
+{
+  "timestamp": "2025-11-26T12:34:15.952Z",
+  "summary": {
+    "passed": 38,
+    "warnings": 4,
+    "errors": 1,
+    "fixed": 0
+  },
+  "details": {
+    "errors": [
+      "Missing critical dependency: bcrypt"
+    ],
+    "warnings": [
+      "Database file does not exist (events.db)",
+      "public/index.html: Element 'registrationForm' not found",
+      "public/index.html: Element 'name' not found",
+      "public/index.html: Element 'phone' not found"
+    ],
+    "fixed": [],
+    "passed": [
+      "backend/server.js: Syntax OK",
+      "backend/config/database.js: Syntax OK",
+      "backend/controllers/adminController.js: Syntax OK",
+      "backend/controllers/eventController.js: Syntax OK",
+      "backend/controllers/guestController.js: Syntax OK",
+      "backend/middleware/auth.js: Syntax OK",
+      "backend/middleware/upload.js: Syntax OK",
+      "backend/middleware/csrf.js: Syntax OK",
+      "Environment variable JWT_SECRET defined",
+      "Environment variable PORT defined",
+      "Dependency express installed",
+      "Dependency better-sqlite3 installed",
+      "Dependency jsonwebtoken installed",
+      "Dependency multer installed",
+      "public/index.html exists (6.4KB)",
+      "public/admin.html exists (22.7KB)",
+      "public/checkin.html exists (10.9KB)",
+      "public/share-event.html exists (17.4KB)",
+      "public/js/register.js exists (9.9KB)",
+      "public/js/admin.js exists (54.8KB)",
+      "public/js/checkin.js exists (13.5KB)",
+      "public/js/config.js exists (9.3KB)",
+      "public/js/security-utils.js exists (4.6KB)",
+      "public/css/style.css exists (15.7KB)",
+      "public/css/admin.css exists (17.3KB)",
+      "public/css/checkin.css exists (6.7KB)",
+      "public/index.html: Element 'email' found",
+      "public/admin.html: Element 'loginForm' found",
+      "public/admin.html: Element 'username' found",
+      "public/admin.html: Element 'password' found",
+      "public/checkin.html: Element 'eventSelectDropdown' found",
+      "Security: JWT authentication implemented",
+      "Security: CSRF protection implemented",
+      "Security: XSS protection utilities implemented",
+      "Security: .env exclusion implemented",
+      "GET /api/events/available: 200",
+      "POST /api/guests/register: 400",
+      "POST /api/admin/login: 400"
+    ]
+  }
+}
