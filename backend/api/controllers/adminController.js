@@ -1,4 +1,4 @@
-const db = require('../db/config/database');
+const db = require('../../db/config/database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');

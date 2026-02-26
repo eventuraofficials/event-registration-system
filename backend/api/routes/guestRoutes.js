@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const guestController = require('../controllers/guestController');
-const { authenticateToken } = require('../middleware/auth');
-const upload = require('../middleware/upload');
+const { authenticateToken } = require('../../middleware/auth');
+const upload = require('../../middleware/upload');
 
 // Public routes
 router.post('/register', guestController.selfRegister);

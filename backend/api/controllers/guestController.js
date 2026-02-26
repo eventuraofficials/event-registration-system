@@ -1,6 +1,6 @@
-const db = require('../db/config/database');
-const { generateGuestCode, generateQRCode } = require('../utils/qrGenerator');
-const { parseExcelFile, validateGuestData, checkDuplicates } = require('../utils/excelParser');
+const db = require('../../db/config/database');
+const { generateGuestCode, generateQRCode } = require('../../utils/qrGenerator');
+const { parseExcelFile, validateGuestData, checkDuplicates } = require('../../utils/excelParser');
 const fs = require('fs');
 const ExcelJS = require('exceljs');
 

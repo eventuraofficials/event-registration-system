@@ -4,7 +4,7 @@ const path = require('path');
 require('dotenv').config();
 
 // Create SQLite database file
-const dbPath = path.join(__dirname, '../../data/event_registration.db');
+const dbPath = path.join(__dirname, '../../../data/event_registration.db');
 const db = new Database(dbPath);
 
 // Enable foreign keys
