@@ -7,6 +7,8 @@
     <meta name="description" content="Generate shareable registration links and QR codes for your event">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="stylesheet" href="../css/theme/modern-theme.css">
+    <link rel="stylesheet" href="../css/layouts/minimalist-layout.css">
+    <link rel="stylesheet" href="../css/components/components.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
@@ -215,10 +217,22 @@
     </style>
 </head>
 <body>
-    <div class="share-container">
-        <a href="/pages/admin.html" class="back-link">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
+    <!-- White Sticky Header -->
+    <header class="app-header">
+        <a href="/pages/admin.html" class="app-header-logo">
+            <i class="fas fa-share-alt"></i>
+            <span>Share Event</span>
         </a>
+        <div class="app-header-user">
+            <a href="/pages/admin.html" class="app-header-nav-link">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </header>
+
+    <div class="app-layout-simple">
+        <div class="content-wrapper">
+    <div class="share-container">
 
         <div class="event-info" id="eventInfo">
             <h2 id="eventName">Loading...</h2>
@@ -324,6 +338,8 @@
                     <div class="stat-label">Pending</div>
                 </div>
             </div>
+        </div>
+    </div>
         </div>
     </div>
 

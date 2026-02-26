@@ -1317,7 +1317,7 @@ async function viewEvent(eventId) {
 
 // Share event - opens share page
 function shareEvent(eventCode) {
-    window.open(`/share-event.html?event=${eventCode}`, '_blank');
+    window.open(`/pages/share-event.html?event=${eventCode}`, '_blank');
 }
 
 // Delete event
