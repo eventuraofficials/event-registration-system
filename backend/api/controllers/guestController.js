@@ -1,6 +1,7 @@
 const db = require('../../db/config/database');
 const { generateGuestCode, generateQRCode } = require('../../utils/qrGenerator');
 const { parseExcelFile, validateGuestData, checkDuplicates } = require('../../utils/excelParser');
+const { sendTicketEmail } = require('../../utils/emailService');
 const fs = require('fs');
 const ExcelJS = require('exceljs');
 
@@ -188,7 +189,7 @@ exports.selfRegister = async (req, res) => {
 
     // Check if event exists and is open for registration
     const [events] = await db.execute(
-      'SELECT id, event_name, registration_open, max_capacity FROM events WHERE id = ?',
+      'SELECT id, event_name, event_date, event_time, venue, registration_open, max_capacity FROM events WHERE id = ?',
       [event_id]
     );
 
@@ -275,6 +276,18 @@ exports.selfRegister = async (req, res) => {
         event_name: events[0].event_name
       }
     });
+
+    // Send ticket email (non-blocking — runs after response is sent)
+    sendTicketEmail({
+      guestName: full_name,
+      guestEmail: email,
+      guestCode: guestCode,
+      eventName: events[0].event_name,
+      eventDate: events[0].event_date,
+      eventTime: events[0].event_time,
+      venue: events[0].venue,
+      qrCodeDataUrl: qrCode
+    }).catch(() => {}); // Silently ignore email errors
 
   } catch (error) {
     console.error('Self registration error:', error);

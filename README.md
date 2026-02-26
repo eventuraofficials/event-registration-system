@@ -1,297 +1,85 @@
-# Event Registration System with QR Code Integration
+# Event Registration System
 
-**A professional, production-ready event registration and attendance tracking system** featuring QR code generation, real-time check-in, Excel bulk upload, and comprehensive admin dashboard.
+A professional event registration and attendance tracking system with QR code check-in, Excel bulk upload, and an admin dashboard.
+
+**Live Demo**: https://event-registration-system-ya13.onrender.com
 
 ---
 
 ## Features
 
-### Pre-Registration Phase
-- **Excel Bulk Upload**: Upload pre-registered guest lists via Excel/CSV files
-- **Data Validation**: Automatic validation of guest information with duplicate detection
-- **Automatic QR Generation**: Unique QR codes generated for each guest
-
-### Guest Self-Registration
-- **Online Registration Portal**: Public-facing registration form
-- **Real-time QR Code Generation**: Instant QR code upon successful registration
-- **Email/Contact Verification**: Validates email format and contact numbers
-- **Downloadable/Printable QR Codes**: Guests can save or print their entry tickets
-
-### Onsite Check-In System
-- **Live QR Code Scanner**: Camera-based QR scanning for iPad/tablet
-- **Manual Entry Option**: Fallback manual guest code entry
-- **Duplicate Check-in Prevention**: Alerts if guest already checked in
-- **Real-time Statistics**: Live attendance counting
-- **Offline-capable Design**: Minimal dependencies for reliable operation
-
-### Admin Dashboard
-- **Event Management**: Create, edit, and manage multiple events
-- **Guest List Management**: View, search, filter, and manage attendees
-- **Real-time Analytics**: Live attendance rates and statistics
-- **Bulk Operations**: Mass upload and export capabilities
-- **Role-based Access Control**: Super Admin, Admin, and Staff roles
-
-### Reporting & Export
-- **Multiple Export Formats**: Excel, PDF, and CSV export options
-- **Attendance Reports**: Comprehensive attendance tracking and analytics
-- **Custom Date Ranges**: Filter reports by date/event
+- **Guest Self-Registration** — Public registration form with instant QR code ticket
+- **Excel Bulk Upload** — Pre-register guests via Excel/CSV file
+- **QR Code Check-In** — Camera-based scanner or manual code entry
+- **Admin Dashboard** — Manage events, guests, reports, and exports
+- **Export Reports** — Download guest list as Excel, PDF, or CSV
+- **Role-based Access** — Super Admin, Admin, and Staff roles
+- **Mobile Ready** — Works on iPhone, iPad, Android, and desktop
 
 ---
 
 ## Tech Stack
 
-### Backend
-- **Node.js** with Express.js
-- **MySQL** database
-- **JWT** authentication
-- **Multer** for file uploads
-- **QRCode.js** for QR generation
-- **xlsx** for Excel parsing
-
-### Frontend
-- **Vanilla JavaScript** (no framework dependencies)
-- **HTML5 QR Code Scanner** library
-- **Responsive CSS** with mobile-first design
-- **Font Awesome** icons
+- **Backend**: Node.js, Express.js
+- **Database**: SQLite (via better-sqlite3) — no setup required, auto-initializes on startup
+- **Auth**: JWT (jsonwebtoken)
+- **QR**: qrcode (generation), html5-qrcode (scanning)
+- **Excel**: ExcelJS
+- **Email**: Nodemailer (optional)
+- **Frontend**: Vanilla HTML/CSS/JavaScript
 
 ---
 
-## Installation
+## Local Development
 
 ### Prerequisites
-- Node.js (v14 or higher)
-- MySQL (v5.7 or higher)
-- npm or yarn
+- Node.js v14+
+- npm
 
-### Step 1: Clone and Install Dependencies
+### Setup
 
 ```bash
+# 1. Clone the repo
+git clone https://github.com/eventuraofficials/event-registration-system.git
 cd event-registration-system
+
+# 2. Install dependencies
 npm install
-```
 
-### Step 2: Database Setup
+# 3. Create .env file
+cp .env.production .env
+# Edit .env — set JWT_SECRET to any random string (min 32 chars)
 
-1. Create MySQL database:
-```sql
-CREATE DATABASE event_registration_db;
-```
-
-2. Import database schema:
-```bash
-mysql -u root -p event_registration_db < backend/config/schema.sql
-```
-
-Or run the SQL file manually in your MySQL client.
-
-### Step 3: Environment Configuration
-
-1. Copy `.env.example` to `.env`:
-```bash
-copy .env.example .env
-```
-
-2. Edit `.env` and configure your settings:
-```env
-PORT=5000
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=your_mysql_password
-DB_NAME=event_registration_db
-JWT_SECRET=your_super_secret_jwt_key_change_this
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASSWORD=your_app_password
-```
-
-### Step 4: Start the Server
-
-```bash
-# Development mode (with auto-reload)
+# 4. Start development server
 npm run dev
-
-# Production mode
-npm start
 ```
 
-The server will start on `http://localhost:5000`
+The server starts at `http://localhost:5000`
+
+### Default Admin Login
+- **Username**: `admin`
+- **Password**: `admin123`
+
+> Change this password after first login.
 
 ---
 
-## Usage Guide
+## Deployment (Render.com)
 
-### 1. Admin Login
+1. Push to GitHub
+2. Create a new **Web Service** on [render.com](https://render.com)
+3. Connect your GitHub repo
+4. Set:
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+5. Add Environment Variables:
+   - `NODE_ENV` = `production`
+   - `PORT` = `10000`
+   - `JWT_SECRET` = *(generate with: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"` )*
+   - `APP_URL` = `https://your-app-name.onrender.com`
+   - `CORS_ORIGIN` = `https://your-app-name.onrender.com`
 
-**URL**: `http://localhost:5000/admin.html`
-
-**Default Credentials**:
-- Username: `admin`
-- Password: `admin123`
-
-**Important**: Change the default password after first login!
-
-### 2. Create an Event
-
-1. Login to Admin Dashboard
-2. Go to **Events** section
-3. Click **Create New Event**
-4. Fill in event details:
-   - Event Name
-   - Event Code (unique identifier)
-   - Date & Time
-   - Venue
-   - Description
-5. Click **Create Event**
-
-### 3. Pre-Register Guests (Excel Upload)
-
-1. Download Excel template from **Upload Excel** section
-2. Fill in guest information:
-   - Full Name (Required)
-   - Email
-   - Contact Number
-   - Home Address
-   - Company Name
-3. Select the event
-4. Upload the Excel file
-5. Review import summary
-
-**Excel Format**:
-```
-Full Name       | Email              | Contact Number | Home Address    | Company Name
-John Doe        | john@example.com   | 09123456789   | 123 Main St     | ABC Corp
-Jane Smith      | jane@example.com   | 09987654321   | 456 Oak Ave     | XYZ Inc
-```
-
-### 4. Guest Self-Registration
-
-**Public URL**: `http://localhost:5000/index.html`
-
-Share this URL or create a QR code for it:
-```
-http://localhost:5000/index.html?event=CONF2025
-```
-(Replace CONF2025 with your event code)
-
-**Process**:
-1. Guest enters event code
-2. Fills registration form
-3. Receives unique QR code
-4. Downloads/prints QR code for event entry
-
-### 5. Onsite Check-In
-
-**Check-in URL**: `http://localhost:5000/checkin.html`
-
-**For iPad/Tablet**:
-1. Open check-in page in Safari/Chrome
-2. Enter event code
-3. Allow camera access
-4. Scan guest QR codes
-
-**Features**:
-- Auto-detects and validates QR codes
-- Shows guest information on scan
-- Prevents duplicate check-ins
-- Real-time attendance statistics
-- Manual code entry fallback
-
-### 6. Generate Reports
-
-1. Go to **Reports** section
-2. Select event
-3. Choose export format:
-   - **Excel**: Full detailed report
-   - **PDF**: Printable attendance sheet
-   - **CSV**: Data for external analysis
-
----
-
-## API Endpoints
-
-### Public Endpoints
-
-#### Get Event by Code
-```http
-GET /api/events/public/:event_code
-```
-
-#### Self-Register Guest
-```http
-POST /api/guests/register
-Content-Type: application/json
-
-{
-  "event_id": 1,
-  "full_name": "John Doe",
-  "email": "john@example.com",
-  "contact_number": "09123456789",
-  "home_address": "123 Main St",
-  "company_name": "ABC Corp"
-}
-```
-
-#### Verify Guest (for check-in)
-```http
-GET /api/guests/verify?guest_code=GUEST-XXX&event_id=1
-```
-
-#### Check-In Guest
-```http
-POST /api/guests/checkin
-Content-Type: application/json
-
-{
-  "guest_code": "GUEST-XXX",
-  "event_id": 1
-}
-```
-
-### Protected Endpoints (Require Authentication)
-
-#### Admin Login
-```http
-POST /api/admin/login
-Content-Type: application/json
-
-{
-  "username": "admin",
-  "password": "admin123"
-}
-```
-
-#### Create Event
-```http
-POST /api/events
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "event_name": "Tech Conference 2025",
-  "event_code": "TECH2025",
-  "event_date": "2025-12-01",
-  "event_time": "09:00:00",
-  "venue": "Convention Center",
-  "description": "Annual tech conference"
-}
-```
-
-#### Upload Excel
-```http
-POST /api/guests/upload-excel
-Authorization: Bearer <token>
-Content-Type: multipart/form-data
-
-file: <excel_file>
-event_id: 1
-```
-
-#### Get Guests by Event
-```http
-GET /api/guests/event/:event_id?status=attended
-Authorization: Bearer <token>
-```
+> **Note**: Free tier uses ephemeral storage — database resets on restart. Add a Persistent Disk ($7/mo) for permanent data.
 
 ---
 
@@ -300,165 +88,145 @@ Authorization: Bearer <token>
 ```
 event-registration-system/
 ├── backend/
-│   ├── config/
-│   │   ├── database.js          # Database connection
-│   │   └── schema.sql            # Database schema
-│   ├── controllers/
-│   │   ├── adminController.js    # Admin operations
-│   │   ├── eventController.js    # Event management
-│   │   └── guestController.js    # Guest & check-in
-│   ├── middleware/
-│   │   ├── auth.js               # JWT authentication
-│   │   └── upload.js             # File upload config
-│   ├── routes/
-│   │   ├── adminRoutes.js
-│   │   ├── eventRoutes.js
-│   │   └── guestRoutes.js
+│   ├── api/
+│   │   ├── controllers/
+│   │   │   ├── adminController.js
+│   │   │   ├── eventController.js
+│   │   │   └── guestController.js
+│   │   ├── middleware/
+│   │   │   ├── auth.js
+│   │   │   └── upload.js
+│   │   └── routes/
+│   │       ├── adminRoutes.js
+│   │       ├── eventRoutes.js
+│   │       └── guestRoutes.js
+│   ├── db/
+│   │   └── config/
+│   │       ├── database.js        # DB connection + auto-init schema
+│   │       └── init-sqlite.js     # Manual DB reset/seed script
 │   ├── utils/
-│   │   ├── excelParser.js        # Excel processing
-│   │   └── qrGenerator.js        # QR code generation
-│   └── server.js                 # Main server file
+│   │   ├── backup.js
+│   │   ├── excelParser.js
+│   │   ├── logger.js
+│   │   └── qrGenerator.js
+│   └── server.js
 ├── public/
 │   ├── css/
-│   │   ├── style.css             # Main styles
-│   │   ├── admin.css             # Admin dashboard styles
-│   │   └── checkin.css           # Check-in page styles
+│   │   ├── layouts/
+│   │   │   ├── minimalist-layout.css
+│   │   │   ├── admin.css
+│   │   │   └── checkin.css
+│   │   ├── components/
+│   │   └── theme/
 │   ├── js/
-│   │   ├── config.js             # API configuration
-│   │   ├── register.js           # Registration logic
-│   │   ├── checkin.js            # Check-in logic
-│   │   └── admin.js              # Admin dashboard logic
-│   ├── index.html                # Guest registration page
-│   ├── checkin.html              # Check-in scanner page
-│   └── admin.html                # Admin dashboard
-├── uploads/                      # Uploaded files directory
-├── .env.example                  # Environment template
-├── .gitignore
-├── package.json
-└── README.md
+│   │   └── pages/
+│   │       ├── admin.js
+│   │       ├── checkin.js
+│   │       └── register.js
+│   └── pages/
+│       ├── admin.html             # Admin dashboard
+│       ├── index.html             # Guest registration
+│       ├── checkin.html           # QR check-in scanner
+│       └── share-event.html       # Event QR sharing page
+├── data/                          # SQLite database (auto-created)
+├── uploads/                       # Uploaded Excel files
+├── logs/                          # Server logs
+├── start-production.js            # Production startup script
+├── .env.production                # Environment template
+└── package.json
 ```
 
 ---
 
-## Security Considerations
+## API Reference
 
-### Production Deployment Checklist
+### Public Endpoints
 
-1. **Change Default Credentials**
-   - Update admin password immediately
-   - Use strong, unique passwords
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/events/available` | Get events open for registration |
+| GET | `/api/events/checkin-available` | Get all events for check-in |
+| GET | `/api/events/public/:event_code` | Get event details by code |
+| POST | `/api/guests/register` | Self-register a guest |
+| GET | `/api/guests/verify?guest_code=X` | Verify guest QR code |
+| POST | `/api/guests/checkin` | Check in a guest |
 
-2. **Secure JWT Secret**
-   - Generate a strong random secret key
-   - Never commit `.env` file to version control
+### Protected Endpoints (Bearer Token required)
 
-3. **Enable HTTPS**
-   - Use SSL certificate (Let's Encrypt)
-   - Redirect HTTP to HTTPS
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/admin/login` | Admin login |
+| GET | `/api/admin/profile` | Get current admin profile |
+| POST | `/api/events` | Create event |
+| GET | `/api/events` | List all events |
+| PUT | `/api/events/:id` | Update event |
+| DELETE | `/api/events/:id` | Delete event |
+| PATCH | `/api/events/:id/toggle-registration` | Open/close registration |
+| GET | `/api/guests/event/:id` | Get guests for event |
+| GET | `/api/guests/event/:id/export` | Export guests as Excel |
+| POST | `/api/guests/upload-excel` | Bulk upload guests |
+| DELETE | `/api/guests/:id` | Delete guest |
 
-4. **Database Security**
-   - Use strong database passwords
-   - Limit database user privileges
-   - Enable MySQL firewall rules
+---
 
-5. **File Upload Security**
-   - Limit file sizes (default: 5MB)
-   - Validate file types
-   - Scan for malware if needed
+## Usage
 
-6. **Rate Limiting**
-   - Add rate limiting middleware
-   - Prevent brute-force attacks
+### 1. Create an Event
+1. Login at `/pages/admin.html`
+2. Go to **Events** → **Create New Event**
+3. Fill in name, code, date, venue
+4. A QR code is auto-generated linking to the registration page
 
-7. **Input Validation**
-   - Sanitize all user inputs
-   - Use parameterized queries (already implemented)
+### 2. Guest Registration
+Share the registration link: `https://your-app.onrender.com/pages/index.html?event=EVENTCODE`
 
-8. **CORS Configuration**
-   - Configure allowed origins in production
-   - Restrict API access to trusted domains
+Guests fill the form and receive a QR code ticket.
+
+### 3. Check-In
+Open `/pages/checkin.html` on a tablet/phone:
+- Select the event
+- Scan guest QR codes with camera
+- Or enter guest code manually
+
+### 4. Export Reports
+Go to **Reports** section → select event → export as **Excel**, **PDF**, or **CSV**.
+
+---
+
+## Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `NODE_ENV` | Yes | `production` or `development` |
+| `PORT` | Yes | Server port (10000 for Render) |
+| `JWT_SECRET` | Yes | Random string, min 32 chars |
+| `APP_URL` | Yes | Full app URL (for QR code generation) |
+| `CORS_ORIGIN` | Yes | Allowed origin for CORS |
+| `EMAIL_ENABLED` | No | `true` to enable email notifications |
+| `EMAIL_HOST` | No | SMTP host (e.g. smtp.gmail.com) |
+| `EMAIL_PORT` | No | SMTP port (587) |
+| `EMAIL_USER` | No | SMTP email address |
+| `EMAIL_PASSWORD` | No | SMTP app password |
 
 ---
 
 ## Troubleshooting
 
-### Database Connection Error
-```
-❌ Database connection failed: Access denied
-```
-**Solution**: Check MySQL credentials in `.env` file
+**Login fails with "Server error"**
+- Check Render logs — likely `JWT_SECRET` not set or DB failed to init
 
-### Camera Not Working on Check-In Page
-**Solution**:
-- Ensure HTTPS is enabled (cameras require secure context)
-- Check browser permissions
-- Use Safari on iOS or Chrome on Android
+**Camera not working on check-in**
+- Camera requires HTTPS — use the deployed URL, not localhost on other devices
 
-### Excel Upload Fails
-**Solution**:
-- Check file format (.xlsx, .xls, .csv)
-- Ensure column headers match template
-- Check file size (max 5MB)
+**Data resets after a while**
+- Expected on Render free tier (ephemeral disk) — upgrade to Persistent Disk for permanent storage
 
-### QR Code Not Generating
-**Solution**:
-- Check backend logs for errors
-- Ensure QRCode library is installed
-- Verify database guest_code is unique
-
----
-
-## Mobile Optimization
-
-The system is fully responsive and optimized for:
-- **Tablets** (iPad, Android tablets) - Perfect for check-in stations
-- **Smartphones** - Guest self-registration
-- **Desktop** - Admin dashboard management
-
-Recommended devices for check-in:
-- iPad (iOS 12+)
-- Android tablets (Chrome browser)
-- Laptops with webcam
-
----
-
-## Future Enhancements
-
-Potential features to add:
-- [ ] Email notifications with QR codes
-- [ ] SMS integration for OTP verification
-- [ ] Badge printing integration
-- [ ] Multi-language support
-- [ ] Advanced analytics dashboard
-- [ ] Guest check-out tracking
-- [ ] VIP/category-based registration
-- [ ] Integration with payment gateways
-- [ ] Mobile app (React Native/Flutter)
-
----
-
-## Support
-
-For issues and questions:
-- Check the troubleshooting section
-- Review API documentation
-- Check server logs: `backend/server.log`
+**Excel upload fails**
+- Ensure columns: `Full Name`, `Email`, `Contact Number`, `Home Address`, `Company Name`
+- Max file size: 10MB
 
 ---
 
 ## License
 
-MIT License - Free to use for personal and commercial projects
-
----
-
-## Credits
-
-Developed by: **Your Name**
-Technology Stack: Node.js, MySQL, HTML5, CSS3, JavaScript
-QR Library: html5-qrcode
-Icons: Font Awesome
-
----
-
-**Salamat at enjoy coding! 🚀**
+MIT — Free to use for personal and commercial projects.
