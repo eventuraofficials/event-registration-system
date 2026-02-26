@@ -26,6 +26,8 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0 var(--space-sm);
+    padding-left: max(var(--space-sm), env(safe-area-inset-left));
+    padding-right: max(var(--space-sm), env(safe-area-inset-right));
     z-index: 100;
 }
 
@@ -85,6 +87,7 @@ body {
 .app-layout {
     display: flex;
     min-height: 100vh;
+    min-height: 100dvh;
     padding-top: 60px; /* Header height */
 }
 
@@ -147,6 +150,7 @@ body {
     flex: 1;
     margin-left: 240px; /* Sidebar width */
     min-height: calc(100vh - 60px);
+    min-height: calc(100dvh - 60px);
 }
 
 .content-wrapper {
@@ -176,7 +180,9 @@ body {
 /* === LAYOUT WITHOUT SIDEBAR (Registration, Check-in) === */
 .app-layout-simple {
     min-height: 100vh;
+    min-height: 100dvh; /* iOS 15+: respects dynamic address bar height */
     padding-top: 60px; /* Header height */
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 .app-layout-simple .content-wrapper {
@@ -223,6 +229,11 @@ body {
     color: var(--text-dark);
     cursor: pointer;
     padding: 8px;
+    min-height: 44px;
+    min-width: 44px;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
 }
 
 @media (max-width: 768px) {

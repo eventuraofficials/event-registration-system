@@ -778,10 +778,12 @@
         font-size: 3rem;
     }
 
-    /* Action buttons smaller */
+    /* Action buttons - ensure 44px minimum touch target for iOS */
     .action-btn {
         padding: 8px 12px;
         font-size: 0.9rem;
+        min-height: 44px;
+        min-width: 44px;
     }
 
     /* Login card smaller padding */

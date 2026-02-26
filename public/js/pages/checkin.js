@@ -156,6 +156,14 @@ async function selectEventForCheckIn(eventCode) {
 // Initialize QR Code Scanner
 function initializeScanner() {
 
+    // iOS/Android: camera requires HTTPS (except localhost)
+    const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+    if (window.location.protocol !== 'https:' && !isLocalhost) {
+        showAlert('⚠️ Camera access requires a secure connection (HTTPS). Please use manual entry below.', 'warning');
+        document.querySelector('.manual-input').scrollIntoView({ behavior: 'smooth' });
+        return;
+    }
+
     // Check if Html5Qrcode library is loaded
     if (typeof Html5Qrcode === 'undefined') {
         console.error('❌ Html5Qrcode library not loaded!');
@@ -189,11 +197,16 @@ function initializeScanner() {
 
         }).catch(err => {
             console.error("❌ Scanner initialization error:", err);
-            showAlert('Failed to start camera. Please check camera permissions.', 'danger');
+            const msg = err && err.toString().includes('Permission')
+                ? 'Camera permission denied. Please allow camera access in your browser settings, or use manual entry below.'
+                : 'Failed to start camera. Please check camera permissions or use manual entry below.';
+            showAlert(msg, 'danger');
+            document.querySelector('.manual-input').scrollIntoView({ behavior: 'smooth' });
         });
     } catch (error) {
         console.error('❌ Error creating Html5Qrcode instance:', error);
-        showAlert('Failed to initialize scanner. Please refresh the page.', 'danger');
+        showAlert('Failed to initialize scanner. Please use manual entry below.', 'danger');
+        document.querySelector('.manual-input').scrollIntoView({ behavior: 'smooth' });
     }
 }
 

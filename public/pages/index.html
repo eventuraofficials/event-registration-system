@@ -11,7 +11,8 @@
     <link rel="stylesheet" href="../css/components/components.css">
     <link rel="stylesheet" href="../css/components/qr-ticket.css">
     <link rel="stylesheet" href="../css/layouts/mobile-responsive.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
 </head>
 <body>
     <!-- White Sticky Header -->
@@ -51,27 +52,27 @@
                     <form id="guestForm">
                         <div class="form-group">
                             <label for="fullName">Full Name *</label>
-                            <input type="text" id="fullName" required>
+                            <input type="text" id="fullName" required autocomplete="name" autocorrect="off">
                         </div>
 
                         <div class="form-group">
                             <label for="email">Email Address *</label>
-                            <input type="email" id="email" required>
+                            <input type="email" id="email" required autocomplete="email" autocorrect="off">
                         </div>
 
                         <div class="form-group">
                             <label for="contactNumber">Contact Number *</label>
-                            <input type="tel" id="contactNumber" required>
+                            <input type="tel" id="contactNumber" required autocomplete="tel">
                         </div>
 
                         <div class="form-group">
                             <label for="homeAddress">Home Address</label>
-                            <textarea id="homeAddress" rows="3"></textarea>
+                            <textarea id="homeAddress" rows="3" autocomplete="street-address" autocorrect="on"></textarea>
                         </div>
 
                         <div class="form-group">
                             <label for="companyName">Company Name</label>
-                            <input type="text" id="companyName">
+                            <input type="text" id="companyName" autocomplete="organization" autocorrect="off">
                         </div>
 
                         <div class="form-group">

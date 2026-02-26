@@ -9,7 +9,8 @@
     <link rel="stylesheet" href="../css/theme/modern-theme.css">
     <link rel="stylesheet" href="../css/layouts/minimalist-layout.css">
     <link rel="stylesheet" href="../css/components/components.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         .share-container {
@@ -481,13 +482,20 @@
 
         function downloadQR() {
             const canvas = document.querySelector('#qrcode canvas');
-            if (canvas) {
-                const url = canvas.toDataURL('image/png');
+            if (!canvas) return;
+
+            const url = canvas.toDataURL('image/png');
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+            if (isIOS) {
+                // iOS Safari: open image in new tab, user long-presses to save
+                const win = window.open();
+                win.document.write(`<html><head><title>QR - ${currentEvent.event_code}</title></head><body style="margin:0;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;background:#f8f9fa;font-family:sans-serif;"><img src="${url}" style="max-width:90vw;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.15);" /><p style="color:#666;margin-top:16px;text-align:center;">Long-press the image and tap <strong>Save to Photos</strong></p></body></html>`);
+            } else {
                 const link = document.createElement('a');
                 link.download = `${currentEvent.event_code}_Registration_QR.png`;
                 link.href = url;
                 link.click();
-                alert('✅ QR Code downloaded!');
             }
         }
 

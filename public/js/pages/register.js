@@ -288,7 +288,14 @@ function downloadQRCode() {
     const qrImage = document.getElementById('qrCodeImage');
     const guestCode = document.getElementById('guestCodeDisplay').textContent;
 
-    // Create download link
+    // iOS Safari doesn't support programmatic downloads — open in new tab instead
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+        const win = window.open();
+        win.document.write(`<html><head><title>QR Code - ${guestCode}</title></head><body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f8f9fa;"><img src="${qrImage.src}" style="max-width:90vw;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.15);" /><p style="text-align:center;font-family:sans-serif;color:#666;margin-top:12px;">Long-press the image to save it</p></body></html>`);
+        return;
+    }
+
     const link = document.createElement('a');
     link.href = qrImage.src;
     link.download = `QR-Code-${guestCode}.png`;
