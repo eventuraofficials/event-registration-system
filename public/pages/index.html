@@ -7,17 +7,28 @@
     <meta name="description" content="Register for events and get your QR code entry ticket instantly">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="stylesheet" href="../css/theme/modern-theme.css">
+    <link rel="stylesheet" href="../css/layouts/minimalist-layout.css">
     <link rel="stylesheet" href="../css/components/components.css">
     <link rel="stylesheet" href="../css/components/qr-ticket.css">
     <link rel="stylesheet" href="../css/layouts/mobile-responsive.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Header Component -->
-        <div id="headerContainer"></div>
+    <!-- White Sticky Header -->
+    <header class="app-header">
+        <a href="/" class="app-header-logo">
+            <i class="fas fa-calendar-check"></i>
+            <span>Event Registration</span>
+        </a>
+        <div class="app-header-user">
+            <a href="/" style="text-decoration: none; color: var(--text-light); font-size: 0.875rem; font-weight: 500;">Home</a>
+        </div>
+    </header>
 
-        <main class="main-content">
+    <!-- Simple Layout (No Sidebar) -->
+    <div class="app-layout-simple">
+        <div class="content-wrapper">
+            <main class="main-content">
             <!-- Event Info & Registration Form -->
             <div id="registrationSection" class="section active">
                 <!-- Event Info Card -->
@@ -188,6 +199,7 @@
 
         <!-- Footer Component -->
         <div id="footerContainer"></div>
+        </div>
     </div>
 
     <!-- Loading Overlay -->
@@ -209,14 +221,6 @@
 
     <!-- Initialize Components -->
     <script>
-        // Render Header
-        Components.mount('#headerContainer', 'Header', {
-            title: 'Event Registration Portal',
-            subtitle: 'Register now and get your QR code entry ticket instantly',
-            icon: 'fa-calendar-check',
-            showLogo: 'true'
-        });
-
         // Render Footer
         Components.mount('#footerContainer', 'Footer', {
             year: '2025',

@@ -145,8 +145,24 @@ function showDashboard() {
     document.getElementById('dashboardScreen').classList.add('active');
 
     // Update admin info
-    document.getElementById('adminName').textContent = SecurityUtils.escapeHtml(currentAdmin.full_name || currentAdmin.username);
-    document.getElementById('adminRole').textContent = SecurityUtils.escapeHtml(currentAdmin.role.replace('_', ' ').toUpperCase());
+    const adminName = SecurityUtils.escapeHtml(currentAdmin.full_name || currentAdmin.username);
+
+    // Update old sidebar elements (if they exist)
+    const adminNameEl = document.getElementById('adminName');
+    if (adminNameEl) {
+        adminNameEl.textContent = adminName;
+    }
+
+    const adminRoleEl = document.getElementById('adminRole');
+    if (adminRoleEl) {
+        adminRoleEl.textContent = SecurityUtils.escapeHtml(currentAdmin.role.replace('_', ' ').toUpperCase());
+    }
+
+    // Update header admin name (new layout)
+    const adminNameHeader = document.getElementById('adminNameHeader');
+    if (adminNameHeader) {
+        adminNameHeader.textContent = adminName;
+    }
 }
 
 // Load dashboard data
@@ -495,11 +511,14 @@ function showSection(sectionName) {
     // Show selected section
     document.getElementById(sectionName + 'Section').classList.add('active');
 
-    // Update nav
-    document.querySelectorAll('.nav-item').forEach(item => {
+    // Update nav - support both old nav-item and new sidebar-nav-link classes
+    document.querySelectorAll('.nav-item, .sidebar-nav-link').forEach(item => {
         item.classList.remove('active');
     });
-    document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+    const activeNavItem = document.querySelector(`[data-section="${sectionName}"]`);
+    if (activeNavItem) {
+        activeNavItem.classList.add('active');
+    }
 }
 
 // Show create event form

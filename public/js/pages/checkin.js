@@ -25,28 +25,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Load available events for dropdown
 async function loadAvailableEventsForCheckIn() {
+    console.log('🔄 Loading events for check-in dropdown...');
     try {
         const response = await fetch(`${API_BASE_URL}/events/checkin-available`);
+        console.log('📡 Response status:', response.status);
+
         const data = await response.json();
+        console.log('📊 Events data:', data);
 
         if (data.success && data.events && data.events.length > 0) {
             const select = document.getElementById('eventSelectDropdown');
             select.innerHTML = '<option value="">-- Select an Event --</option>';
 
+            console.log(`✅ Found ${data.events.length} events`);
+
             // Show ALL events - staff should be able to check in guests for any event
             data.events.forEach(event => {
-                const option = document.createElement('option');
-                option.value = event.event_code;
-                // Show registration status in dropdown for clarity
-                const regStatus = event.registration_open ? '✓ Open' : '✗ Closed';
-                option.textContent = `${event.event_name} (${event.event_code}) - ${formatDate(event.event_date)} [${regStatus}]`;
-                select.appendChild(option);
+                try {
+                    const option = document.createElement('option');
+                    option.value = event.event_code;
+                    // Show registration status in dropdown for clarity
+                    const regStatus = event.registration_open ? '✓ Open' : '✗ Closed';
+
+                    // Try to format date, fallback to raw date if formatDate is not available
+                    let formattedDate = event.event_date;
+                    try {
+                        if (typeof formatDate === 'function') {
+                            formattedDate = formatDate(event.event_date);
+                        }
+                    } catch (dateError) {
+                        console.warn('formatDate error:', dateError);
+                    }
+
+                    option.textContent = `${event.event_name} (${event.event_code}) - ${formattedDate} [${regStatus}]`;
+                    select.appendChild(option);
+                    console.log(`  ➕ Added: ${event.event_name}`);
+                } catch (eventError) {
+                    console.error(`  ❌ Error adding event ${event.event_name}:`, eventError);
+                }
             });
         } else {
+            console.warn('⚠️ No events found in response');
             const select = document.getElementById('eventSelectDropdown');
             select.innerHTML = '<option value="">-- No Events Available --</option>';
         }
     } catch (error) {
+        console.error('❌ Error loading events:', error);
         const select = document.getElementById('eventSelectDropdown');
         select.innerHTML = '<option value="">-- Error Loading Events --</option>';
     }
@@ -58,22 +82,28 @@ function loadEventFromDropdown() {
     const eventCode = select.value;
 
     if (eventCode) {
-        document.getElementById('checkInEventCode').value = eventCode;
-        selectEventForCheckIn();
+        console.log('📋 Event selected from dropdown:', eventCode);
+        selectEventForCheckIn(eventCode);
     } else {
-
+        console.log('⚠️ No event selected');
     }
 }
 
 // Note: formatDate is defined in config.js
 
 // Select event for check-in
-async function selectEventForCheckIn() {
-    const eventCode = document.getElementById('checkInEventCode').value.trim();
+async function selectEventForCheckIn(eventCode) {
+    // If no eventCode passed, try to get from old input field (for backwards compatibility)
+    if (!eventCode) {
+        const inputField = document.getElementById('checkInEventCode');
+        if (inputField) {
+            eventCode = inputField.value.trim();
+        }
+    }
 
     if (!eventCode) {
-
-        showAlert('Please enter an event code', 'danger');
+        console.error('❌ No event code provided');
+        showAlert('Please select an event', 'danger');
         return;
     }
 
@@ -112,7 +142,7 @@ async function selectEventForCheckIn() {
         }
 
         // Initialize QR scanner
-        ...');
+        console.log('🎥 Initializing QR scanner...');
         initializeScanner();
 
         hideLoading();

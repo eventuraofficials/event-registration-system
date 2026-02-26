@@ -11,6 +11,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="stylesheet" href="../css/theme/modern-theme.css?v=20251126">
     <link rel="stylesheet" href="../css/components/components.css">
+    <link rel="stylesheet" href="../css/layouts/minimalist-layout.css">
     <link rel="stylesheet" href="../css/layouts/mobile-responsive.css">
     <link rel="stylesheet" href="../css/layouts/admin.css?v=20251126">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -43,57 +44,73 @@
 
     <!-- Admin Dashboard -->
     <div id="dashboardScreen" class="dashboard-screen">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2><i class="fas fa-cog"></i> Admin Panel</h2>
+        <!-- White Sticky Header -->
+        <header class="app-header">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a href="#" class="app-header-logo">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Event Admin</span>
+                </a>
             </div>
-            <nav class="sidebar-nav">
-                <a href="#" onclick="showSection('overview')" class="nav-item active" data-section="overview">
-                    <i class="fas fa-chart-line"></i> Overview
-                </a>
-                <a href="#" onclick="showSection('events')" class="nav-item" data-section="events">
-                    <i class="fas fa-calendar"></i> Events
-                </a>
-                <a href="#" onclick="showSection('guests')" class="nav-item" data-section="guests">
-                    <i class="fas fa-users"></i> Guests
-                </a>
-                <a href="#" onclick="showSection('upload')" class="nav-item" data-section="upload">
-                    <i class="fas fa-file-upload"></i> Import Guests
-                </a>
-                <a href="#" onclick="showSection('reports')" class="nav-item" data-section="reports">
-                    <i class="fas fa-chart-bar"></i> Reports & Export
-                </a>
-
-                <!-- External Tools -->
-                <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0; padding-top: 15px;">
-                    <p style="padding: 5px 20px 10px; font-size: 0.75rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
-                        <i class="fas fa-tools"></i> Event Tools
-                    </p>
-                </div>
-
-                <a href="/pages/checkin.html" target="_blank" class="nav-item" style="background: rgba(255,255,255,0.05);" title="Open QR scanner for guest check-in at event entrance (New Tab)">
-                    <i class="fas fa-qrcode"></i>
-                    <span>QR Scanner</span>
-                    <i class="fas fa-external-link-alt" style="margin-left: auto; font-size: 0.7rem; opacity: 0.6;"></i>
-                </a>
-            </nav>
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <i class="fas fa-user-circle"></i>
-                    <div>
-                        <div class="user-name" id="adminName">Administrator</div>
-                        <div class="user-role" id="adminRole">Super Admin</div>
-                    </div>
-                </div>
-                <button onclick="logout()" class="btn btn-secondary btn-block">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+            <div class="app-header-user">
+                <span class="app-header-user-name" id="adminNameHeader">Administrator</span>
+                <button onclick="logout()" class="btn btn-secondary" style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
                 </button>
             </div>
-        </aside>
+        </header>
 
-        <!-- Main Content -->
-        <main class="main-dashboard">
+        <!-- Sidebar Overlay (Mobile) -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileMenu()"></div>
+
+        <!-- Layout Container -->
+        <div class="app-layout">
+            <!-- Sidebar -->
+            <aside class="app-sidebar" id="appSidebar">
+                <nav class="sidebar-nav">
+                    <a href="#" onclick="showSection('overview'); closeMobileMenu();" class="sidebar-nav-link active" data-section="overview">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Overview</span>
+                    </a>
+                    <a href="#" onclick="showSection('events'); closeMobileMenu();" class="sidebar-nav-link" data-section="events">
+                        <i class="fas fa-calendar"></i>
+                        <span>Events</span>
+                    </a>
+                    <a href="#" onclick="showSection('guests'); closeMobileMenu();" class="sidebar-nav-link" data-section="guests">
+                        <i class="fas fa-users"></i>
+                        <span>Guests</span>
+                    </a>
+                    <a href="#" onclick="showSection('upload'); closeMobileMenu();" class="sidebar-nav-link" data-section="upload">
+                        <i class="fas fa-file-upload"></i>
+                        <span>Import Guests</span>
+                    </a>
+                    <a href="#" onclick="showSection('reports'); closeMobileMenu();" class="sidebar-nav-link" data-section="reports">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reports & Export</span>
+                    </a>
+
+                    <!-- External Tools -->
+                    <div style="border-top: 1px solid var(--border-color); margin: 15px 0; padding-top: 15px;">
+                        <p style="padding: 5px 16px 10px; font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
+                            <i class="fas fa-tools"></i> Event Tools
+                        </p>
+                    </div>
+
+                    <a href="/pages/checkin.html" target="_blank" class="sidebar-nav-link" style="background: var(--gray-50);" title="Open QR scanner for guest check-in at event entrance (New Tab)">
+                        <i class="fas fa-qrcode"></i>
+                        <span>QR Scanner</span>
+                        <i class="fas fa-external-link-alt" style="margin-left: auto; font-size: 0.7rem; opacity: 0.6;"></i>
+                    </a>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="app-content">
+                <div class="content-wrapper">
             <!-- Overview Section -->
             <section id="overviewSection" class="dashboard-section active">
                 <div class="section-header">
@@ -534,8 +551,10 @@
                     </div>
                 </div>
             </section>
-        </main>
-    </div>
+                </div> <!-- End content-wrapper -->
+            </main> <!-- End app-content -->
+        </div> <!-- End app-layout -->
+    </div> <!-- End dashboardScreen -->
 
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
@@ -554,6 +573,29 @@
 
     <!-- Mobile Menu -->
     <script src="../js/utils/mobile-menu.js"></script>
+
+    <!-- Mobile Menu Toggle Script -->
+    <script>
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('appSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (sidebar && overlay) {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            }
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('appSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (sidebar && overlay) {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('active');
+            }
+        }
+    </script>
 
     <!-- App Scripts -->
     <script src="../js/core/config.js?v=20251109092000"></script>
