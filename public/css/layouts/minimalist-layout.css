@@ -50,6 +50,18 @@ body {
     gap: var(--space-xs);
 }
 
+.app-header-nav-link {
+    text-decoration: none;
+    color: var(--text-light);
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-medium);
+    transition: color var(--transition);
+}
+
+.app-header-nav-link:hover {
+    color: var(--text-dark);
+}
+
 .app-header-user-name {
     font-size: 0.875rem;
     color: var(--text-light);

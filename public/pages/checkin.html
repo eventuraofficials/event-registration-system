@@ -15,6 +15,7 @@
     <link rel="preload" href="../css/theme/modern-theme.css" as="style">
     <link rel="preload" href="../css/layouts/checkin.css" as="style">
     <link rel="stylesheet" href="../css/theme/modern-theme.css">
+    <link rel="stylesheet" href="../css/layouts/minimalist-layout.css">
     <link rel="stylesheet" href="../css/components/components.css">
     <link rel="stylesheet" href="../css/layouts/mobile-responsive.css">
     <link rel="stylesheet" href="../css/layouts/checkin.css">
@@ -26,12 +27,22 @@
     <!-- Performance: QR Scanner library lazy loaded in checkin.js when needed -->
 </head>
 <body class="checkin-body">
-    <div class="container">
-        <header class="header">
-            <h1><i class="fas fa-qrcode"></i> Event Check-In Scanner</h1>
-            <p class="subtitle"><i class="fas fa-camera"></i> Scan guest QR codes with camera for attendance verification</p>
-        </header>
+    <!-- White Sticky Header -->
+    <header class="app-header">
+        <a href="#" class="app-header-logo">
+            <i class="fas fa-qrcode"></i>
+            <span>Event Check-In</span>
+        </a>
+        <div class="app-header-user">
+            <a href="/pages/admin.html" class="app-header-nav-link">
+                <i class="fas fa-user-shield"></i> Admin
+            </a>
+        </div>
+    </header>
 
+    <!-- Simple Layout (No Sidebar) -->
+    <div class="app-layout-simple">
+        <div class="content-wrapper">
         <main class="main-content">
             <!-- Event Selection for Check-in -->
             <div id="eventSelectSection" class="section active">
@@ -122,6 +133,7 @@
                 </div>
             </div>
         </main>
+        </div>
     </div>
 
     <!-- Loading Overlay -->
