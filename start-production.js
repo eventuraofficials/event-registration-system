@@ -58,7 +58,7 @@ const dbPath = path.join(__dirname, 'data', 'event_registration.db');
 if (!fs.existsSync(dbPath)) {
     console.log('📦 Initializing database...');
     try {
-        require('./backend/config/init-sqlite');
+        require('./backend/db/config/init-sqlite');
         console.log('✅ Database initialized');
     } catch (error) {
         console.log('⚠️  Database will be initialized on first request');
