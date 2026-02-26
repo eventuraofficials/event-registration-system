@@ -1428,7 +1428,44 @@ function renderGuestsTable() {
 
 // Filter guests
 function filterGuests(searchTerm) {
-    // Implementation similar to filterEvents
+    const tbody = document.getElementById('guestsTableBody');
+    if (!tbody) return;
+
+    const term = searchTerm.toLowerCase().trim();
+    const filtered = term
+        ? currentEventGuests.filter(g =>
+            (g.full_name && g.full_name.toLowerCase().includes(term)) ||
+            (g.email && g.email.toLowerCase().includes(term)) ||
+            (g.contact_number && g.contact_number.includes(term)) ||
+            (g.company_name && g.company_name.toLowerCase().includes(term)) ||
+            (g.guest_code && g.guest_code.toLowerCase().includes(term))
+          )
+        : currentEventGuests;
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No guests match your search</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = filtered.map(guest => `
+        <tr>
+            <td><code>${SecurityUtils.escapeHtml(guest.guest_code)}</code></td>
+            <td>${SecurityUtils.escapeHtml(guest.full_name)}</td>
+            <td>${SecurityUtils.escapeHtml(guest.email || 'N/A')}</td>
+            <td>${SecurityUtils.escapeHtml(guest.company_name || 'N/A')}</td>
+            <td>
+                <span class="status-badge ${guest.attended ? 'status-attended' : 'status-pending'}">
+                    ${guest.attended ? 'Attended' : 'Pending'}
+                </span>
+            </td>
+            <td>${guest.check_in_time ? formatDateTime(guest.check_in_time) : 'N/A'}</td>
+            <td>
+                <button onclick="deleteGuest(${guest.id})" class="action-btn delete" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
 }
 
 // Delete guest
@@ -1653,9 +1690,76 @@ async function exportToPDF() {
         return;
     }
 
-    // For now, use CSV export (PDF would require additional library)
-    showAlert('PDF export coming soon. Using CSV format...', 'info');
-    setTimeout(() => exportToCSV(), 1000);
+    showLoading();
+
+    try {
+        const data = await fetchAPI(`${API_BASE_URL}/guests/event/${eventId}`, {
+            headers: getAuthHeaders()
+        });
+
+        if (!data.success) throw new Error(data.message);
+
+        const guests = data.guests;
+        const event = allEvents.find(e => e.id == eventId);
+        const eventName = event ? event.event_name : 'Event';
+        const eventDate = event ? formatDate(event.event_date) : '';
+        const attended = guests.filter(g => g.attended).length;
+
+        const rows = guests.map((g, i) => `
+            <tr>
+                <td>${i + 1}</td>
+                <td>${g.guest_code}</td>
+                <td>${g.full_name}</td>
+                <td>${g.email || ''}</td>
+                <td>${g.contact_number || ''}</td>
+                <td>${g.company_name || ''}</td>
+                <td style="text-align:center;">${g.attended ? '✓' : ''}</td>
+                <td>${g.check_in_time ? formatDateTime(g.check_in_time) : ''}</td>
+            </tr>
+        `).join('');
+
+        const win = window.open('', '_blank');
+        win.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${eventName} - Guest List</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; color: #000; }
+                    h1 { font-size: 18px; margin-bottom: 4px; }
+                    .meta { font-size: 12px; color: #555; margin-bottom: 16px; }
+                    .summary { font-size: 13px; margin-bottom: 12px; }
+                    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+                    th { background: #333; color: #fff; padding: 6px 8px; text-align: left; }
+                    td { padding: 5px 8px; border-bottom: 1px solid #ddd; }
+                    tr:nth-child(even) { background: #f9f9f9; }
+                    @media print { button { display: none; } }
+                </style>
+            </head>
+            <body>
+                <h1>${eventName}</h1>
+                <div class="meta">${eventDate}${event && event.venue ? ' &bull; ' + event.venue : ''}</div>
+                <div class="summary">Total Guests: <strong>${guests.length}</strong> &nbsp;|&nbsp; Attended: <strong>${attended}</strong> &nbsp;|&nbsp; Pending: <strong>${guests.length - attended}</strong></div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th><th>Guest Code</th><th>Full Name</th><th>Email</th>
+                            <th>Contact</th><th>Company</th><th>Attended</th><th>Check-in Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+                <script>window.onload = function() { window.print(); }<\/script>
+            </body>
+            </html>
+        `);
+        win.document.close();
+        hideLoading();
+
+    } catch (error) {
+        hideLoading();
+        showAlert(error.message || 'PDF export failed', 'danger');
+    }
 }
 
 async function exportToCSV() {
