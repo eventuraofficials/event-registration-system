@@ -3,6 +3,18 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 
+async function logActivity(userId, action, description, req) {
+  try {
+    await db.execute(
+      `INSERT INTO activity_logs (user_id, action, description, ip_address, user_agent)
+       VALUES (?, ?, ?, ?, ?)`,
+      [userId || null, action, description,
+       req ? (req.ip || null) : null,
+       req ? (req.get('user-agent') || null) : null]
+    );
+  } catch (e) { /* non-fatal */ }
+}
+
 /**
  * Sanitize and validate input to prevent XSS and injection attacks
  */
@@ -95,6 +107,9 @@ exports.login = async (req, res) => {
         role: user.role
       }
     });
+
+    // Log login activity
+    logActivity(user.id, 'LOGIN', `Admin login: ${user.username}`, req).catch(() => {});
 
   } catch (error) {
     console.error('Login error:', error);

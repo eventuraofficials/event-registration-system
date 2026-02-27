@@ -19,6 +19,7 @@ router.post('/checkin', authenticateToken, guestController.checkIn);
 router.get('/event/:event_id', authenticateToken, guestController.getGuestsByEvent);
 router.get('/event/:event_id/stats', authenticateToken, guestController.getEventStats);
 router.get('/event/:eventId/export', authenticateToken, guestController.exportGuestList);
+router.post('/:id/resend-ticket', authenticateToken, guestController.resendTicket);
 router.put('/:id', authenticateToken, guestController.updateGuest);
 router.delete('/:id', authenticateToken, guestController.deleteGuest);
 

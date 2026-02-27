@@ -482,4 +482,47 @@ exports.getAllEventsForCheckIn = async (req, res) => {
   }
 };
 
+/**
+ * Clone/duplicate an event
+ */
+exports.cloneEvent = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [events] = await db.execute('SELECT * FROM events WHERE id = ?', [id]);
+    if (events.length === 0) {
+      return res.status(404).json({ success: false, message: 'Event not found' });
+    }
+
+    const src = events[0];
+    const newCode = src.event_code + '_COPY' + Date.now().toString().slice(-4);
+    const newName = src.event_name + ' (Copy)';
+
+    // Generate new QR code for the cloned event
+    let baseURL = process.env.APP_URL || 'http://localhost:5000';
+    const registrationURL = `${baseURL}/pages/index.html?event=${newCode}`;
+    const eventQRCode = await QRCode.toDataURL(registrationURL, {
+      errorCorrectionLevel: 'H', type: 'image/png', width: 400, margin: 2
+    });
+
+    const [result] = await db.execute(
+      `INSERT INTO events (event_name, event_code, event_qr_code, event_date, event_time,
+        venue, description, max_capacity, registration_open, registration_form_config, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
+      [newName, newCode, eventQRCode, src.event_date, src.event_time,
+       src.venue, src.description, src.max_capacity,
+       src.registration_form_config, req.user.id]
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'Event cloned successfully',
+      event: { id: result.insertId, event_name: newName, event_code: newCode }
+    });
+  } catch (error) {
+    console.error('Clone event error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
 module.exports = exports;

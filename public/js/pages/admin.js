@@ -109,6 +109,13 @@ async function handleLogin(e) {
         showDashboard();
         loadDashboardData();
 
+        // Warn if still using default admin credentials
+        if (currentAdmin.username === 'admin') {
+            setTimeout(() => {
+                showAlert('⚠️ Security Warning: You are using the default "admin" account. Please change your password immediately in Settings → Change Password.', 'warning');
+            }, 1000);
+        }
+
         // Start auto token refresh
         if (typeof startTokenRefresh === 'function') {
             startTokenRefresh();
@@ -254,6 +261,9 @@ function renderEventsTable() {
                 </button>
                 <button onclick="toggleRegistration(${event.id})" class="action-btn edit" title="Toggle Registration">
                     <i class="fas fa-toggle-on"></i>
+                </button>
+                <button onclick="cloneEvent(${event.id})" class="action-btn" title="Clone Event" style="color:#6366f1; background:#ede9fe;">
+                    <i class="fas fa-copy"></i>
                 </button>
                 <button onclick="deleteEvent(${event.id}, '${event.event_name}')" class="action-btn delete" title="Delete Event">
                     <i class="fas fa-trash"></i>
@@ -1418,19 +1428,28 @@ function renderGuestsTable() {
         return;
     }
 
-    tbody.innerHTML = currentEventGuests.map(guest => `
+    const categoryColors = { VIP: '#7c3aed', Speaker: '#0284c7', Sponsor: '#d97706', Media: '#dc2626', Regular: '#64748b' };
+
+    tbody.innerHTML = currentEventGuests.map(guest => {
+        const cat = guest.guest_category || 'Regular';
+        const catColor = categoryColors[cat] || '#64748b';
+        return `
         <tr>
             <td><code>${SecurityUtils.escapeHtml(guest.guest_code)}</code></td>
             <td>${SecurityUtils.escapeHtml(guest.full_name)}</td>
             <td>${SecurityUtils.escapeHtml(guest.email || 'N/A')}</td>
             <td>${SecurityUtils.escapeHtml(guest.company_name || 'N/A')}</td>
+            <td><span style="background:${catColor}20;color:${catColor};padding:2px 8px;border-radius:20px;font-size:0.75rem;font-weight:600;">${cat}</span></td>
             <td>
                 <span class="badge ${guest.attended ? 'success' : 'warning'}">
-                    ${guest.attended ? 'Attended' : 'Not Attended'}
+                    ${guest.attended ? 'Attended' : 'Pending'}
                 </span>
             </td>
-            <td>${guest.check_in_time ? formatDateTime(guest.check_in_time) : 'N/A'}</td>
+            <td>${guest.check_in_time ? formatDateTime(guest.check_in_time) : '—'}</td>
             <td>
+                ${guest.email ? `<button onclick="resendTicket(${guest.id})" class="action-btn" title="Resend QR ticket" style="color:#059669;">
+                    <i class="fas fa-paper-plane"></i>
+                </button>` : ''}
                 <button onclick="openEditGuestModal(${guest.id})" class="action-btn" title="Edit" style="color:var(--primary);">
                     <i class="fas fa-edit"></i>
                 </button>
@@ -1439,7 +1458,7 @@ function renderGuestsTable() {
                 </button>
             </td>
         </tr>
-    `).join('');
+    `}).join('');
 }
 
 // Filter guests
@@ -1459,29 +1478,41 @@ function filterGuests(searchTerm) {
         : currentEventGuests;
 
     if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No guests match your search</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No guests match your search</td></tr>';
         return;
     }
 
-    tbody.innerHTML = filtered.map(guest => `
+    const categoryColors = { VIP: '#7c3aed', Speaker: '#0284c7', Sponsor: '#d97706', Media: '#dc2626', Regular: '#64748b' };
+
+    tbody.innerHTML = filtered.map(guest => {
+        const cat = guest.guest_category || 'Regular';
+        const catColor = categoryColors[cat] || '#64748b';
+        return `
         <tr>
             <td><code>${SecurityUtils.escapeHtml(guest.guest_code)}</code></td>
             <td>${SecurityUtils.escapeHtml(guest.full_name)}</td>
             <td>${SecurityUtils.escapeHtml(guest.email || 'N/A')}</td>
             <td>${SecurityUtils.escapeHtml(guest.company_name || 'N/A')}</td>
+            <td><span style="background:${catColor}20;color:${catColor};padding:2px 8px;border-radius:20px;font-size:0.75rem;font-weight:600;">${cat}</span></td>
             <td>
-                <span class="status-badge ${guest.attended ? 'status-attended' : 'status-pending'}">
+                <span class="badge ${guest.attended ? 'success' : 'warning'}">
                     ${guest.attended ? 'Attended' : 'Pending'}
                 </span>
             </td>
-            <td>${guest.check_in_time ? formatDateTime(guest.check_in_time) : 'N/A'}</td>
+            <td>${guest.check_in_time ? formatDateTime(guest.check_in_time) : '—'}</td>
             <td>
+                ${guest.email ? `<button onclick="resendTicket(${guest.id})" class="action-btn" title="Resend QR ticket" style="color:#059669;">
+                    <i class="fas fa-paper-plane"></i>
+                </button>` : ''}
+                <button onclick="openEditGuestModal(${guest.id})" class="action-btn" title="Edit" style="color:var(--primary);">
+                    <i class="fas fa-edit"></i>
+                </button>
                 <button onclick="deleteGuest(${guest.id})" class="action-btn delete" title="Delete">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
         </tr>
-    `).join('');
+    `}).join('');
 }
 
 // Delete guest
@@ -2022,5 +2053,42 @@ async function createStaffAccount() {
         loadStaff();
     } catch (err) {
         showAlert(err.message || 'Failed to create staff account', 'danger');
+    }
+}
+
+// ===================== RESEND TICKET =====================
+async function resendTicket(guestId) {
+    if (!confirm('Resend the QR ticket email to this guest?')) return;
+    showLoading();
+    try {
+        const data = await fetchAPI(`${API_BASE_URL}/guests/${guestId}/resend-ticket`, {
+            method: 'POST',
+            headers: getAuthHeaders()
+        });
+        if (!data.success) throw new Error(data.message);
+        hideLoading();
+        showAlert('Ticket email sent successfully!', 'success');
+    } catch (err) {
+        hideLoading();
+        showAlert(err.message || 'Failed to resend ticket', 'danger');
+    }
+}
+
+// ===================== CLONE EVENT =====================
+async function cloneEvent(eventId) {
+    if (!confirm('Clone this event? A duplicate will be created with "(Copy)" in the name.')) return;
+    showLoading();
+    try {
+        const data = await fetchAPI(`${API_BASE_URL}/events/${eventId}/clone`, {
+            method: 'POST',
+            headers: getAuthHeaders()
+        });
+        if (!data.success) throw new Error(data.message);
+        hideLoading();
+        showAlert(`Event cloned: "${data.event.event_name}"`, 'success');
+        loadEvents();
+    } catch (err) {
+        hideLoading();
+        showAlert(err.message || 'Failed to clone event', 'danger');
     }
 }

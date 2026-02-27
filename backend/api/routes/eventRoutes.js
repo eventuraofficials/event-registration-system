@@ -36,4 +36,10 @@ router.patch('/:id/toggle-registration',
   eventController.toggleRegistration
 );
 
+router.post('/:id/clone',
+  authenticateToken,
+  authorizeRole('super_admin', 'admin'),
+  eventController.cloneEvent
+);
+
 module.exports = router;

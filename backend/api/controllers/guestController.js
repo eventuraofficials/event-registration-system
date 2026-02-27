@@ -401,6 +401,10 @@ exports.checkIn = async (req, res) => {
       }
     });
 
+    // Log check-in activity
+    logActivity(checkedInBy, event_id, guest.id, 'CHECK_IN',
+      `Checked in: ${guest.full_name}`, req).catch(() => {});
+
   } catch (error) {
     console.error('Check-in error:', error);
     res.status(500).json({
@@ -700,5 +704,69 @@ exports.updateGuest = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
+/**
+ * Resend QR ticket email to guest
+ */
+exports.resendTicket = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [guests] = await db.execute(
+      `SELECT g.*, e.event_name, e.event_date, e.event_time, e.venue
+       FROM guests g JOIN events e ON g.event_id = e.id WHERE g.id = ?`,
+      [id]
+    );
+
+    if (guests.length === 0) {
+      return res.status(404).json({ success: false, message: 'Guest not found' });
+    }
+
+    const guest = guests[0];
+    if (!guest.email) {
+      return res.status(400).json({ success: false, message: 'Guest has no email address' });
+    }
+
+    await sendTicketEmail({
+      guestName: guest.full_name,
+      guestEmail: guest.email,
+      guestCode: guest.guest_code,
+      eventName: guest.event_name,
+      eventDate: guest.event_date,
+      eventTime: guest.event_time,
+      venue: guest.venue,
+      qrCodeDataUrl: guest.qr_code
+    });
+
+    res.json({ success: true, message: `Ticket resent to ${guest.email}` });
+  } catch (error) {
+    console.error('Resend ticket error:', error);
+    res.status(500).json({ success: false, message: 'Failed to resend ticket' });
+  }
+};
+
+/**
+ * Log activity helper
+ */
+async function logActivity(userId, eventId, guestId, action, description, req) {
+  try {
+    await db.execute(
+      `INSERT INTO activity_logs (user_id, event_id, guest_id, action, description, ip_address, user_agent)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        userId || null,
+        eventId || null,
+        guestId || null,
+        action,
+        description,
+        req ? (req.ip || req.connection?.remoteAddress || null) : null,
+        req ? (req.get('user-agent') || null) : null
+      ]
+    );
+  } catch (e) {
+    // Non-fatal
+  }
+}
+exports.logActivity = logActivity;
 
 module.exports = exports;
