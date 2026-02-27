@@ -1424,7 +1424,7 @@ function renderGuestsTable() {
     const tbody = document.getElementById('guestsTableBody');
 
     if (currentEventGuests.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No guests found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No guests found</td></tr>';
         return;
     }
 
