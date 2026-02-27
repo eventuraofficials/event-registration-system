@@ -389,4 +389,26 @@ exports.deleteAdmin = async (req, res) => {
   }
 };
 
+/**
+ * Get recent activity logs
+ */
+exports.getActivityLogs = async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const [logs] = await db.execute(
+      `SELECT al.id, al.action, al.description, al.ip_address, al.created_at,
+              au.username
+       FROM activity_logs al
+       LEFT JOIN admin_users au ON al.user_id = au.id
+       ORDER BY al.created_at DESC
+       LIMIT ?`,
+      [limit]
+    );
+    res.json({ success: true, logs });
+  } catch (error) {
+    console.error('Get activity logs error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
 module.exports = exports;

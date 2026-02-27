@@ -12,6 +12,9 @@ router.post('/refresh-token', authenticateToken, adminController.refreshToken);
 router.post('/change-password', authenticateToken, adminController.changePassword);
 router.put('/profile', authenticateToken, adminController.updateProfile);
 
+// Activity logs
+router.get('/activity-logs', authenticateToken, adminController.getActivityLogs);
+
 // Super admin only
 router.post('/create', authenticateToken, authorizeRole('super_admin'), adminController.createAdmin);
 router.get('/users', authenticateToken, authorizeRole('super_admin'), adminController.listAdmins);

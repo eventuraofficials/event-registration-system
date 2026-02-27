@@ -81,6 +81,15 @@ const registrationLimiter = rateLimit({
   message: 'Too many registrations from this IP, please try again later.'
 });
 
+// Rate limit for public event/verify endpoints (prevent scraping and brute force)
+const publicLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 60, // 60 requests per IP per 15 min
+  message: 'Too many requests, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // CORS Configuration
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5000',
@@ -127,10 +136,16 @@ const adminRoutes = require('./api/routes/adminRoutes');
 const eventRoutes = require('./api/routes/eventRoutes');
 const guestRoutes = require('./api/routes/guestRoutes');
 
+// Public endpoint rate limiting (applied before route handlers)
+app.use('/api/events/available', publicLimiter);
+app.use('/api/events/checkin-available', publicLimiter);
+app.use('/api/events/public', publicLimiter);
+app.use('/api/guests/verify', publicLimiter);
+app.use('/api/guests/register', registrationLimiter);
+
 // API Routes
 app.use('/api/admin', adminRoutes);
 app.use('/api/events', eventRoutes);
-app.use('/api/guests/register', registrationLimiter);
 app.use('/api/guests', guestRoutes);
 
 // Export loginLimiter for use in routes

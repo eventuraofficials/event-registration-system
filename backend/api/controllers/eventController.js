@@ -96,16 +96,14 @@ exports.createEvent = async (req, res) => {
     // Auto-detect production URL if APP_URL not set
     let baseURL;
     if (process.env.APP_URL) {
-      baseURL = process.env.APP_URL.trim(); // Remove any whitespace/newlines
-    } else if (process.env.RENDER) {
-      // Render.com environment - use RENDER_EXTERNAL_URL
-      baseURL = process.env.RENDER_EXTERNAL_URL || 'https://event-registration-system-vaj3.onrender.com';
+      baseURL = process.env.APP_URL.trim();
+    } else if (process.env.RENDER_EXTERNAL_URL) {
+      baseURL = process.env.RENDER_EXTERNAL_URL;
     } else {
-      baseURL = 'http://localhost:5000';
+      baseURL = `http://localhost:${process.env.PORT || 5000}`;
     }
 
     const registrationURL = `${baseURL}/index.html?event=${event_code}`;
-    console.log('Generated registration URL:', registrationURL);
 
     const eventQRCode = await QRCode.toDataURL(registrationURL, {
       errorCorrectionLevel: 'H',
@@ -296,13 +294,6 @@ exports.updateEvent = async (req, res) => {
     const { id } = req.params;
     const { event_name, event_date, event_time, venue, description, registration_open, max_capacity, registration_form_config } = req.body;
 
-    console.log('🔍 Update Event Debug:', {
-      id,
-      event_name,
-      has_form_config: !!registration_form_config,
-      req_body: req.body
-    });
-
     // Check if request body is empty
     if (Object.keys(req.body).length === 0) {
       return res.status(400).json({
@@ -313,15 +304,12 @@ exports.updateEvent = async (req, res) => {
 
     // If only updating form config (no event_name provided), do partial update
     if (!event_name && registration_form_config) {
-      console.log('✅ Using PARTIAL UPDATE (form config only)');
       const formConfigString = JSON.stringify(registration_form_config);
 
       const [result] = await db.execute(
         `UPDATE events SET registration_form_config = ? WHERE id = ?`,
         [formConfigString, id]
       );
-
-      console.log('📊 SQLite result:', result);
 
       if (result.affectedRows === 0) {
         return res.status(404).json({
@@ -343,8 +331,6 @@ exports.updateEvent = async (req, res) => {
         message: 'event_name and event_date are required for event update'
       });
     }
-
-    console.log('⚠️ Using FULL UPDATE');
 
     // Full event update
     const formConfigString = registration_form_config
@@ -499,7 +485,7 @@ exports.cloneEvent = async (req, res) => {
     const newName = src.event_name + ' (Copy)';
 
     // Generate new QR code for the cloned event
-    let baseURL = process.env.APP_URL || 'http://localhost:5000';
+    let baseURL = process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 5000}`;
     const registrationURL = `${baseURL}/pages/index.html?event=${newCode}`;
     const eventQRCode = await QRCode.toDataURL(registrationURL, {
       errorCorrectionLevel: 'H', type: 'image/png', width: 400, margin: 2

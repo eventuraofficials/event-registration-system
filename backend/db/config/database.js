@@ -135,9 +135,13 @@ const promisePool = {
         null
       ];
     } catch (error) {
-      console.error('Database query error:', error.message);
-      console.error('SQL:', sql);
-      console.error('Params:', params);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Database query error:', error.message);
+        console.error('SQL:', sql);
+        console.error('Params:', params);
+      } else {
+        console.error('Database query error:', error.message);
+      }
       throw error;
     }
   },

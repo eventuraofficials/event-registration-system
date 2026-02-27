@@ -394,92 +394,73 @@ function renderTodaysEvents() {
     }).join('');
 }
 
-// Render recent activity feed
-function renderRecentActivity() {
+// Render recent activity feed from real activity_logs API
+async function renderRecentActivity() {
     const container = document.getElementById('recentActivityList');
+    if (!container) return;
 
-    // Collect all activities from events
-    let activities = [];
+    const ACTION_META = {
+        LOGIN:              { icon: 'fa-sign-in-alt',    color: '#667eea' },
+        LOGOUT:             { icon: 'fa-sign-out-alt',   color: '#a0aec0' },
+        CREATE_EVENT:       { icon: 'fa-calendar-plus',  color: '#667eea' },
+        UPDATE_EVENT:       { icon: 'fa-calendar-edit',  color: '#ed8936' },
+        DELETE_EVENT:       { icon: 'fa-calendar-times', color: '#fc8181' },
+        CLONE_EVENT:        { icon: 'fa-copy',           color: '#9f7aea' },
+        GUEST_REGISTERED:   { icon: 'fa-user-plus',      color: '#48bb78' },
+        GUEST_CHECKED_IN:   { icon: 'fa-check-circle',   color: '#38b2ac' },
+        GUEST_DELETED:      { icon: 'fa-user-times',     color: '#fc8181' },
+        IMPORT_GUESTS:      { icon: 'fa-file-import',    color: '#4299e1' },
+        RESEND_TICKET:      { icon: 'fa-envelope',       color: '#ed8936' },
+        CHANGE_PASSWORD:    { icon: 'fa-key',            color: '#9f7aea' },
+        CREATE_ADMIN:       { icon: 'fa-user-shield',    color: '#667eea' },
+        DELETE_ADMIN:       { icon: 'fa-user-minus',     color: '#fc8181' },
+    };
 
-    allEvents.forEach(event => {
-        // Add event creation activity
-        if (event.created_at) {
-            activities.push({
-                type: 'event_created',
-                icon: 'fa-calendar-plus',
-                color: '#667eea',
-                title: 'Event Created',
-                description: event.event_name,
-                timestamp: new Date(event.created_at),
-                event: event
-            });
+    try {
+        const response = await fetch('/api/admin/activity-logs?limit=15', {
+            headers: getAuthHeaders()
+        });
+        const data = await response.json();
+
+        if (!data.success || !data.logs.length) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px; color: #a0aec0;">
+                    <i class="fas fa-clock" style="font-size: 3rem; opacity: 0.3; margin-bottom: 15px;"></i>
+                    <p style="margin: 0; font-size: 0.95rem;">No recent activities</p>
+                </div>`;
+            return;
         }
 
-        // Add guest registration activities (simulated - you can enhance this with real data)
-        if (event.total_guests > 0) {
-            activities.push({
-                type: 'guests_registered',
-                icon: 'fa-user-plus',
-                color: '#48bb78',
-                title: `${event.total_guests} Guest${event.total_guests > 1 ? 's' : ''} Registered`,
-                description: event.event_name,
-                timestamp: new Date(event.updated_at || event.created_at),
-                event: event
-            });
-        }
-
-        // Add check-in activities
-        if (event.total_attended > 0) {
-            activities.push({
-                type: 'guests_checkedin',
-                icon: 'fa-check-circle',
-                color: '#9f7aea',
-                title: `${event.total_attended} Guest${event.total_attended > 1 ? 's' : ''} Checked-In`,
-                description: event.event_name,
-                timestamp: new Date(event.updated_at || event.created_at),
-                event: event
-            });
-        }
-    });
-
-    // Sort by timestamp (most recent first)
-    activities.sort((a, b) => b.timestamp - a.timestamp);
-
-    // Take only the 10 most recent
-    activities = activities.slice(0, 10);
-
-    if (activities.length === 0) {
+        container.innerHTML = data.logs.map((log, index) => {
+            const meta = ACTION_META[log.action] || { icon: 'fa-circle', color: '#a0aec0' };
+            const actor = log.username ? SecurityUtils.escapeHtml(log.username) : 'System';
+            const desc  = SecurityUtils.escapeHtml(log.description || log.action);
+            const ts    = new Date(log.created_at);
+            const isLast = index === data.logs.length - 1;
+            return `
+            <div style="display: flex; gap: 15px; padding: 15px; border-bottom: ${isLast ? 'none' : '1px solid #e2e8f0'}; transition: background 0.2s ease;"
+                 onmouseover="this.style.background='#f7fafc'"
+                 onmouseout="this.style.background='transparent'">
+                <div style="flex-shrink: 0;">
+                    <div style="width: 40px; height: 40px; border-radius: 10px; background: ${meta.color}15; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas ${meta.icon}" style="color: ${meta.color}; font-size: 1.1rem;"></i>
+                    </div>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-weight: 600; font-size: 0.9rem; color: #2d3748; margin-bottom: 4px;">${desc}</div>
+                    <div style="font-size: 0.8rem; color: #718096; margin-bottom: 4px;">by ${actor}</div>
+                    <div style="font-size: 0.75rem; color: #a0aec0;">
+                        <i class="fas fa-clock" style="margin-right: 4px;"></i>${formatTimeAgo(ts)}
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    } catch (err) {
         container.innerHTML = `
-            <div style="text-align: center; padding: 40px 20px; color: #a0aec0;">
-                <i class="fas fa-clock" style="font-size: 3rem; opacity: 0.3; margin-bottom: 15px;"></i>
-                <p style="margin: 0; font-size: 0.95rem;">No recent activities</p>
-            </div>
-        `;
-        return;
+            <div style="text-align: center; padding: 20px; color: #a0aec0; font-size: 0.9rem;">
+                Unable to load activity feed
+            </div>`;
     }
-
-    container.innerHTML = activities.map((activity, index) => `
-        <div style="display: flex; gap: 15px; padding: 15px; border-bottom: ${index === activities.length - 1 ? 'none' : '1px solid #e2e8f0'}; transition: all 0.2s ease;"
-             onmouseover="this.style.background='#f7fafc'"
-             onmouseout="this.style.background='transparent'">
-            <div style="flex-shrink: 0;">
-                <div style="width: 40px; height: 40px; border-radius: 10px; background: ${activity.color}15; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas ${activity.icon}" style="color: ${activity.color}; font-size: 1.1rem;"></i>
-                </div>
-            </div>
-            <div style="flex: 1; min-width: 0;">
-                <div style="font-weight: 600; font-size: 0.9rem; color: #2d3748; margin-bottom: 4px;">
-                    ${activity.title}
-                </div>
-                <div style="font-size: 0.85rem; color: #718096; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                    ${SecurityUtils.escapeHtml(activity.description)}
-                </div>
-                <div style="font-size: 0.75rem; color: #a0aec0;">
-                    <i class="fas fa-clock" style="margin-right: 4px;"></i>${formatTimeAgo(activity.timestamp)}
-                </div>
-            </div>
-        </div>
-    `).join('');
 }
 
 // Format time ago helper
@@ -789,7 +770,7 @@ function showEventQRModal(event) {
                     <!-- Registration URL - Centered -->
                     <div style="text-align: center;">
                         <p style="margin: 0 0 10px 0; font-weight: 600;">Registration URL</p>
-                        <input type="text" value="${event.registration_url || 'http://192.168.1.6:5000/index.html?event=' + event.event_code}"
+                        <input type="text" value="${SecurityUtils.escapeHtml(event.registration_url || (window.location.origin + '/index.html?event=' + event.event_code))}"
                                readonly onclick="this.select()"
                                style="width: 100%; max-width: 500px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; font-family: monospace; text-align: center;">
                     </div>
