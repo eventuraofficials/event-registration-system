@@ -406,10 +406,13 @@
 
                 <div id="guestsListCard" class="card" style="display: none;">
                     <div class="card-header">
-                        <h2>Guest List</h2>
+                        <h2>Guest List <span id="guestCountBadge" style="font-size:0.8rem; font-weight:400; color:#718096;"></span></h2>
                         <div class="filter-group">
+                            <button onclick="openAddGuestModal()" class="btn btn-primary" title="Add Guest Manually">
+                                <i class="fas fa-user-plus"></i> Add Guest
+                            </button>
                             <button onclick="exportGuestList()" class="btn btn-success" title="Export to Excel">
-                                <i class="fas fa-file-excel"></i> Export to Excel
+                                <i class="fas fa-file-excel"></i> Export
                             </button>
                             <select id="guestStatusFilter" onchange="loadGuestsForEvent()">
                                 <option value="">All Status</option>
@@ -430,13 +433,14 @@
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Company</th>
+                                    <th>Category</th>
                                     <th>Status</th>
                                     <th>Check-in Time</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="guestsTableBody">
-                                <tr><td colspan="7">Select an event to view guests</td></tr>
+                                <tr><td colspan="8">Select an event to view guests</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -642,6 +646,46 @@
                 </div> <!-- End content-wrapper -->
             </main> <!-- End app-content -->
         </div> <!-- End app-layout -->
+
+    <!-- Add Guest Modal -->
+    <div id="addGuestModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:12px; padding:28px; width:90%; max-width:500px; max-height:90vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="margin:0; font-size:1.1rem;"><i class="fas fa-user-plus" style="color:#667eea; margin-right:8px;"></i>Add Guest Manually</h3>
+                <button onclick="closeAddGuestModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#718096;">&times;</button>
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Full Name *</label>
+                <input type="text" id="newGuestName" class="form-control" placeholder="Guest full name">
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Email</label>
+                <input type="email" id="newGuestEmail" class="form-control" placeholder="guest@email.com">
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Contact Number</label>
+                <input type="text" id="newGuestContact" class="form-control" placeholder="09xxxxxxxxx">
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Company / Organization</label>
+                <input type="text" id="newGuestCompany" class="form-control" placeholder="Optional">
+            </div>
+            <div class="form-group" style="margin-bottom:20px;">
+                <label class="form-label">Category</label>
+                <select id="newGuestCategory" class="form-control">
+                    <option value="Regular">Regular</option>
+                    <option value="VIP">VIP</option>
+                    <option value="Speaker">Speaker</option>
+                    <option value="Sponsor">Sponsor</option>
+                    <option value="Media">Media</option>
+                </select>
+            </div>
+            <div style="display:flex; gap:12px;">
+                <button onclick="closeAddGuestModal()" class="btn" style="flex:1; background:#f1f5f9; color:#475569;">Cancel</button>
+                <button onclick="addGuestManually()" class="btn btn-primary" style="flex:1;"><i class="fas fa-user-plus"></i> Add Guest</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Edit Guest Modal -->
     <div id="editGuestModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">

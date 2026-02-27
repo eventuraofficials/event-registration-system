@@ -511,14 +511,54 @@ function populateEventSelects() {
 
 // Filter events
 function filterEvents(searchTerm) {
-    const filtered = allEvents.filter(event =>
-        event.event_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.event_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.venue?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
     const tbody = document.getElementById('eventsTableBody');
-    // Re-render with filtered events (implementation similar to renderEventsTable)
+    if (!tbody) return;
+
+    const term = searchTerm.toLowerCase().trim();
+    const filtered = term
+        ? allEvents.filter(event =>
+            event.event_name.toLowerCase().includes(term) ||
+            event.event_code.toLowerCase().includes(term) ||
+            event.venue?.toLowerCase().includes(term)
+          )
+        : allEvents;
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No events match your search</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = filtered.map(event => `
+        <tr>
+            <td><strong>${SecurityUtils.escapeHtml(event.event_code)}</strong></td>
+            <td>${SecurityUtils.escapeHtml(event.event_name)}</td>
+            <td>${formatDate(event.event_date)}</td>
+            <td>${SecurityUtils.escapeHtml(event.venue || 'TBA')}</td>
+            <td>${event.total_guests || 0} <small>(${event.total_attended || 0} attended)</small></td>
+            <td>
+                <span class="badge ${event.registration_open ? 'success' : 'danger'}">
+                    ${event.registration_open ? 'Open' : 'Closed'}
+                </span>
+            </td>
+            <td>
+                <button onclick="viewEvent(${event.id})" class="action-btn view" title="View">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button onclick="shareEvent('${event.event_code}')" class="action-btn success" title="Share Event" style="background: #06d6a0;">
+                    <i class="fas fa-share-alt"></i>
+                </button>
+                <button onclick="toggleRegistration(${event.id})" class="action-btn edit" title="Toggle Registration">
+                    <i class="fas fa-toggle-on"></i>
+                </button>
+                <button onclick="cloneEvent(${event.id})" class="action-btn" title="Clone Event" style="color:#6366f1; background:#ede9fe;">
+                    <i class="fas fa-copy"></i>
+                </button>
+                <button onclick="deleteEvent(${event.id}, '${event.event_name}')" class="action-btn delete" title="Delete Event">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
 }
 
 // Show section
@@ -1423,6 +1463,13 @@ async function loadGuestsForEvent() {
 function renderGuestsTable() {
     const tbody = document.getElementById('guestsTableBody');
 
+    // Update count badge
+    const badge = document.getElementById('guestCountBadge');
+    if (badge) {
+        const attended = currentEventGuests.filter(g => g.attended).length;
+        badge.textContent = `— ${currentEventGuests.length} guests (${attended} checked in)`;
+    }
+
     if (currentEventGuests.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No guests found</td></tr>';
         return;
@@ -2053,6 +2100,54 @@ async function createStaffAccount() {
         loadStaff();
     } catch (err) {
         showAlert(err.message || 'Failed to create staff account', 'danger');
+    }
+}
+
+// ===================== ADD GUEST MANUALLY =====================
+function openAddGuestModal() {
+    const eventId = document.getElementById('guestEventSelect').value;
+    if (!eventId) {
+        showAlert('Please select an event first', 'warning');
+        return;
+    }
+    // Clear form
+    ['newGuestName','newGuestEmail','newGuestContact','newGuestCompany'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('newGuestCategory').value = 'Regular';
+    document.getElementById('addGuestModal').style.display = 'flex';
+}
+
+function closeAddGuestModal() {
+    document.getElementById('addGuestModal').style.display = 'none';
+}
+
+async function addGuestManually() {
+    const eventId = document.getElementById('guestEventSelect').value;
+    const full_name = document.getElementById('newGuestName').value.trim();
+    if (!full_name) return showAlert('Full name is required', 'danger');
+
+    showLoading();
+    try {
+        const data = await fetchAPI(`${API_BASE_URL}/guests/register`, {
+            method: 'POST',
+            body: JSON.stringify({
+                event_id: eventId,
+                full_name,
+                email: document.getElementById('newGuestEmail').value.trim() || undefined,
+                contact_number: document.getElementById('newGuestContact').value.trim() || undefined,
+                company_name: document.getElementById('newGuestCompany').value.trim() || undefined,
+                guest_category: document.getElementById('newGuestCategory').value
+            })
+        });
+        if (!data.success) throw new Error(data.message);
+        hideLoading();
+        closeAddGuestModal();
+        showAlert(`Guest "${full_name}" added successfully! Code: ${data.guest_code}`, 'success');
+        loadGuestsForEvent();
+    } catch (err) {
+        hideLoading();
+        showAlert(err.message || 'Failed to add guest', 'danger');
     }
 }
 
