@@ -1,20 +1,25 @@
 const nodemailer = require('nodemailer');
 
-const isEmailEnabled = process.env.EMAIL_ENABLED === 'true';
-
 let transporter = null;
+
+function isEmailConfigured() {
+  return process.env.EMAIL_ENABLED === 'true'
+    && !!process.env.EMAIL_USER
+    && !!process.env.EMAIL_PASSWORD;
+}
 
 function getTransporter() {
   if (!transporter) {
     transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST || 'smtp.gmail.com',
       port: parseInt(process.env.EMAIL_PORT) || 587,
-      secure: false,
+      secure: parseInt(process.env.EMAIL_PORT) === 465,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD
       }
     });
+    // Reset cached transporter if config changes (dev restarts)
   }
   return transporter;
 }
@@ -22,9 +27,14 @@ function getTransporter() {
 /**
  * Send QR ticket email to guest after registration
  */
+/**
+ * Returns { sent: true } on success, { sent: false, reason } when disabled/misconfigured.
+ * Throws on SMTP transport errors so callers can handle them explicitly.
+ */
 async function sendTicketEmail({ guestName, guestEmail, guestCode, eventName, eventDate, eventTime, venue, qrCodeDataUrl }) {
-  if (!isEmailEnabled) return;
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) return;
+  if (!isEmailConfigured()) {
+    return { sent: false, reason: 'Email delivery is not configured' };
+  }
 
   const formattedDate = eventDate
     ? new Date(eventDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
@@ -119,24 +129,34 @@ async function sendTicketEmail({ guestName, guestEmail, guestCode, eventName, ev
     </html>
   `;
 
-  try {
-    await getTransporter().sendMail({
-      from: process.env.EMAIL_FROM || `Event Registration <${process.env.EMAIL_USER}>`,
-      to: guestEmail,
-      subject: `Your Ticket for ${eventName}`,
-      html,
-      attachments: [{
-        filename: 'ticket-qr.png',
-        content: base64Data,
-        encoding: 'base64',
-        cid: 'qrcode'
-      }]
-    });
-    console.log(`✅ Ticket email sent to ${guestEmail}`);
-  } catch (err) {
-    console.error(`⚠️  Email failed for ${guestEmail}:`, err.message);
-    // Non-fatal — registration still succeeds even if email fails
-  }
+  await getTransporter().sendMail({
+    from: process.env.EMAIL_FROM || `Event Registration <${process.env.EMAIL_USER}>`,
+    to: guestEmail,
+    subject: `Your Ticket for ${eventName}`,
+    html,
+    attachments: [{
+      filename: 'ticket-qr.png',
+      content: base64Data,
+      encoding: 'base64',
+      cid: 'qrcode'
+    }]
+  });
+
+  return { sent: true };
 }
 
-module.exports = { sendTicketEmail };
+/**
+ * Verify SMTP connection without sending an email.
+ * Returns { ok: true } or throws with a descriptive error.
+ */
+async function verifyEmailConnection() {
+  if (!isEmailConfigured()) {
+    throw new Error('Email is not enabled or credentials are missing in environment config');
+  }
+  // Force fresh transporter on verify so stale config is not used
+  transporter = null;
+  await getTransporter().verify();
+  return { ok: true };
+}
+
+module.exports = { sendTicketEmail, verifyEmailConnection, isEmailConfigured };

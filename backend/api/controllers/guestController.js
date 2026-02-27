@@ -727,7 +727,7 @@ exports.resendTicket = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Guest has no email address' });
     }
 
-    await sendTicketEmail({
+    const result = await sendTicketEmail({
       guestName: guest.full_name,
       guestEmail: guest.email,
       guestCode: guest.guest_code,
@@ -738,10 +738,14 @@ exports.resendTicket = async (req, res) => {
       qrCodeDataUrl: guest.qr_code
     });
 
-    res.json({ success: true, message: `Ticket resent to ${guest.email}` });
+    if (result && !result.sent) {
+      return res.status(503).json({ success: false, message: result.reason || 'Email delivery is not configured on this server' });
+    }
+
+    res.json({ success: true, message: `Ticket sent to ${guest.email}` });
   } catch (error) {
     console.error('Resend ticket error:', error);
-    res.status(500).json({ success: false, message: 'Failed to resend ticket' });
+    res.status(500).json({ success: false, message: `Failed to send email: ${error.message}` });
   }
 };
 

@@ -2,6 +2,7 @@ const db = require('../../db/config/database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
+const { verifyEmailConnection, isEmailConfigured } = require('../../utils/emailService');
 
 async function logActivity(userId, action, description, req) {
   try {
@@ -408,6 +409,24 @@ exports.getActivityLogs = async (req, res) => {
   } catch (error) {
     console.error('Get activity logs error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+/**
+ * Test SMTP connection (super admin only)
+ */
+exports.testEmailConnection = async (req, res) => {
+  try {
+    if (!isEmailConfigured()) {
+      return res.status(503).json({
+        success: false,
+        message: 'Email is not enabled. Set EMAIL_ENABLED=true and provide EMAIL_USER / EMAIL_PASSWORD in environment config.'
+      });
+    }
+    await verifyEmailConnection();
+    res.json({ success: true, message: `SMTP connection verified (${process.env.EMAIL_HOST || 'smtp.gmail.com'}:${process.env.EMAIL_PORT || 587})` });
+  } catch (error) {
+    res.status(502).json({ success: false, message: `SMTP connection failed: ${error.message}` });
   }
 };
 

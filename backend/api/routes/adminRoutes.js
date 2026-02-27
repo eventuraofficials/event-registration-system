@@ -15,6 +15,9 @@ router.put('/profile', authenticateToken, adminController.updateProfile);
 // Activity logs
 router.get('/activity-logs', authenticateToken, adminController.getActivityLogs);
 
+// Email
+router.post('/test-email', authenticateToken, authorizeRole('super_admin'), adminController.testEmailConnection);
+
 // Super admin only
 router.post('/create', authenticateToken, authorizeRole('super_admin'), adminController.createAdmin);
 router.get('/users', authenticateToken, authorizeRole('super_admin'), adminController.listAdmins);
