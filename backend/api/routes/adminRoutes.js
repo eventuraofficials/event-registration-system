@@ -9,12 +9,12 @@ router.post('/login', adminController.login);
 // Protected routes
 router.get('/profile', authenticateToken, adminController.getProfile);
 router.post('/refresh-token', authenticateToken, adminController.refreshToken);
+router.post('/change-password', authenticateToken, adminController.changePassword);
+router.put('/profile', authenticateToken, adminController.updateProfile);
 
 // Super admin only
-router.post('/create',
-  authenticateToken,
-  authorizeRole('super_admin'),
-  adminController.createAdmin
-);
+router.post('/create', authenticateToken, authorizeRole('super_admin'), adminController.createAdmin);
+router.get('/users', authenticateToken, authorizeRole('super_admin'), adminController.listAdmins);
+router.delete('/users/:id', authenticateToken, authorizeRole('super_admin'), adminController.deleteAdmin);
 
 module.exports = router;

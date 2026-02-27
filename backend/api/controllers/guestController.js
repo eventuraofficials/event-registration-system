@@ -659,4 +659,46 @@ exports.exportGuestList = async (req, res) => {
   }
 };
 
+/**
+ * Update guest information
+ */
+exports.updateGuest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let { full_name, email, contact_number, home_address, company_name, guest_category } = req.body;
+
+    full_name = sanitizeInput(full_name);
+    email = sanitizeInput(email);
+    contact_number = sanitizeInput(contact_number);
+    home_address = sanitizeInput(home_address);
+    company_name = sanitizeInput(company_name);
+    guest_category = sanitizeInput(guest_category);
+
+    if (!full_name) {
+      return res.status(400).json({ success: false, message: 'Full name is required' });
+    }
+
+    const validCategories = ['VIP', 'Speaker', 'Sponsor', 'Media', 'Regular'];
+    const category = guest_category && validCategories.includes(guest_category) ? guest_category : 'Regular';
+
+    const [result] = await db.execute(
+      `UPDATE guests SET
+        full_name = ?, email = ?, contact_number = ?,
+        home_address = ?, company_name = ?, guest_category = ?
+      WHERE id = ?`,
+      [full_name, email || null, contact_number || null,
+       home_address || null, company_name || null, category, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Guest not found' });
+    }
+
+    res.json({ success: true, message: 'Guest updated successfully' });
+  } catch (error) {
+    console.error('Update guest error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
 module.exports = exports;

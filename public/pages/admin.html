@@ -94,6 +94,11 @@
                         <span>Reports & Export</span>
                     </a>
 
+                    <a href="#" onclick="showSection('staff'); closeMobileMenu();" class="sidebar-nav-link" data-section="staff" id="staffNavLink" style="display:none;">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Staff Accounts</span>
+                    </a>
+
                     <!-- External Tools -->
                     <div style="border-top: 1px solid var(--border-color); margin: 15px 0; padding-top: 15px;">
                         <p style="padding: 5px 16px 10px; font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
@@ -105,6 +110,12 @@
                         <i class="fas fa-qrcode"></i>
                         <span>QR Scanner</span>
                         <i class="fas fa-external-link-alt" style="margin-left: auto; font-size: 0.7rem; opacity: 0.6;"></i>
+                    </a>
+
+                    <div style="border-top: 1px solid var(--border-color); margin: 15px 0; padding-top: 15px;"></div>
+                    <a href="#" onclick="showSection('settings'); closeMobileMenu();" class="sidebar-nav-link" data-section="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
                     </a>
                 </nav>
             </aside>
@@ -552,9 +563,163 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Staff Management Section (super_admin only) -->
+            <section id="staffSection" class="dashboard-section">
+                <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <div>
+                        <h1>Staff Accounts</h1>
+                        <p style="color:#718096; margin:4px 0 0;">Manage admin and staff users</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openCreateStaffModal()">
+                        <i class="fas fa-user-plus"></i> Add Staff
+                    </button>
+                </div>
+                <div class="card" style="padding:0; overflow:hidden;">
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+                                <th style="padding:12px 16px; text-align:left; font-size:0.8rem; color:#718096; font-weight:600; text-transform:uppercase;">Name</th>
+                                <th style="padding:12px 16px; text-align:left; font-size:0.8rem; color:#718096; font-weight:600; text-transform:uppercase;">Username</th>
+                                <th style="padding:12px 16px; text-align:left; font-size:0.8rem; color:#718096; font-weight:600; text-transform:uppercase;">Email</th>
+                                <th style="padding:12px 16px; text-align:left; font-size:0.8rem; color:#718096; font-weight:600; text-transform:uppercase;">Role</th>
+                                <th style="padding:12px 16px; text-align:left; font-size:0.8rem; color:#718096; font-weight:600; text-transform:uppercase;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staffTableBody">
+                            <tr><td colspan="5" style="padding:24px; text-align:center; color:#718096;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settingsSection" class="dashboard-section">
+                <div class="section-header" style="margin-bottom:24px;">
+                    <h1>Settings</h1>
+                    <p style="color:#718096; margin:4px 0 0;">Manage your account and preferences</p>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; max-width:800px;">
+
+                    <!-- Change Password -->
+                    <div class="card" style="padding:24px;">
+                        <h3 style="margin:0 0 16px; font-size:1rem; font-weight:600;"><i class="fas fa-lock" style="color:var(--primary); margin-right:8px;"></i>Change Password</h3>
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password">
+                        </div>
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label class="form-label">New Password</label>
+                            <input type="password" id="newPassword" class="form-control" placeholder="Min. 8 characters">
+                        </div>
+                        <div class="form-group" style="margin-bottom:16px;">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" id="confirmPassword" class="form-control" placeholder="Repeat new password">
+                        </div>
+                        <button class="btn btn-primary" onclick="changePassword()" style="width:100%;">
+                            <i class="fas fa-save"></i> Update Password
+                        </button>
+                    </div>
+
+                    <!-- Edit Profile -->
+                    <div class="card" style="padding:24px;">
+                        <h3 style="margin:0 0 16px; font-size:1rem; font-weight:600;"><i class="fas fa-user" style="color:var(--primary); margin-right:8px;"></i>Edit Profile</h3>
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" id="profileFullName" class="form-control" placeholder="Your full name">
+                        </div>
+                        <div class="form-group" style="margin-bottom:16px;">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" id="profileEmail" class="form-control" placeholder="your@email.com">
+                        </div>
+                        <button class="btn btn-primary" onclick="updateProfile()" style="width:100%;">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </div>
+                </div>
+            </section>
+
                 </div> <!-- End content-wrapper -->
             </main> <!-- End app-content -->
         </div> <!-- End app-layout -->
+
+    <!-- Edit Guest Modal -->
+    <div id="editGuestModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:12px; padding:28px; width:90%; max-width:500px; max-height:90vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="margin:0; font-size:1.1rem;">Edit Guest</h3>
+                <button onclick="closeEditGuestModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#718096;">&times;</button>
+            </div>
+            <input type="hidden" id="editGuestId">
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Full Name *</label>
+                <input type="text" id="editGuestName" class="form-control">
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Email</label>
+                <input type="email" id="editGuestEmail" class="form-control">
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Contact Number</label>
+                <input type="text" id="editGuestContact" class="form-control">
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Company</label>
+                <input type="text" id="editGuestCompany" class="form-control">
+            </div>
+            <div class="form-group" style="margin-bottom:20px;">
+                <label class="form-label">Category</label>
+                <select id="editGuestCategory" class="form-control">
+                    <option value="Regular">Regular</option>
+                    <option value="VIP">VIP</option>
+                    <option value="Speaker">Speaker</option>
+                    <option value="Sponsor">Sponsor</option>
+                    <option value="Media">Media</option>
+                </select>
+            </div>
+            <div style="display:flex; gap:12px;">
+                <button onclick="closeEditGuestModal()" class="btn" style="flex:1; background:#f1f5f9; color:#475569;">Cancel</button>
+                <button onclick="saveGuestEdit()" class="btn btn-primary" style="flex:1;">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Staff Modal -->
+    <div id="createStaffModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:12px; padding:28px; width:90%; max-width:440px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="margin:0; font-size:1.1rem;">Add Staff Account</h3>
+                <button onclick="closeCreateStaffModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#718096;">&times;</button>
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Full Name</label>
+                <input type="text" id="newStaffName" class="form-control" placeholder="Staff full name">
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Username</label>
+                <input type="text" id="newStaffUsername" class="form-control" placeholder="login username">
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Email</label>
+                <input type="email" id="newStaffEmail" class="form-control" placeholder="staff@email.com">
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Password</label>
+                <input type="password" id="newStaffPassword" class="form-control" placeholder="Min. 8 characters">
+            </div>
+            <div class="form-group" style="margin-bottom:20px;">
+                <label class="form-label">Role</label>
+                <select id="newStaffRole" class="form-control">
+                    <option value="staff">Staff</option>
+                    <option value="super_admin">Super Admin</option>
+                </select>
+            </div>
+            <div style="display:flex; gap:12px;">
+                <button onclick="closeCreateStaffModal()" class="btn" style="flex:1; background:#f1f5f9; color:#475569;">Cancel</button>
+                <button onclick="createStaffAccount()" class="btn btn-primary" style="flex:1;">Create Account</button>
+            </div>
+        </div>
+    </div>
     </div> <!-- End dashboardScreen -->
 
     <!-- Loading Overlay -->

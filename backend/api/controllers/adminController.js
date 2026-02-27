@@ -269,4 +269,109 @@ exports.createAdmin = async (req, res) => {
   }
 };
 
+/**
+ * Change Password
+ */
+exports.changePassword = async (req, res) => {
+  try {
+    const { current_password, new_password } = req.body;
+
+    if (!current_password || !new_password) {
+      return res.status(400).json({ success: false, message: 'Current and new password are required' });
+    }
+    if (new_password.length < 8) {
+      return res.status(400).json({ success: false, message: 'New password must be at least 8 characters' });
+    }
+
+    const [users] = await db.execute('SELECT * FROM admin_users WHERE id = ?', [req.user.id]);
+    if (users.length === 0) return res.status(404).json({ success: false, message: 'User not found' });
+
+    const isValid = await bcrypt.compare(current_password, users[0].password);
+    if (!isValid) return res.status(401).json({ success: false, message: 'Current password is incorrect' });
+
+    const hashed = await bcrypt.hash(new_password, 10);
+    await db.execute('UPDATE admin_users SET password = ? WHERE id = ?', [hashed, req.user.id]);
+
+    res.json({ success: true, message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+/**
+ * Update Profile
+ */
+exports.updateProfile = async (req, res) => {
+  try {
+    let { full_name, email } = req.body;
+    full_name = sanitizeInput(full_name);
+    email = sanitizeInput(email);
+
+    if (!full_name || !email) {
+      return res.status(400).json({ success: false, message: 'Name and email are required' });
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ success: false, message: 'Invalid email format' });
+    }
+
+    // Check email not taken by another user
+    const [existing] = await db.execute(
+      'SELECT id FROM admin_users WHERE email = ? AND id != ?', [email, req.user.id]
+    );
+    if (existing.length > 0) {
+      return res.status(400).json({ success: false, message: 'Email already in use' });
+    }
+
+    await db.execute(
+      'UPDATE admin_users SET full_name = ?, email = ? WHERE id = ?',
+      [full_name, email, req.user.id]
+    );
+
+    res.json({ success: true, message: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+/**
+ * List all admin users (super_admin only)
+ */
+exports.listAdmins = async (req, res) => {
+  try {
+    const [users] = await db.execute(
+      'SELECT id, username, email, full_name, role, created_at FROM admin_users ORDER BY created_at ASC'
+    );
+    res.json({ success: true, users });
+  } catch (error) {
+    console.error('List admins error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+/**
+ * Delete admin user (super_admin only, cannot delete self)
+ */
+exports.deleteAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (parseInt(id) === req.user.id) {
+      return res.status(400).json({ success: false, message: 'You cannot delete your own account' });
+    }
+
+    const [result] = await db.execute('DELETE FROM admin_users WHERE id = ?', [id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    res.json({ success: true, message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Delete admin error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
 module.exports = exports;

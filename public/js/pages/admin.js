@@ -1,6 +1,7 @@
 // Global state
 let authToken = localStorage.getItem('admin_token');
 let currentAdmin = null;
+let currentUser = null;
 let allEvents = [];
 let currentEventGuests = [];
 
@@ -163,6 +164,15 @@ function showDashboard() {
     if (adminNameHeader) {
         adminNameHeader.textContent = adminName;
     }
+
+    // Show Staff nav only for super_admin
+    const staffNavLink = document.getElementById('staffNavLink');
+    if (staffNavLink) {
+        staffNavLink.style.display = currentAdmin.role === 'super_admin' ? 'flex' : 'none';
+    }
+
+    // Store as currentUser for settings
+    currentUser = currentAdmin;
 }
 
 // Load dashboard data
@@ -509,16 +519,19 @@ function showSection(sectionName) {
     });
 
     // Show selected section
-    document.getElementById(sectionName + 'Section').classList.add('active');
+    const section = document.getElementById(sectionName + 'Section');
+    if (section) section.classList.add('active');
 
-    // Update nav - support both old nav-item and new sidebar-nav-link classes
+    // Update nav
     document.querySelectorAll('.nav-item, .sidebar-nav-link').forEach(item => {
         item.classList.remove('active');
     });
     const activeNavItem = document.querySelector(`[data-section="${sectionName}"]`);
-    if (activeNavItem) {
-        activeNavItem.classList.add('active');
-    }
+    if (activeNavItem) activeNavItem.classList.add('active');
+
+    // Load data for sections that need it
+    if (sectionName === 'staff') loadStaff();
+    if (sectionName === 'settings') loadSettingsProfile();
 }
 
 // Show create event form
@@ -1418,6 +1431,9 @@ function renderGuestsTable() {
             </td>
             <td>${guest.check_in_time ? formatDateTime(guest.check_in_time) : 'N/A'}</td>
             <td>
+                <button onclick="openEditGuestModal(${guest.id})" class="action-btn" title="Edit" style="color:var(--primary);">
+                    <i class="fas fa-edit"></i>
+                </button>
                 <button onclick="deleteGuest(${guest.id})" class="action-btn delete" title="Delete">
                     <i class="fas fa-trash"></i>
                 </button>
@@ -1828,3 +1844,183 @@ function formatDateTime(dateString) {
 // Note: formatDate is defined in config.js and available globally
 // Token validation and cleanup is handled by config.js
 // The isTokenValid() and cleanupTokens() functions in config.js handle all token validation
+
+// ===================== CHANGE PASSWORD =====================
+async function changePassword() {
+    const current = document.getElementById('currentPassword').value;
+    const newPw = document.getElementById('newPassword').value;
+    const confirm = document.getElementById('confirmPassword').value;
+
+    if (!current || !newPw || !confirm) return showAlert('All fields are required', 'danger');
+    if (newPw.length < 8) return showAlert('New password must be at least 8 characters', 'danger');
+    if (newPw !== confirm) return showAlert('New passwords do not match', 'danger');
+
+    try {
+        const data = await fetchAPI(`${API_BASE_URL}/admin/change-password`, {
+            method: 'POST',
+            headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ current_password: current, new_password: newPw })
+        });
+        if (!data.success) throw new Error(data.message);
+        showAlert('Password changed successfully!', 'success');
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+    } catch (err) {
+        showAlert(err.message || 'Failed to change password', 'danger');
+    }
+}
+
+// ===================== UPDATE PROFILE =====================
+async function updateProfile() {
+    const full_name = document.getElementById('profileFullName').value.trim();
+    const email = document.getElementById('profileEmail').value.trim();
+    if (!full_name || !email) return showAlert('Name and email are required', 'danger');
+
+    try {
+        const data = await fetchAPI(`${API_BASE_URL}/admin/profile`, {
+            method: 'PUT',
+            headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ full_name, email })
+        });
+        if (!data.success) throw new Error(data.message);
+        showAlert('Profile updated successfully!', 'success');
+        document.querySelector('.app-header-user-name') && (document.querySelector('.app-header-user-name').textContent = full_name);
+    } catch (err) {
+        showAlert(err.message || 'Failed to update profile', 'danger');
+    }
+}
+
+function loadSettingsProfile() {
+    const nameEl = document.getElementById('profileFullName');
+    const emailEl = document.getElementById('profileEmail');
+    if (nameEl && currentUser) nameEl.value = currentUser.full_name || '';
+    if (emailEl && currentUser) emailEl.value = currentUser.email || '';
+}
+
+// ===================== EDIT GUEST =====================
+function openEditGuestModal(guestId) {
+    const guest = currentEventGuests.find(g => g.id === guestId);
+    if (!guest) return;
+    document.getElementById('editGuestId').value = guest.id;
+    document.getElementById('editGuestName').value = guest.full_name || '';
+    document.getElementById('editGuestEmail').value = guest.email || '';
+    document.getElementById('editGuestContact').value = guest.contact_number || '';
+    document.getElementById('editGuestCompany').value = guest.company_name || '';
+    document.getElementById('editGuestCategory').value = guest.guest_category || 'Regular';
+    document.getElementById('editGuestModal').style.display = 'flex';
+}
+
+function closeEditGuestModal() {
+    document.getElementById('editGuestModal').style.display = 'none';
+}
+
+async function saveGuestEdit() {
+    const id = document.getElementById('editGuestId').value;
+    const full_name = document.getElementById('editGuestName').value.trim();
+    if (!full_name) return showAlert('Full name is required', 'danger');
+
+    try {
+        const data = await fetchAPI(`${API_BASE_URL}/guests/${id}`, {
+            method: 'PUT',
+            headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                full_name,
+                email: document.getElementById('editGuestEmail').value.trim(),
+                contact_number: document.getElementById('editGuestContact').value.trim(),
+                company_name: document.getElementById('editGuestCompany').value.trim(),
+                guest_category: document.getElementById('editGuestCategory').value
+            })
+        });
+        if (!data.success) throw new Error(data.message);
+        closeEditGuestModal();
+        showAlert('Guest updated successfully!', 'success');
+        loadGuestsForEvent();
+    } catch (err) {
+        showAlert(err.message || 'Failed to update guest', 'danger');
+    }
+}
+
+// ===================== STAFF MANAGEMENT =====================
+async function loadStaff() {
+    try {
+        const data = await fetchAPI(`${API_BASE_URL}/admin/users`, { headers: getAuthHeaders() });
+        if (!data.success) throw new Error(data.message);
+
+        const tbody = document.getElementById('staffTableBody');
+        if (!tbody) return;
+
+        const roleColors = { super_admin: '#7c3aed', staff: '#0284c7' };
+        const roleLabels = { super_admin: 'Super Admin', staff: 'Staff' };
+
+        tbody.innerHTML = data.users.map(u => `
+            <tr style="border-bottom:1px solid #f1f5f9;">
+                <td style="padding:12px 16px;">${SecurityUtils.escapeHtml(u.full_name || u.username)}</td>
+                <td style="padding:12px 16px; color:#718096;">${SecurityUtils.escapeHtml(u.username)}</td>
+                <td style="padding:12px 16px; color:#718096;">${SecurityUtils.escapeHtml(u.email)}</td>
+                <td style="padding:12px 16px;">
+                    <span style="background:${roleColors[u.role] || '#64748b'}20; color:${roleColors[u.role] || '#64748b'}; padding:3px 10px; border-radius:20px; font-size:0.78rem; font-weight:600;">
+                        ${roleLabels[u.role] || u.role}
+                    </span>
+                </td>
+                <td style="padding:12px 16px;">
+                    ${u.id !== currentUser.id ? `
+                    <button onclick="deleteStaff(${u.id}, '${SecurityUtils.escapeHtml(u.username)}')" class="action-btn delete" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>` : '<span style="font-size:0.8rem; color:#94a3b8;">You</span>'}
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        showAlert('Failed to load staff list', 'danger');
+    }
+}
+
+async function deleteStaff(id, username) {
+    if (!confirm(`Delete account "${username}"? This cannot be undone.`)) return;
+    try {
+        const data = await fetchAPI(`${API_BASE_URL}/admin/users/${id}`, {
+            method: 'DELETE', headers: getAuthHeaders()
+        });
+        if (!data.success) throw new Error(data.message);
+        showAlert('Staff account deleted', 'success');
+        loadStaff();
+    } catch (err) {
+        showAlert(err.message || 'Failed to delete staff', 'danger');
+    }
+}
+
+function openCreateStaffModal() {
+    document.getElementById('createStaffModal').style.display = 'flex';
+}
+function closeCreateStaffModal() {
+    document.getElementById('createStaffModal').style.display = 'none';
+}
+
+async function createStaffAccount() {
+    const full_name = document.getElementById('newStaffName').value.trim();
+    const username = document.getElementById('newStaffUsername').value.trim();
+    const email = document.getElementById('newStaffEmail').value.trim();
+    const password = document.getElementById('newStaffPassword').value;
+    const role = document.getElementById('newStaffRole').value;
+
+    if (!username || !email || !password) return showAlert('Username, email and password are required', 'danger');
+    if (password.length < 8) return showAlert('Password must be at least 8 characters', 'danger');
+
+    try {
+        const data = await fetchAPI(`${API_BASE_URL}/admin/create`, {
+            method: 'POST',
+            headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, password, full_name, role })
+        });
+        if (!data.success) throw new Error(data.message);
+        closeCreateStaffModal();
+        showAlert(`Staff account "${username}" created!`, 'success');
+        ['newStaffName','newStaffUsername','newStaffEmail','newStaffPassword'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
+        loadStaff();
+    } catch (err) {
+        showAlert(err.message || 'Failed to create staff account', 'danger');
+    }
+}

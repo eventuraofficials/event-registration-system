@@ -74,6 +74,13 @@ const loginLimiter = rateLimit({
   skipSuccessfulRequests: true
 });
 
+// Rate limit for guest registration (prevent spam)
+const registrationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 20, // 20 registrations per IP per hour
+  message: 'Too many registrations from this IP, please try again later.'
+});
+
 // CORS Configuration
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5000',
@@ -123,6 +130,7 @@ const guestRoutes = require('./api/routes/guestRoutes');
 // API Routes
 app.use('/api/admin', adminRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/guests/register', registrationLimiter);
 app.use('/api/guests', guestRoutes);
 
 // Export loginLimiter for use in routes
