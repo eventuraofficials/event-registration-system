@@ -168,11 +168,16 @@
     margin-left: 260px;
     padding: 30px;
     width: calc(100% - 260px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 /* Dashboard Section */
 .dashboard-section {
     display: none;
+    width: 100%;
+    max-width: 1000px;
 }
 
 .dashboard-section.active {
@@ -519,6 +524,7 @@
     .main-dashboard {
         margin-left: 200px;
         width: calc(100% - 200px);
+        padding: 24px;
     }
 }
 
