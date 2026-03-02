@@ -212,8 +212,8 @@
 
 /* === INSTRUCTIONS CARD === */
 .qr-instructions-card {
-    background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-    border: 1px solid #BFDBFE;
+    background: var(--primary-light);
+    border: 1px solid rgba(99, 102, 241, 0.2);
     border-radius: var(--radius-xl);
     padding: var(--space-xl);
     margin-bottom: var(--space-xl);
@@ -225,7 +225,7 @@
     gap: var(--space-sm);
     font-size: 1.125rem;
     font-weight: 700;
-    color: #1E40AF;
+    color: var(--primary-hover);
     margin: 0 0 var(--space-lg) 0;
 }
 
@@ -249,7 +249,7 @@
 }
 
 .qr-instructions-list li:not(:last-child) {
-    border-bottom: 1px solid rgba(191, 219, 254, 0.5);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.15);
 }
 
 .qr-instructions-list li::before {
@@ -259,7 +259,7 @@
     justify-content: center;
     width: 32px;
     height: 32px;
-    background: #3B82F6;
+    background: var(--primary);
     color: white;
     border-radius: 50%;
     font-weight: 700;
@@ -284,14 +284,14 @@
     display: block;
     font-size: 1rem;
     font-weight: 600;
-    color: #1E3A8A;
+    color: var(--primary-hover);
     margin-bottom: 4px;
 }
 
 .qr-instructions-list li p {
     margin: 0;
     font-size: 0.875rem;
-    color: #475569;
+    color: var(--text-light);
     line-height: 1.5;
 }
 
