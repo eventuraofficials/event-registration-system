@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const eventController = require('../controllers/eventController');
 const { authenticateToken, authorizeRole } = require('../../middleware/auth');
+const { imageUpload } = require('../../middleware/upload');
 
 // Public routes
 router.get('/available', eventController.getAvailableEvents);
@@ -40,6 +41,13 @@ router.post('/:id/clone',
   authenticateToken,
   authorizeRole('super_admin', 'admin'),
   eventController.cloneEvent
+);
+
+router.post('/:id/logo',
+  authenticateToken,
+  authorizeRole('super_admin', 'admin'),
+  imageUpload.single('logo'),
+  eventController.uploadEventLogo
 );
 
 module.exports = router;

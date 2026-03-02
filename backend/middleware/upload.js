@@ -78,4 +78,39 @@ const upload = multer({
   }
 });
 
-module.exports = upload;
+// ── Event Logo Upload ────────────────────────────────────────────────────────
+
+const logoDir = path.join(uploadDir, 'event-logos');
+if (!fs.existsSync(logoDir)) {
+  fs.mkdirSync(logoDir, { recursive: true });
+}
+
+const logoStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, logoDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(sanitizeFilename(file.originalname)).toLowerCase() || '.jpg';
+    cb(null, 'event-logo-' + uniqueSuffix + ext);
+  }
+});
+
+const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp']);
+const IMAGE_MIMETYPES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+
+const imageFilter = (req, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (!IMAGE_EXTENSIONS.has(ext) || !IMAGE_MIMETYPES.has(file.mimetype)) {
+    return cb(new Error('Only image files (JPG, PNG, GIF, WebP) are allowed'), false);
+  }
+  cb(null, true);
+};
+
+const imageUpload = multer({
+  storage: logoStorage,
+  fileFilter: imageFilter,
+  limits: { fileSize: 2 * 1024 * 1024 } // 2 MB
+});
+
+module.exports = { upload, imageUpload };

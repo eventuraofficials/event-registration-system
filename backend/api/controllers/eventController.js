@@ -238,7 +238,7 @@ exports.getEventByCode = async (req, res) => {
     const [events] = await db.execute(
       `SELECT
         id, event_name, event_code, event_date,
-        event_time, venue, description, registration_open, registration_form_config
+        event_time, venue, description, registration_open, registration_form_config, event_logo
       FROM events
       WHERE event_code = ?`,
       [event_code]
@@ -507,6 +507,47 @@ exports.cloneEvent = async (req, res) => {
     });
   } catch (error) {
     console.error('Clone event error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+/**
+ * Upload event logo
+ */
+exports.uploadEventLogo = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No image file provided' });
+    }
+
+    // Get current logo so we can delete the old file
+    const [rows] = await db.execute('SELECT event_logo FROM events WHERE id = ?', [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Event not found' });
+    }
+
+    const oldLogo = rows[0].event_logo;
+
+    // Save new filename to DB
+    await db.execute('UPDATE events SET event_logo = ? WHERE id = ?', [req.file.filename, id]);
+
+    // Delete old logo file if it exists
+    if (oldLogo) {
+      const fs = require('fs');
+      const path = require('path');
+      const oldPath = path.join(process.cwd(), 'uploads', 'event-logos', oldLogo);
+      fs.unlink(oldPath, () => {}); // fire-and-forget
+    }
+
+    res.json({
+      success: true,
+      filename: req.file.filename,
+      url: `/uploads/event-logos/${req.file.filename}`
+    });
+  } catch (error) {
+    console.error('Upload event logo error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };

@@ -109,6 +109,9 @@ if (adminCount.count === 0) {
   console.log('✅ Default admin user created (admin / admin123)');
 }
 
+// Migrations — idempotent (safe to run every startup)
+try { db.exec('ALTER TABLE events ADD COLUMN event_logo TEXT'); } catch(e) { /* column already exists */ }
+
 console.log('✅ SQLite Database connected and ready');
 
 // Wrapper to make it compatible with MySQL promise-based queries

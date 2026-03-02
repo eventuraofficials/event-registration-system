@@ -412,6 +412,54 @@
 .button-group { display: flex; gap: 10px; flex-wrap: wrap; }
 
 /* ============================================================
+   UTILITY
+   ============================================================ */
+.visually-hidden { display: none !important; }
+.label-optional { color: #94a3b8; font-weight: 400; }
+
+/* ============================================================
+   LOGO UPLOAD
+   ============================================================ */
+.logo-upload-area {
+    border: 2px dashed #e2e8f0;
+    border-radius: 10px;
+    padding: 24px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 180ms ease;
+    background: #fafbfc;
+}
+
+.logo-upload-area:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.logo-upload-area i { font-size: 1.75rem; color: #94a3b8; display: block; margin-bottom: 8px; }
+.logo-upload-area p { margin: 0 0 4px; font-size: 0.875rem; color: #475569; font-weight: 500; }
+.logo-upload-area small { color: #94a3b8; font-size: 0.78rem; }
+
+.logo-preview {
+    display: none;
+    max-height: 120px;
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 10px;
+    border: 1px solid #e2e8f0;
+    object-fit: contain;
+}
+
+/* Edit modal current logo thumbnail */
+.current-logo-thumb {
+    max-height: 80px;
+    max-width: 100%;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 8px;
+    display: block;
+}
+
+/* ============================================================
    UPLOAD AREA
    ============================================================ */
 .upload-area {

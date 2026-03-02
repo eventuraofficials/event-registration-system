@@ -18,6 +18,14 @@
         .section { display: none; }
         .section.active { display: block; }
 
+        /* ── Event logo banner ── */
+        .event-logo-banner {
+            display: none;
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+        }
+
         /* ── Event info card ── */
         .event-info-card {
             border-top: 4px solid var(--primary);
@@ -258,6 +266,7 @@
                 <div id="eventInfo" class="card event-info-card">
                     <div id="loadingEvent" class="event-info-body"></div>
                     <div id="eventDetails" style="display: none;">
+                        <img id="eventLogo" class="event-logo-banner" alt="Event Logo">
                         <div class="event-info-body">
                             <div class="event-badge">
                                 <i class="fas fa-calendar-check"></i> Event Registration

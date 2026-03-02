@@ -340,6 +340,16 @@
                             <input type="number" id="eventMaxCapacity" min="1" placeholder="Leave empty for unlimited">
                             <small style="color: #666; font-size: 0.85rem;">Optional: Set maximum number of guests allowed to register</small>
                         </div>
+                        <div class="form-group">
+                            <label>Event Logo / Banner <span class="label-optional">(optional)</span></label>
+                            <div class="logo-upload-area" id="logoUploadArea" onclick="document.getElementById('eventLogoInput').click()">
+                                <i class="fas fa-image"></i>
+                                <p>Click to upload logo or banner</p>
+                                <small>JPG, PNG, GIF, WebP — max 2 MB</small>
+                            </div>
+                            <input type="file" id="eventLogoInput" accept="image/*" class="visually-hidden" onchange="previewLogo(this, 'eventLogoPreview', 'logoUploadArea')">
+                            <img id="eventLogoPreview" class="logo-preview">
+                        </div>
                         <button type="submit" class="btn btn-success">
                             <i class="fas fa-save"></i> Create Event
                         </button>

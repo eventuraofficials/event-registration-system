@@ -637,6 +637,42 @@ function hideCreateEventForm() {
     document.getElementById('newEventForm').reset();
 }
 
+// Preview logo image before upload
+function previewLogo(input, previewId, areaId) {
+    const file = input.files[0];
+    const preview = document.getElementById(previewId);
+    const area = document.getElementById(areaId);
+    if (!file || !preview) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+        if (area) {
+            area.querySelector('p').textContent = file.name;
+            area.querySelector('small').textContent = (file.size / 1024).toFixed(0) + ' KB';
+        }
+    };
+    reader.readAsDataURL(file);
+}
+
+// Upload logo to server after event is created/saved
+async function uploadEventLogo(eventId, fileInput) {
+    const file = fileInput?.files[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('logo', file);
+    try {
+        await fetch(`${API_BASE_URL}/events/${eventId}/logo`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${authToken}` },
+            body: fd
+        });
+    } catch (err) {
+        console.error('Logo upload failed:', err);
+    }
+}
+
 // Handle create event
 async function handleCreateEvent(e) {
     e.preventDefault();
@@ -653,8 +689,6 @@ async function handleCreateEvent(e) {
         max_capacity: maxCapacityValue ? parseInt(maxCapacityValue) : null
     };
 
-
-
     showLoading();
 
     try {
@@ -670,6 +704,12 @@ async function handleCreateEvent(e) {
             throw new Error(data.message);
         }
 
+        // Upload logo if one was selected
+        const logoInput = document.getElementById('eventLogoInput');
+        if (logoInput?.files[0] && data.event?.id) {
+            await uploadEventLogo(data.event.id, logoInput);
+        }
+
         hideLoading();
 
         // Show Event QR Code modal after successful creation
@@ -677,6 +717,16 @@ async function handleCreateEvent(e) {
             showEventQRModal(data.event);
         } else {
             showAlert('Event created successfully!', 'success');
+        }
+
+        // Reset logo preview
+        if (logoInput) { logoInput.value = ''; }
+        const preview = document.getElementById('eventLogoPreview');
+        if (preview) { preview.style.display = 'none'; preview.src = ''; }
+        const area = document.getElementById('logoUploadArea');
+        if (area) {
+            area.querySelector('p').textContent = 'Click to upload logo or banner';
+            area.querySelector('small').textContent = 'JPG, PNG, GIF, WebP — max 2 MB';
         }
 
         hideCreateEventForm();
@@ -914,6 +964,18 @@ function showEditEventModal(event) {
                     </div>
 
                     <div class="form-group">
+                        <label>Event Logo / Banner <span class="label-optional">(optional)</span></label>
+                        ${event.event_logo ? `<img src="/uploads/event-logos/${SecurityUtils.escapeHtml(event.event_logo)}" class="current-logo-thumb" alt="Current logo">` : ''}
+                        <div class="logo-upload-area" id="editLogoUploadArea" onclick="document.getElementById('editEventLogoInput').click()">
+                            <i class="fas fa-image"></i>
+                            <p>${event.event_logo ? 'Click to replace logo' : 'Click to upload logo or banner'}</p>
+                            <small>JPG, PNG, GIF, WebP — max 2 MB</small>
+                        </div>
+                        <input type="file" id="editEventLogoInput" accept="image/*" class="visually-hidden" onchange="previewLogo(this, 'editLogoPreview', 'editLogoUploadArea')">
+                        <img id="editLogoPreview" class="logo-preview">
+                    </div>
+
+                    <div class="form-group">
                         <label>
                             <input type="checkbox" id="editEventRegistrationOpen" name="editEventRegistrationOpen" ${event.registration_open ? 'checked' : ''}>
                             <span style="margin-left: 8px;">Registration Open</span>
@@ -1002,6 +1064,12 @@ async function handleEditEventSubmit(e) {
 
         if (!data.success) {
             throw new Error(data.message);
+        }
+
+        // Upload new logo if selected
+        const editLogoInput = document.getElementById('editEventLogoInput');
+        if (editLogoInput?.files[0]) {
+            await uploadEventLogo(eventId, editLogoInput);
         }
 
         hideLoading();

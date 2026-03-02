@@ -37,6 +37,14 @@ async function loadEventFromURL() {
         // Display event information
         document.getElementById('loadingEvent').style.display = 'none';
         document.getElementById('eventDetails').style.display = 'block';
+
+        // Show event logo if available
+        const logoEl = document.getElementById('eventLogo');
+        if (logoEl && currentEvent.event_logo) {
+            logoEl.src = `/uploads/event-logos/${currentEvent.event_logo}`;
+            logoEl.style.display = 'block';
+        }
+
         document.getElementById('eventName').textContent = currentEvent.event_name;
         document.getElementById('eventDate').textContent = formatDate(currentEvent.event_date);
         document.getElementById('eventTime').textContent = formatTime(currentEvent.event_time);

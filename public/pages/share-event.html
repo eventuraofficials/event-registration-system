@@ -48,6 +48,15 @@
             font-size: 0.9rem;
         }
 
+        /* Event logo banner */
+        .share-event-logo {
+            display: none;
+            width: 100%;
+            max-height: 180px;
+            object-fit: cover;
+            border-radius: 12px 12px 0 0;
+        }
+
         /* Event Header */
         .event-info {
             text-align: center;
@@ -265,6 +274,7 @@
     <div class="share-container">
 
         <div class="event-info" id="eventInfo">
+            <img id="shareEventLogo" class="share-event-logo" alt="Event Logo">
             <h2 id="eventName">Loading...</h2>
             <div class="event-code-display" id="eventCodeDisplay">...</div>
             <p id="eventDetails">...</p>
@@ -410,6 +420,13 @@
         }
 
         function displayEventInfo() {
+            // Show logo if available
+            const logoEl = document.getElementById('shareEventLogo');
+            if (logoEl && currentEvent.event_logo) {
+                logoEl.src = `/uploads/event-logos/${currentEvent.event_logo}`;
+                logoEl.style.display = 'block';
+            }
+
             document.getElementById('eventName').textContent = currentEvent.event_name;
             document.getElementById('eventCodeDisplay').textContent = currentEvent.event_code;
 
