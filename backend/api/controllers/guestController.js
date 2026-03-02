@@ -1,7 +1,7 @@
 const db = require('../../db/config/database');
 const { generateGuestCode, generateQRCode } = require('../../utils/qrGenerator');
 const { parseExcelFile, validateGuestData, checkDuplicates } = require('../../utils/excelParser');
-const { sendTicketEmail } = require('../../utils/emailService');
+const { sendTicketEmail, isEmailConfigured } = require('../../utils/emailService');
 const fs = require('fs');
 const ExcelJS = require('exceljs');
 
@@ -62,9 +62,17 @@ exports.uploadExcel = async (req, res) => {
     // Check for duplicates
     const duplicates = checkDuplicates(validation.validGuests);
 
+    // Fetch event details once (needed for ticket emails)
+    const [eventRows] = await db.execute(
+      'SELECT event_name, event_date, event_time, venue FROM events WHERE id = ?',
+      [event_id]
+    );
+    const eventDetails = eventRows[0] || null;
+
     // Import guests to database
     const imported = [];
     const failed = [];
+    const emailQueue = []; // guests to notify after response
 
     for (const guest of validation.validGuests) {
       try {
@@ -95,6 +103,10 @@ exports.uploadExcel = async (req, res) => {
           guestCode: guestCode
         });
 
+        if (guest.email) {
+          emailQueue.push({ guestName: guest.full_name, guestEmail: guest.email, guestCode, qrCodeDataUrl: qrCode });
+        }
+
       } catch (error) {
         failed.push({
           name: guest.full_name,
@@ -121,6 +133,31 @@ exports.uploadExcel = async (req, res) => {
       failed,
       duplicates
     });
+
+    // Send ticket emails asynchronously after response (non-blocking)
+    // 300ms delay between sends to avoid Gmail rate limiting
+    if (emailQueue.length > 0 && eventDetails && isEmailConfigured()) {
+      (async () => {
+        for (const item of emailQueue) {
+          try {
+            await sendTicketEmail({
+              guestName: item.guestName,
+              guestEmail: item.guestEmail,
+              guestCode: item.guestCode,
+              eventName: eventDetails.event_name,
+              eventDate: eventDetails.event_date,
+              eventTime: eventDetails.event_time,
+              venue: eventDetails.venue,
+              qrCodeDataUrl: item.qrCodeDataUrl
+            });
+          } catch (err) {
+            console.error(`Ticket email failed for ${item.guestEmail}:`, err.message);
+          }
+          await new Promise(r => setTimeout(r, 300));
+        }
+        console.log(`Bulk import: sent tickets to ${emailQueue.length} guest(s) for event ${event_id}`);
+      })();
+    }
 
   } catch (error) {
     console.error('Excel upload error:', error);
@@ -287,7 +324,9 @@ exports.selfRegister = async (req, res) => {
       eventTime: events[0].event_time,
       venue: events[0].venue,
       qrCodeDataUrl: qrCode
-    }).catch(() => {}); // Silently ignore email errors
+    }).catch(err => {
+      console.error(`Registration ticket email failed for ${email}:`, err.message);
+    });
 
   } catch (error) {
     console.error('Self registration error:', error);
