@@ -390,7 +390,7 @@ async function searchGuests(query) {
         // Load guest list once per event session, then filter client-side
         if (!cachedGuestList) {
             const token = localStorage.getItem('admin_token');
-            const resp = await fetch(`${API_BASE_URL}/guests/event/${currentCheckInEvent.id}`, {
+            const resp = await fetch(`${API_BASE_URL}/guests/event/${currentCheckInEvent.id}?slim=true`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await resp.json();

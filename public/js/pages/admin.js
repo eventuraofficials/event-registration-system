@@ -4,6 +4,8 @@ let currentAdmin = null;
 let currentUser = null;
 let allEvents = [];
 let currentEventGuests = [];
+let currentGuestPage = 1;
+let currentGuestSearch = '';
 
 // Helper function to get fresh auth token
 function getAuthToken() {
@@ -1465,37 +1467,42 @@ async function deleteEvent(eventId, eventName) {
     }
 }
 
-// Load guests for selected event
+// Load guests for selected event (resets to page 1)
 async function loadGuestsForEvent() {
     const eventId = document.getElementById('guestEventSelect').value;
-    const status = document.getElementById('guestStatusFilter').value;
-
     if (!eventId) {
         document.getElementById('guestsListCard').style.display = 'none';
         return;
     }
+    currentGuestPage = 1;
+    currentGuestSearch = '';
+    const searchInput = document.getElementById('guestSearchInput');
+    if (searchInput) searchInput.value = '';
+    await loadGuestsPage(1);
+    document.getElementById('guestsListCard').style.display = 'block';
+}
+
+// Load a specific page (used by pagination controls and search)
+async function loadGuestsPage(page) {
+    const eventId = document.getElementById('guestEventSelect').value;
+    const status = document.getElementById('guestStatusFilter').value;
+    if (!eventId) return;
 
     showLoading();
-
     try {
-        let url = `${API_BASE_URL}/guests/event/${eventId}`;
-        if (status) {
-            url += `?status=${status}`;
-        }
+        const params = new URLSearchParams({ page, limit: 50 });
+        if (status) params.set('status', status);
+        if (currentGuestSearch) params.set('search', currentGuestSearch);
 
-        const data = await fetchAPI(url, {
+        const data = await fetchAPI(`${API_BASE_URL}/guests/event/${eventId}?${params}`, {
             headers: getAuthHeaders()
         });
-
-        if (!data.success) {
-            throw new Error(data.message);
-        }
+        if (!data.success) throw new Error(data.message);
 
         currentEventGuests = data.guests;
-        renderGuestsTable();
-        document.getElementById('guestsListCard').style.display = 'block';
+        currentGuestPage = data.page;
+        renderGuestsTable(data);
         hideLoading();
-
     } catch (error) {
         hideLoading();
         console.error('Load guests error:', error);
@@ -1503,19 +1510,30 @@ async function loadGuestsForEvent() {
     }
 }
 
-// Render guests table
-function renderGuestsTable() {
+// Jump to a page (called by pagination buttons)
+function goToGuestPage(page) {
+    loadGuestsPage(page);
+}
+
+// Render guests table (meta = { total, page, totalPages, limit } from paginated API)
+function renderGuestsTable(meta) {
     const tbody = document.getElementById('guestsTableBody');
 
     // Update count badge
     const badge = document.getElementById('guestCountBadge');
     if (badge) {
+        const total = (meta && meta.total != null) ? meta.total : currentEventGuests.length;
         const attended = currentEventGuests.filter(g => g.attended).length;
-        badge.textContent = `— ${currentEventGuests.length} guests (${attended} checked in)`;
+        const attendedLabel = (meta && meta.totalPages > 1)
+            ? `${attended} on this page`
+            : `${attended} checked in`;
+        badge.textContent = `— ${total.toLocaleString()} guests (${attendedLabel})`;
     }
 
     if (currentEventGuests.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No guests found</td></tr>';
+        const pEl = document.getElementById('guestPagination');
+        if (pEl) pEl.innerHTML = '';
         return;
     }
 
@@ -1550,60 +1568,33 @@ function renderGuestsTable() {
             </td>
         </tr>
     `}).join('');
-}
 
-// Filter guests
-function filterGuests(searchTerm) {
-    const tbody = document.getElementById('guestsTableBody');
-    if (!tbody) return;
-
-    const term = searchTerm.toLowerCase().trim();
-    const filtered = term
-        ? currentEventGuests.filter(g =>
-            (g.full_name && g.full_name.toLowerCase().includes(term)) ||
-            (g.email && g.email.toLowerCase().includes(term)) ||
-            (g.contact_number && g.contact_number.includes(term)) ||
-            (g.company_name && g.company_name.toLowerCase().includes(term)) ||
-            (g.guest_code && g.guest_code.toLowerCase().includes(term))
-          )
-        : currentEventGuests;
-
-    if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No guests match your search</td></tr>';
+    // Pagination controls
+    const pEl = document.getElementById('guestPagination');
+    if (!pEl) return;
+    if (!meta || !meta.totalPages || meta.totalPages <= 1) {
+        pEl.innerHTML = '';
         return;
     }
+    const start = (meta.page - 1) * meta.limit + 1;
+    const end = Math.min(meta.page * meta.limit, meta.total);
+    pEl.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid #e2e8f0;font-size:0.875rem;color:#64748b;flex-wrap:wrap;gap:8px;">
+            <span>Showing ${start.toLocaleString()}–${end.toLocaleString()} of ${meta.total.toLocaleString()} guests</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <button onclick="goToGuestPage(${meta.page - 1})" ${meta.page <= 1 ? 'disabled' : ''} style="padding:4px 12px;border:1px solid #e2e8f0;border-radius:6px;background:white;cursor:pointer;font-size:0.875rem;" ${meta.page <= 1 ? 'style="opacity:0.4;cursor:not-allowed;"' : ''}>← Prev</button>
+                <span style="font-weight:500;color:#1e293b;">Page ${meta.page} / ${meta.totalPages}</span>
+                <button onclick="goToGuestPage(${meta.page + 1})" ${meta.page >= meta.totalPages ? 'disabled' : ''} style="padding:4px 12px;border:1px solid #e2e8f0;border-radius:6px;background:white;cursor:pointer;font-size:0.875rem;">Next →</button>
+            </div>
+        </div>
+    `;
+}
 
-    const categoryColors = { VIP: '#7c3aed', Speaker: '#0284c7', Sponsor: '#d97706', Media: '#dc2626', Regular: '#64748b' };
-
-    tbody.innerHTML = filtered.map(guest => {
-        const cat = guest.guest_category || 'Regular';
-        const catColor = categoryColors[cat] || '#64748b';
-        return `
-        <tr>
-            <td class="col-code"><code>${SecurityUtils.escapeHtml(guest.guest_code)}</code></td>
-            <td>${SecurityUtils.escapeHtml(guest.full_name)}</td>
-            <td class="col-email">${SecurityUtils.escapeHtml(guest.email || 'N/A')}</td>
-            <td class="col-company">${SecurityUtils.escapeHtml(guest.company_name || 'N/A')}</td>
-            <td class="col-category"><span style="background:${catColor}20;color:${catColor};padding:2px 8px;border-radius:20px;font-size:0.75rem;font-weight:600;">${cat}</span></td>
-            <td>
-                <span class="badge ${guest.attended ? 'success' : 'warning'}">
-                    ${guest.attended ? 'Attended' : 'Pending'}
-                </span>
-            </td>
-            <td class="col-checkin">${guest.check_in_time ? formatDateTime(guest.check_in_time) : '—'}</td>
-            <td>
-                ${guest.email ? `<button onclick="resendTicket(${guest.id})" class="action-btn" title="Resend QR ticket" style="color:#059669;">
-                    <i class="fas fa-paper-plane"></i>
-                </button>` : ''}
-                <button onclick="openEditGuestModal(${guest.id})" class="action-btn" title="Edit" style="color:var(--primary);">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button onclick="deleteGuest(${guest.id})" class="action-btn delete" title="Delete">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        </tr>
-    `}).join('');
+// Filter guests — server-side search (searches all records, not just current page)
+function filterGuests(searchTerm) {
+    currentGuestSearch = searchTerm.trim();
+    currentGuestPage = 1;
+    loadGuestsPage(1);
 }
 
 // Delete guest

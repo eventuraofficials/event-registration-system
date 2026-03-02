@@ -453,60 +453,84 @@ exports.checkIn = async (req, res) => {
 
 /**
  * Get all guests for an event
+ * ?slim=true       → lightweight fields only, no qr_code, all records (check-in search)
+ * ?page=N&limit=N  → paginated full records (admin table)
+ * (no params)      → all records, full fields (PDF export, backwards compat)
  */
 exports.getGuestsByEvent = async (req, res) => {
   try {
     const { event_id } = req.params;
-    const { search, status } = req.query;
+    const { search, status, slim, page, limit } = req.query;
 
-    let query = `
-      SELECT
-        g.*,
-        e.event_name,
-        a.full_name as checked_in_by_name
+    // Slim mode: lightweight, no qr_code, all records — for check-in search cache
+    if (slim === 'true') {
+      let query = `
+        SELECT g.id, g.guest_code, g.full_name, g.email, g.contact_number,
+               g.attended, g.check_in_time, g.guest_category
+        FROM guests g
+        WHERE g.event_id = ?
+      `;
+      const params = [event_id];
+      if (status === 'attended') query += ' AND g.attended = 1';
+      else if (status === 'not_attended') query += ' AND g.attended = 0';
+      query += ' ORDER BY g.full_name ASC';
+      const [guests] = await db.execute(query, params);
+      return res.json({ success: true, count: guests.length, guests });
+    }
+
+    // Build shared WHERE clause
+    let whereClause = 'WHERE g.event_id = ?';
+    const dataParams = [event_id];
+    const countParams = [event_id];
+
+    if (search) {
+      const s = `%${search}%`;
+      whereClause += ' AND (g.full_name LIKE ? OR g.email LIKE ? OR g.company_name LIKE ? OR g.guest_code LIKE ? OR g.contact_number LIKE ?)';
+      dataParams.push(s, s, s, s, s);
+      countParams.push(s, s, s, s, s);
+    }
+    if (status === 'attended') whereClause += ' AND g.attended = 1';
+    else if (status === 'not_attended') whereClause += ' AND g.attended = 0';
+
+    const baseQuery = `
+      SELECT g.*, e.event_name, a.full_name as checked_in_by_name
       FROM guests g
       JOIN events e ON g.event_id = e.id
       LEFT JOIN admin_users a ON g.checked_in_by = a.id
-      WHERE g.event_id = ?
+      ${whereClause}
+      ORDER BY g.created_at DESC
     `;
 
-    const params = [event_id];
+    // Paginated mode — when page param is explicitly provided
+    if (page !== undefined) {
+      const pageNum = Math.max(1, parseInt(page) || 1);
+      const limitNum = Math.min(Math.max(1, parseInt(limit) || 50), 200);
+      const offset = (pageNum - 1) * limitNum;
 
-    // Add search filter
-    if (search) {
-      query += ` AND (
-        g.full_name LIKE ? OR
-        g.email LIKE ? OR
-        g.company_name LIKE ? OR
-        g.guest_code LIKE ?
-      )`;
-      const searchParam = `%${search}%`;
-      params.push(searchParam, searchParam, searchParam, searchParam);
+      const [[countResult], [guests]] = await Promise.all([
+        db.execute(`SELECT COUNT(*) as total FROM guests g ${whereClause}`, countParams),
+        db.execute(baseQuery + ' LIMIT ? OFFSET ?', [...dataParams, limitNum, offset])
+      ]);
+
+      const total = countResult[0].total;
+      return res.json({
+        success: true,
+        count: guests.length,
+        total,
+        page: pageNum,
+        totalPages: Math.ceil(total / limitNum),
+        limit: limitNum,
+        guests
+      });
     }
 
-    // Add status filter
-    if (status === 'attended') {
-      query += ` AND g.attended = 1`;
-    } else if (status === 'not_attended') {
-      query += ` AND g.attended = 0`;
-    }
-
-    query += ` ORDER BY g.created_at DESC`;
-
-    const [guests] = await db.execute(query, params);
-
-    res.json({
-      success: true,
-      count: guests.length,
-      guests
-    });
+    // All-records mode — backwards compatible (PDF export, etc.)
+    const [guests] = await db.execute(baseQuery, dataParams);
+    res.json({ success: true, count: guests.length, guests });
 
   } catch (error) {
     console.error('Get guests error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error'
-    });
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
