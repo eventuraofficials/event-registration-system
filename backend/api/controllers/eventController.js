@@ -449,7 +449,8 @@ exports.getAllEventsForCheckIn = async (req, res) => {
         event_date,
         event_time,
         venue,
-        registration_open
+        registration_open,
+        event_logo
       FROM events
       ORDER BY event_date DESC`
     );

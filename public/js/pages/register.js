@@ -273,6 +273,13 @@ function displayQRCode(guest) {
     document.getElementById('qrCodeImage').src = guest.qrCode;
     document.getElementById('guestCodeDisplay').textContent = guest.guestCode;
 
+    // Show event logo on ticket if available
+    const ticketLogo = document.getElementById('qrTicketLogo');
+    if (ticketLogo && currentEvent.event_logo) {
+        ticketLogo.src = `/uploads/event-logos/${currentEvent.event_logo}`;
+        ticketLogo.style.display = 'block';
+    }
+
     // Update event and attendee names (prominent display)
     document.getElementById('qrEventName').textContent = guest.event_name || currentEvent.event_name;
     document.getElementById('qrAttendeeName').textContent = guest.full_name;

@@ -119,6 +119,17 @@ async function selectEventForCheckIn(eventCode) {
 
         currentCheckInEvent = data.event;
 
+        // Display event logo if available
+        const logoEl = document.getElementById('checkinEventLogo');
+        if (logoEl) {
+            if (currentCheckInEvent.event_logo) {
+                logoEl.src = `/uploads/event-logos/${currentCheckInEvent.event_logo}`;
+                logoEl.style.display = 'block';
+            } else {
+                logoEl.style.display = 'none';
+            }
+        }
+
         // Display event name
         const eventNameElement = document.getElementById('currentEventName');
         if (eventNameElement) {
@@ -435,6 +446,8 @@ function resetScanner() {
     recentCheckIns = [];
 
     // Reset UI
+    const logoReset = document.getElementById('checkinEventLogo');
+    if (logoReset) { logoReset.style.display = 'none'; logoReset.src = ''; }
     document.getElementById('totalScanned').textContent = '0';
     document.getElementById('successCount').textContent = '0';
     document.getElementById('errorCount').textContent = '0';
