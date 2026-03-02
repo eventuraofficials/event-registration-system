@@ -273,7 +273,7 @@
         <!-- Registration Link -->
         <div class="share-card">
             <h3><i class="fas fa-link"></i> Registration Link</h3>
-            <p>Share this link para mag-register ang guests:</p>
+            <p>Share this link for guests to register:</p>
 
             <div class="link-box">
                 <input type="text" class="link-input" id="registrationLink" readonly title="Registration link" placeholder="Loading...">
@@ -316,7 +316,7 @@
         <!-- Share Options -->
         <div class="share-card">
             <h3><i class="fas fa-share-alt"></i> Share Registration</h3>
-            <p>Share sa social media or messaging:</p>
+            <p>Share via social media or messaging:</p>
 
             <div class="share-buttons">
                 <button type="button" class="share-btn btn-facebook" onclick="shareToFacebook()">
@@ -339,11 +339,11 @@
             <div class="instructions">
                 <h4><i class="fas fa-info-circle"></i> How to Share</h4>
                 <ul>
-                    <li><strong>Copy Link:</strong> Click "Copy" and paste sa Facebook, email, or anywhere</li>
-                    <li><strong>QR Code:</strong> Download or print para ma-scan ng guests</li>
-                    <li><strong>Social Media:</strong> Click social media buttons para mag-share directly</li>
-                    <li><strong>Print Invitations:</strong> Add QR code sa invitation cards</li>
-                    <li><strong>Digital Invites:</strong> Send link via email, Viber, or Messenger</li>
+                    <li><strong>Copy Link:</strong> Click "Copy" and paste it on Facebook, email, or anywhere</li>
+                    <li><strong>QR Code:</strong> Download or print for guests to scan at the entrance</li>
+                    <li><strong>Social Media:</strong> Click the social media buttons to share directly</li>
+                    <li><strong>Print Invitations:</strong> Add the QR code to your invitation cards</li>
+                    <li><strong>Digital Invites:</strong> Send the link via email, Viber, or Messenger</li>
                 </ul>
             </div>
         </div>
@@ -447,27 +447,31 @@
             });
         }
 
+        let statsController = null;
         async function loadStatistics() {
+            if (!currentEvent) return;
+            // Cancel any in-flight request before starting a new one
+            if (statsController) statsController.abort();
+            statsController = new AbortController();
             try {
                 const token = localStorage.getItem('admin_token');
                 const response = await fetch(`${API_BASE_URL}/guests/event/${currentEvent.id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    signal: statsController.signal
                 });
+                if (!response.ok) return;
                 const data = await response.json();
 
-                if (data.success) {
+                if (data.success && Array.isArray(data.guests)) {
                     const total = data.guests.length;
                     const attended = data.guests.filter(g => g.attended).length;
-                    const pending = total - attended;
 
                     document.getElementById('totalGuests').textContent = total;
                     document.getElementById('totalAttended').textContent = attended;
-                    document.getElementById('pending').textContent = pending;
+                    document.getElementById('pending').textContent = total - attended;
                 }
             } catch (error) {
-                console.error('Error loading statistics:', error);
+                if (error.name !== 'AbortError') console.error('Error loading statistics:', error);
             }
         }
 

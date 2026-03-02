@@ -16,9 +16,9 @@ async function loadEventFromURL() {
 
         if (!eventCode) {
             document.getElementById('loadingEvent').innerHTML = `
-                <div style="text-align: center; padding: 40px;">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #e74c3c;"></i>
-                    <h3 style="margin-top: 20px; color: #333;">No Event Code Provided</h3>
+                <div style="text-align: center; padding: 32px 16px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: #e74c3c;"></i>
+                    <h3 style="margin-top: 16px; color: #333;">No Event Code Provided</h3>
                     <p style="color: #666;">Please scan the Event QR code to register.</p>
                 </div>
             `;
@@ -52,9 +52,9 @@ async function loadEventFromURL() {
     } catch (error) {
         console.error('Load event error:', error);
         document.getElementById('loadingEvent').innerHTML = `
-            <div style="text-align: center; padding: 40px;">
-                <i class="fas fa-exclamation-circle" style="font-size: 48px; color: #e74c3c;"></i>
-                <h3 style="margin-top: 20px; color: #333;">Event Not Found</h3>
+            <div style="text-align: center; padding: 32px 16px;">
+                <i class="fas fa-exclamation-circle" style="font-size: 2.5rem; color: #e74c3c;"></i>
+                <h3 style="margin-top: 16px; color: #333;">Event Not Found</h3>
                 <p style="color: #666;">${error.message || 'The event you\'re trying to register for does not exist or is no longer available.'}</p>
             </div>
         `;
