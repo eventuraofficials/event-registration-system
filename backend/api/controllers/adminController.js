@@ -1,7 +1,6 @@
 const db = require('../../db/config/database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { body, validationResult } = require('express-validator');
 const { verifyEmailConnection, isEmailConfigured } = require('../../utils/emailService');
 
 async function logActivity(userId, action, description, req) {

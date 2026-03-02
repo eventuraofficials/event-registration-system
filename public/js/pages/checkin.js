@@ -18,8 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const eventCode = urlParams.get('event');
 
     if (eventCode) {
-        document.getElementById('checkInEventCode').value = eventCode;
-        selectEventForCheckIn();
+        selectEventForCheckIn(eventCode);
     }
 });
 

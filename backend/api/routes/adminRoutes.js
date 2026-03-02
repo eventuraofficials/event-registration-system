@@ -3,8 +3,12 @@ const router = express.Router();
 const adminController = require('../controllers/adminController');
 const { authenticateToken, authorizeRole } = require('../../middleware/auth');
 
-// Public routes
-router.post('/login', adminController.login);
+// Public routes (login limiter applied via app.get)
+router.post('/login', (req, res, next) => {
+  const loginLimiter = req.app.get('loginLimiter');
+  if (loginLimiter) return loginLimiter(req, res, next);
+  next();
+}, adminController.login);
 
 // Protected routes
 router.get('/profile', authenticateToken, adminController.getProfile);

@@ -243,23 +243,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Graceful shutdown handler
-process.on('SIGTERM', () => {
-
-  server.close(() => {
-
-    process.exit(0);
-  });
-});
-
-process.on('SIGINT', () => {
-
-  server.close(() => {
-
-    process.exit(0);
-  });
-});
-
 // Start server
 const server = app.listen(PORT, HOST, () => {
   const env = process.env.NODE_ENV || 'development';
@@ -274,6 +257,19 @@ const server = app.listen(PORT, HOST, () => {
     const backupInterval = parseInt(process.env.BACKUP_INTERVAL_HOURS) || 24;
     scheduleAutoBackup(backupInterval);
   }
+});
+
+// Graceful shutdown handler (must be after server declaration)
+process.on('SIGTERM', () => {
+  server.close(() => {
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  server.close(() => {
+    process.exit(0);
+  });
 });
 
 module.exports = app;

@@ -1780,16 +1780,17 @@ async function exportToPDF() {
         const eventDate = event ? formatDate(event.event_date) : '';
         const attended = guests.filter(g => g.attended).length;
 
+        const e = SecurityUtils.escapeHtml;
         const rows = guests.map((g, i) => `
             <tr>
                 <td>${i + 1}</td>
-                <td>${g.guest_code}</td>
-                <td>${g.full_name}</td>
-                <td>${g.email || ''}</td>
-                <td>${g.contact_number || ''}</td>
-                <td>${g.company_name || ''}</td>
-                <td style="text-align:center;">${g.attended ? '✓' : ''}</td>
-                <td>${g.check_in_time ? formatDateTime(g.check_in_time) : ''}</td>
+                <td>${e(g.guest_code || '')}</td>
+                <td>${e(g.full_name || '')}</td>
+                <td>${e(g.email || '')}</td>
+                <td>${e(g.contact_number || '')}</td>
+                <td>${e(g.company_name || '')}</td>
+                <td style="text-align:center;">${g.attended ? '&#10003;' : ''}</td>
+                <td>${g.check_in_time ? e(formatDateTime(g.check_in_time)) : ''}</td>
             </tr>
         `).join('');
 
@@ -1812,8 +1813,8 @@ async function exportToPDF() {
                 </style>
             </head>
             <body>
-                <h1>${eventName}</h1>
-                <div class="meta">${eventDate}${event && event.venue ? ' &bull; ' + event.venue : ''}</div>
+                <h1>${e(eventName)}</h1>
+                <div class="meta">${e(eventDate)}${event && event.venue ? ' &bull; ' + e(event.venue) : ''}</div>
                 <div class="summary">Total Guests: <strong>${guests.length}</strong> &nbsp;|&nbsp; Attended: <strong>${attended}</strong> &nbsp;|&nbsp; Pending: <strong>${guests.length - attended}</strong></div>
                 <table>
                     <thead>
@@ -1855,6 +1856,7 @@ async function exportToCSV() {
 
         const guests = data.guests;
         const event = allEvents.find(e => e.id == eventId);
+        if (!event) throw new Error('Event not found. Please refresh and try again.');
 
         // Create CSV content
         const csvRows = [
@@ -2106,7 +2108,12 @@ function closeAddGuestModal() {
 async function addGuestManually() {
     const eventId = document.getElementById('guestEventSelect').value;
     const full_name = document.getElementById('newGuestName').value.trim();
+    const email = document.getElementById('newGuestEmail').value.trim();
+    const contact_number = document.getElementById('newGuestContact').value.trim();
+
     if (!full_name) return showAlert('Full name is required', 'danger');
+    if (!email) return showAlert('Email is required', 'danger');
+    if (!contact_number) return showAlert('Contact number is required', 'danger');
 
     showLoading();
     try {
@@ -2115,8 +2122,8 @@ async function addGuestManually() {
             body: JSON.stringify({
                 event_id: eventId,
                 full_name,
-                email: document.getElementById('newGuestEmail').value.trim() || undefined,
-                contact_number: document.getElementById('newGuestContact').value.trim() || undefined,
+                email,
+                contact_number,
                 company_name: document.getElementById('newGuestCompany').value.trim() || undefined,
                 guest_category: document.getElementById('newGuestCategory').value
             })
@@ -2124,7 +2131,7 @@ async function addGuestManually() {
         if (!data.success) throw new Error(data.message);
         hideLoading();
         closeAddGuestModal();
-        showAlert(`Guest "${full_name}" added successfully! Code: ${data.guest_code}`, 'success');
+        showAlert(`Guest "${full_name}" added successfully! Code: ${data.guest.guestCode}`, 'success');
         loadGuestsForEvent();
     } catch (err) {
         hideLoading();

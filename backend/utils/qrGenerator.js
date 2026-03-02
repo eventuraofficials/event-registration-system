@@ -1,5 +1,4 @@
 const QRCode = require('qrcode');
-const { v4: uuidv4 } = require('uuid');
 
 /**
  * Generate unique guest code

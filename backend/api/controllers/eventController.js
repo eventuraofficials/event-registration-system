@@ -103,7 +103,7 @@ exports.createEvent = async (req, res) => {
       baseURL = `http://localhost:${process.env.PORT || 5000}`;
     }
 
-    const registrationURL = `${baseURL}/index.html?event=${event_code}`;
+    const registrationURL = `${baseURL}/pages/index.html?event=${event_code}`;
 
     const eventQRCode = await QRCode.toDataURL(registrationURL, {
       errorCorrectionLevel: 'H',
@@ -411,7 +411,7 @@ exports.toggleRegistration = async (req, res) => {
     const { id } = req.params;
 
     const [result] = await db.execute(
-      'UPDATE events SET registration_open = NOT registration_open WHERE id = ?',
+      'UPDATE events SET registration_open = 1 - registration_open WHERE id = ?',
       [id]
     );
 

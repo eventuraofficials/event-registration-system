@@ -277,14 +277,14 @@
 
             <div class="link-box">
                 <input type="text" class="link-input" id="registrationLink" readonly title="Registration link" placeholder="Loading...">
-                <button type="button" class="copy-btn" onclick="copyLink('registrationLink')">
+                <button type="button" class="copy-btn" onclick="copyLink(event, 'registrationLink')">
                     <i class="fas fa-copy"></i> Copy
                 </button>
             </div>
 
             <div class="link-box">
                 <input type="text" class="link-input" id="shortLink" readonly title="Short registration link" placeholder="Loading...">
-                <button type="button" class="copy-btn" onclick="copyLink('shortLink')">
+                <button type="button" class="copy-btn" onclick="copyLink(event, 'shortLink')">
                     <i class="fas fa-copy"></i> Copy Short
                 </button>
             </div>
@@ -430,7 +430,7 @@
         function generateLinks() {
             const baseUrl = window.location.origin;
             registrationUrl = `${baseUrl}/pages/index.html?event=${currentEvent.event_code}`;
-            const shortUrl = `${baseUrl}/?e=${currentEvent.event_code}`;
+            const shortUrl = registrationUrl;
 
             document.getElementById('registrationLink').value = registrationUrl;
             document.getElementById('shortLink').value = shortUrl;
@@ -474,10 +474,10 @@
             }
         }
 
-        async function copyLink(inputId) {
+        async function copyLink(evt, inputId) {
             const input = document.getElementById(inputId);
             const text = input.value;
-            const button = event.target.closest('button');
+            const button = evt.target.closest('button');
 
             try {
                 // Modern Clipboard API (preferred)
