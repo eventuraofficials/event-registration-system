@@ -3,7 +3,7 @@
  * =================================
  *
  * Design System:
- * - Primary Color: #3B82F6 (modern blue, clean, professional)
+ * - Primary Color: #6366f1 (indigo, premium, distinctive)
  * - Background: #F8FAFC
  * - Cards: #FFFFFF
  * - Borders: #E2E8F0
@@ -20,10 +20,10 @@
 
 :root {
     /* === MINIMALIST COLOR PALETTE === */
-    /* Primary Color - Modern Blue */
-    --primary: #3B82F6;
-    --primary-hover: #2563EB;
-    --primary-light: #DBEAFE;
+    /* Primary Color - Indigo */
+    --primary: #6366f1;
+    --primary-hover: #4f46e5;
+    --primary-light: #eef2ff;
 
     /* Neutral Palette */
     --bg-base: #F8FAFC;

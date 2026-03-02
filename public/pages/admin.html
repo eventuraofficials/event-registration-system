@@ -189,73 +189,33 @@
                                 Quick Actions
                             </h2>
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
                             <!-- Create Event Card -->
-                            <div onclick="showSection('events'); setTimeout(() => showCreateEventForm(), 100);"
-                                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                        color: white;
-                                        padding: 25px 20px;
-                                        border-radius: 12px;
-                                        cursor: pointer;
-                                        transition: all 0.3s ease;
-                                        text-align: center;
-                                        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);"
-                                 onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 20px rgba(102, 126, 234, 0.4)';"
-                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(102, 126, 234, 0.3)';">
-                                <i class="fas fa-plus-circle" style="font-size: 2.5rem; margin-bottom: 10px; opacity: 0.9;"></i>
-                                <h3 style="margin: 0; font-size: 1rem; font-weight: 600;">Create Event</h3>
-                                <p style="margin: 5px 0 0 0; font-size: 0.8rem; opacity: 0.9;">Start a new event</p>
+                            <div onclick="showSection('events'); setTimeout(() => showCreateEventForm(), 100);" class="quick-action-card">
+                                <div class="quick-action-icon indigo"><i class="fas fa-plus-circle"></i></div>
+                                <h3>Create Event</h3>
+                                <p>Start a new event</p>
                             </div>
 
                             <!-- Import Guests Card -->
-                            <div onclick="showSection('upload')"
-                                 style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-                                        color: white;
-                                        padding: 25px 20px;
-                                        border-radius: 12px;
-                                        cursor: pointer;
-                                        transition: all 0.3s ease;
-                                        text-align: center;
-                                        box-shadow: 0 2px 8px rgba(72, 187, 120, 0.3);"
-                                 onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 20px rgba(72, 187, 120, 0.4)';"
-                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(72, 187, 120, 0.3)';">
-                                <i class="fas fa-file-upload" style="font-size: 2.5rem; margin-bottom: 10px; opacity: 0.9;"></i>
-                                <h3 style="margin: 0; font-size: 1rem; font-weight: 600;">Import Guests</h3>
-                                <p style="margin: 5px 0 0 0; font-size: 0.8rem; opacity: 0.9;">Upload guest list</p>
+                            <div onclick="showSection('upload')" class="quick-action-card">
+                                <div class="quick-action-icon green"><i class="fas fa-file-upload"></i></div>
+                                <h3>Import Guests</h3>
+                                <p>Upload guest list</p>
                             </div>
 
                             <!-- Download Reports Card -->
-                            <div onclick="showSection('reports')"
-                                 style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
-                                        color: white;
-                                        padding: 25px 20px;
-                                        border-radius: 12px;
-                                        cursor: pointer;
-                                        transition: all 0.3s ease;
-                                        text-align: center;
-                                        box-shadow: 0 2px 8px rgba(237, 137, 54, 0.3);"
-                                 onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 20px rgba(237, 137, 54, 0.4)';"
-                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(237, 137, 54, 0.3)';">
-                                <i class="fas fa-download" style="font-size: 2.5rem; margin-bottom: 10px; opacity: 0.9;"></i>
-                                <h3 style="margin: 0; font-size: 1rem; font-weight: 600;">Download Reports</h3>
-                                <p style="margin: 5px 0 0 0; font-size: 0.8rem; opacity: 0.9;">Export attendance data</p>
+                            <div onclick="showSection('reports')" class="quick-action-card">
+                                <div class="quick-action-icon amber"><i class="fas fa-download"></i></div>
+                                <h3>Download Reports</h3>
+                                <p>Export attendance data</p>
                             </div>
 
                             <!-- QR Scanner Card -->
-                            <div onclick="window.open('/pages/checkin.html', '_blank')"
-                                 style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
-                                        color: white;
-                                        padding: 25px 20px;
-                                        border-radius: 12px;
-                                        cursor: pointer;
-                                        transition: all 0.3s ease;
-                                        text-align: center;
-                                        box-shadow: 0 2px 8px rgba(66, 153, 225, 0.3);"
-                                 onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 20px rgba(66, 153, 225, 0.4)';"
-                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(66, 153, 225, 0.3)';">
-                                <i class="fas fa-qrcode" style="font-size: 2.5rem; margin-bottom: 10px; opacity: 0.9;"></i>
-                                <h3 style="margin: 0; font-size: 1rem; font-weight: 600;">QR Scanner</h3>
-                                <p style="margin: 5px 0 0 0; font-size: 0.8rem; opacity: 0.9;">Check-in guests</p>
+                            <div onclick="window.open('/pages/checkin.html', '_blank')" class="quick-action-card">
+                                <div class="quick-action-icon blue"><i class="fas fa-qrcode"></i></div>
+                                <h3>QR Scanner</h3>
+                                <p>Check-in guests</p>
                             </div>
                         </div>
                     </div>
