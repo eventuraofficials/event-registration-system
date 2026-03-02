@@ -14,206 +14,235 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         .share-container {
-            max-width: 900px;
+            max-width: 860px;
             margin: 0 auto;
             padding: 20px;
         }
 
         .share-card {
-            background: white;
+            background: var(--white);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 28px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
 
+        .share-card h3 {
+            margin: 0 0 16px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .share-card h3 i {
+            color: var(--primary);
+        }
+
+        .share-card p {
+            margin: 0 0 16px 0;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Event Header */
         .event-info {
             text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            padding: 28px 24px;
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-top: 4px solid var(--primary);
             border-radius: 12px;
-            margin-bottom: 30px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
 
         .event-info h2 {
-            margin: 0 0 10px 0;
-            font-size: 2rem;
+            margin: 0 0 8px 0;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-dark);
         }
 
         .event-code-display {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 10px 20px;
-            border-radius: 8px;
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 6px 16px;
+            border-radius: 6px;
             display: inline-block;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 10px 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: monospace;
+            margin: 8px 0;
         }
 
-        .link-section {
-            margin: 30px 0;
+        #eventDetails {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin: 4px 0 0 0;
         }
 
+        /* Link Box */
         .link-box {
             display: flex;
             gap: 10px;
-            margin: 15px 0;
+            margin-bottom: 12px;
         }
 
         .link-input {
             flex: 1;
-            padding: 15px;
-            border: 2px solid #667eea;
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: 0.875rem;
             font-family: monospace;
+            background: var(--gray-50);
+            color: var(--text-dark);
+            outline: none;
         }
 
         .copy-btn {
-            padding: 15px 30px;
-            background: #667eea;
+            padding: 12px 20px;
+            background: var(--primary);
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: background 160ms ease;
+            white-space: nowrap;
         }
 
-        .copy-btn:hover {
-            background: #764ba2;
-            transform: translateY(-2px);
-        }
+        .copy-btn:hover { background: var(--primary-hover); }
+        .copy-btn.copied { background: var(--success); }
 
-        .copy-btn.copied {
-            background: #06d6a0;
-        }
-
+        /* QR Container */
         .qr-container {
             text-align: center;
-            padding: 30px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            margin: 20px 0;
+            padding: 24px;
+            background: var(--gray-50);
+            border-radius: 10px;
+            margin: 8px 0 16px;
         }
 
         .qr-code-wrapper {
             display: inline-block;
-            padding: 20px;
+            padding: 16px;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin: 20px 0;
+            border: 1px solid var(--border-color);
+            margin-bottom: 12px;
         }
 
+        .qr-container p {
+            margin: 4px 0;
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        /* Share Buttons */
         .share-buttons {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 8px;
         }
 
         .share-btn {
-            padding: 15px 20px;
+            padding: 12px 16px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: opacity 160ms ease, transform 160ms ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
         }
 
-        .share-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
+        .share-btn:hover { opacity: 0.88; transform: translateY(-1px); }
 
         .btn-facebook { background: #1877f2; color: white; }
         .btn-whatsapp { background: #25d366; color: white; }
-        .btn-email { background: #ea4335; color: white; }
-        .btn-sms { background: #0088cc; color: white; }
-        .btn-download { background: #667eea; color: white; }
-        .btn-print { background: #764ba2; color: white; }
+        .btn-email    { background: #ea4335; color: white; }
+        .btn-sms      { background: #0088cc; color: white; }
+        .btn-download { background: var(--primary); color: white; }
+        .btn-print    { background: var(--text-dark); color: white; }
 
+        /* Instructions */
         .instructions {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px 20px;
+            background: #fefce8;
+            border-left: 3px solid #eab308;
+            padding: 14px 18px;
             border-radius: 8px;
-            margin: 20px 0;
+            margin-top: 8px;
         }
 
         .instructions h4 {
-            margin: 0 0 10px 0;
-            color: #856404;
+            margin: 0 0 8px 0;
+            color: #854d0e;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .instructions ul {
-            margin: 10px 0;
-            padding-left: 20px;
+            margin: 0;
+            padding-left: 18px;
+            color: #713f12;
+            font-size: 0.875rem;
+            line-height: 1.7;
         }
 
+        /* Stats */
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 8px;
         }
 
         .stat-box {
             text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 8px;
+            padding: 20px 16px;
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
         }
+
+        .stat-box i { color: var(--primary); font-size: 1.25rem; }
 
         .stat-number {
             font-size: 2rem;
-            font-weight: bold;
-            margin: 10px 0;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin: 8px 0 4px;
+            line-height: 1;
         }
 
         .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin: 20px 0;
-            padding: 10px 20px;
-            background: #667eea;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
-
-        .back-link:hover {
-            background: #764ba2;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            font-weight: 500;
         }
 
         @media print {
-            body * {
-                visibility: hidden;
-            }
-            .qr-container, .qr-container * {
-                visibility: visible;
-            }
-            .qr-container {
-                position: absolute;
-                left: 0;
-                top: 0;
-            }
-            .share-buttons, .instructions {
-                display: none;
-            }
+            body * { visibility: hidden; }
+            .qr-container, .qr-container * { visibility: visible; }
+            .qr-container { position: absolute; left: 0; top: 0; }
+            .share-buttons, .instructions { display: none; }
+        }
+
+        @media (max-width: 600px) {
+            .share-buttons { grid-template-columns: 1fr 1fr; }
+            .link-box { flex-direction: column; }
         }
     </style>
 </head>
@@ -247,15 +276,15 @@
             <p>Share this link para mag-register ang guests:</p>
 
             <div class="link-box">
-                <input type="text" class="link-input" id="registrationLink" readonly>
-                <button class="copy-btn" onclick="copyLink('registrationLink')">
+                <input type="text" class="link-input" id="registrationLink" readonly title="Registration link" placeholder="Loading...">
+                <button type="button" class="copy-btn" onclick="copyLink('registrationLink')">
                     <i class="fas fa-copy"></i> Copy
                 </button>
             </div>
 
             <div class="link-box">
-                <input type="text" class="link-input" id="shortLink" readonly>
-                <button class="copy-btn" onclick="copyLink('shortLink')">
+                <input type="text" class="link-input" id="shortLink" readonly title="Short registration link" placeholder="Loading...">
+                <button type="button" class="copy-btn" onclick="copyLink('shortLink')">
                     <i class="fas fa-copy"></i> Copy Short
                 </button>
             </div>
@@ -275,10 +304,10 @@
             </div>
 
             <div class="share-buttons">
-                <button class="share-btn btn-download" onclick="downloadQR()">
+                <button type="button" class="share-btn btn-download" onclick="downloadQR()">
                     <i class="fas fa-download"></i> Download QR
                 </button>
-                <button class="share-btn btn-print" onclick="printQR()">
+                <button type="button" class="share-btn btn-print" onclick="printQR()">
                     <i class="fas fa-print"></i> Print QR
                 </button>
             </div>
@@ -290,16 +319,16 @@
             <p>Share sa social media or messaging:</p>
 
             <div class="share-buttons">
-                <button class="share-btn btn-facebook" onclick="shareToFacebook()">
+                <button type="button" class="share-btn btn-facebook" onclick="shareToFacebook()">
                     <i class="fab fa-facebook"></i> Facebook
                 </button>
-                <button class="share-btn btn-whatsapp" onclick="shareToWhatsApp()">
+                <button type="button" class="share-btn btn-whatsapp" onclick="shareToWhatsApp()">
                     <i class="fab fa-whatsapp"></i> WhatsApp
                 </button>
-                <button class="share-btn btn-email" onclick="shareViaEmail()">
+                <button type="button" class="share-btn btn-email" onclick="shareViaEmail()">
                     <i class="fas fa-envelope"></i> Email
                 </button>
-                <button class="share-btn btn-sms" onclick="shareViaSMS()">
+                <button type="button" class="share-btn btn-sms" onclick="shareViaSMS()">
                     <i class="fas fa-sms"></i> SMS
                 </button>
             </div>

@@ -9,11 +9,13 @@ A professional event registration and attendance tracking system with QR code ch
 ## Features
 
 - **Guest Self-Registration** — Public registration form with instant QR code ticket
-- **Excel Bulk Upload** — Pre-register guests via Excel/CSV file
+- **Email QR Tickets** — Ticket automatically emailed to guest after registration (requires SMTP config)
+- **Excel Bulk Upload** — Pre-register guests via Excel/CSV; tickets emailed automatically
 - **QR Code Check-In** — Camera-based scanner or manual code entry
 - **Admin Dashboard** — Manage events, guests, reports, and exports
 - **Export Reports** — Download guest list as Excel, PDF, or CSV
 - **Role-based Access** — Super Admin, Admin, and Staff roles
+- **Activity Logs** — Real-time audit trail of all admin actions
 - **Mobile Ready** — Works on iPhone, iPad, Android, and desktop
 
 ---
@@ -204,9 +206,10 @@ Go to **Reports** section → select event → export as **Excel**, **PDF**, or 
 | `CORS_ORIGIN` | Yes | Allowed origin for CORS |
 | `EMAIL_ENABLED` | No | `true` to enable email notifications |
 | `EMAIL_HOST` | No | SMTP host (e.g. smtp.gmail.com) |
-| `EMAIL_PORT` | No | SMTP port (587) |
+| `EMAIL_PORT` | No | SMTP port (587 for TLS, 465 for SSL) |
 | `EMAIL_USER` | No | SMTP email address |
-| `EMAIL_PASSWORD` | No | SMTP app password |
+| `EMAIL_PASSWORD` | No | SMTP app password (Gmail: use App Password) |
+| `EMAIL_FROM` | No | Sender display name e.g. `Eventura <noreply@events.com>` |
 
 ---
 
