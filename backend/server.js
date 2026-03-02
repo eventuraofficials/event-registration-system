@@ -107,9 +107,9 @@ if (process.env.NODE_ENV === 'production') {
   app.use(logger.requestLogger());
 }
 
-// Root route - redirect to admin login page (MUST be before static middleware)
+// Root route - landing page (MUST be before static middleware)
 app.get('/', (req, res) => {
-  res.redirect('/pages/admin.html');
+  res.redirect('/pages/landing.html');
 });
 
 // Static files - Serve public folder with no-cache for JS files
