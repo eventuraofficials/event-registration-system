@@ -117,54 +117,26 @@ function loadEventsAfterAuth() {
 
 // Load available events for dropdown
 async function loadAvailableEventsForCheckIn() {
-    console.log('🔄 Loading events for check-in dropdown...');
     try {
         const response = await fetch(`${API_BASE_URL}/events/checkin-available`);
-        console.log('📡 Response status:', response.status);
-
         const data = await response.json();
-        console.log('📊 Events data:', data);
+        const select = document.getElementById('eventSelectDropdown');
 
         if (data.success && data.events && data.events.length > 0) {
-            const select = document.getElementById('eventSelectDropdown');
             select.innerHTML = '<option value="">-- Select an Event --</option>';
-
-            console.log(`✅ Found ${data.events.length} events`);
-
-            // Show ALL events - staff should be able to check in guests for any event
             data.events.forEach(event => {
-                try {
-                    const option = document.createElement('option');
-                    option.value = event.event_code;
-                    // Show registration status in dropdown for clarity
-                    const regStatus = event.registration_open ? '✓ Open' : '✗ Closed';
-
-                    // Try to format date, fallback to raw date if formatDate is not available
-                    let formattedDate = event.event_date;
-                    try {
-                        if (typeof formatDate === 'function') {
-                            formattedDate = formatDate(event.event_date);
-                        }
-                    } catch (dateError) {
-                        console.warn('formatDate error:', dateError);
-                    }
-
-                    option.textContent = `${event.event_name} (${event.event_code}) - ${formattedDate} [${regStatus}]`;
-                    select.appendChild(option);
-                    console.log(`  ➕ Added: ${event.event_name}`);
-                } catch (eventError) {
-                    console.error(`  ❌ Error adding event ${event.event_name}:`, eventError);
-                }
+                const option = document.createElement('option');
+                option.value = event.event_code;
+                const regStatus = event.registration_open ? '✓ Open' : '✗ Closed';
+                const formattedDate = typeof formatDate === 'function' ? formatDate(event.event_date) : event.event_date;
+                option.textContent = `${event.event_name} (${event.event_code}) - ${formattedDate} [${regStatus}]`;
+                select.appendChild(option);
             });
         } else {
-            console.warn('⚠️ No events found in response');
-            const select = document.getElementById('eventSelectDropdown');
             select.innerHTML = '<option value="">-- No Events Available --</option>';
         }
     } catch (error) {
-        console.error('❌ Error loading events:', error);
-        const select = document.getElementById('eventSelectDropdown');
-        select.innerHTML = '<option value="">-- Error Loading Events --</option>';
+        document.getElementById('eventSelectDropdown').innerHTML = '<option value="">-- Error Loading Events --</option>';
     }
 }
 
@@ -174,10 +146,7 @@ function loadEventFromDropdown() {
     const eventCode = select.value;
 
     if (eventCode) {
-        console.log('📋 Event selected from dropdown:', eventCode);
         selectEventForCheckIn(eventCode);
-    } else {
-        console.log('⚠️ No event selected');
     }
 }
 
@@ -194,7 +163,6 @@ async function selectEventForCheckIn(eventCode) {
     }
 
     if (!eventCode) {
-        console.error('❌ No event code provided');
         showAlert('Please select an event', 'danger');
         return;
     }
@@ -206,7 +174,6 @@ async function selectEventForCheckIn(eventCode) {
         const data = await fetchAPI(API.getEventByCode(eventCode));
 
         if (!data.success) {
-            console.error('API returned success=false:', data.message);
             throw new Error(data.message);
         }
 
@@ -224,28 +191,12 @@ async function selectEventForCheckIn(eventCode) {
         }
 
         // Display event name
-        const eventNameElement = document.getElementById('currentEventName');
-        if (eventNameElement) {
-            eventNameElement.textContent = currentCheckInEvent.event_name;
-
-        } else {
-            console.error('❌ currentEventName element not found!');
-        }
+        document.getElementById('currentEventName').textContent = currentCheckInEvent.event_name;
 
         // Show scanner section
-        const eventSelectSection = document.getElementById('eventSelectSection');
-        const scannerSection = document.getElementById('scannerSection');
+        document.getElementById('eventSelectSection').classList.remove('active');
+        document.getElementById('scannerSection').classList.add('active');
 
-        if (eventSelectSection && scannerSection) {
-            eventSelectSection.classList.remove('active');
-            scannerSection.classList.add('active');
-
-        } else {
-            console.error('❌ Section elements not found!');
-        }
-
-        // Initialize QR scanner
-        console.log('🎥 Initializing QR scanner...');
         initializeScanner();
 
         hideLoading();
@@ -267,17 +218,12 @@ function initializeScanner() {
         return;
     }
 
-    // Check if Html5Qrcode library is loaded
     if (typeof Html5Qrcode === 'undefined') {
-        console.error('❌ Html5Qrcode library not loaded!');
         showAlert('QR Scanner library failed to load. Please refresh the page.', 'danger');
         return;
     }
 
-    // Check if qr-reader element exists
-    const qrReaderElement = document.getElementById('qr-reader');
-    if (!qrReaderElement) {
-        console.error('❌ qr-reader element not found!');
+    if (!document.getElementById('qr-reader')) {
         showAlert('Scanner element not found. Please refresh the page.', 'danger');
         return;
     }

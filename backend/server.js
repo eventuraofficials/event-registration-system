@@ -135,6 +135,7 @@ app.use('/uploads', express.static(uploadsPath));
 const adminRoutes = require('./api/routes/adminRoutes');
 const eventRoutes = require('./api/routes/eventRoutes');
 const guestRoutes = require('./api/routes/guestRoutes');
+const { authenticateToken, authorizeRole } = require('./api/middleware/auth');
 
 // Public endpoint rate limiting (applied before route handlers)
 app.use('/api/events/available', publicLimiter);
@@ -160,8 +161,8 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// System diagnostics endpoint (detailed health check)
-app.get('/api/diagnostics', async (req, res) => {
+// System diagnostics endpoint (super_admin only)
+app.get('/api/diagnostics', authenticateToken, authorizeRole('super_admin'), async (req, res) => {
   try {
     const db = require('./db/config/database');
 
