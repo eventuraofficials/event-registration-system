@@ -51,6 +51,12 @@ async function loadEventFromURL() {
         document.getElementById('eventVenue').textContent = currentEvent.venue || 'TBA';
         document.getElementById('eventDescription').textContent = currentEvent.description || '';
 
+        // Check if registration is open
+        if (!currentEvent.registration_open) {
+            document.getElementById('registrationClosed').style.display = 'block';
+            return;
+        }
+
         // Build dynamic registration form based on event config
         buildRegistrationForm();
 

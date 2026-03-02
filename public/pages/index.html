@@ -239,6 +239,27 @@
             padding: 28px 32px 32px;
         }
 
+        /* ── Registration Closed ── */
+        .reg-closed-body {
+            text-align: center;
+            padding: 32px 16px;
+        }
+        .reg-closed-icon {
+            font-size: 2.5rem;
+            color: #e74c3c;
+            margin-bottom: 16px;
+            display: block;
+        }
+        .reg-closed-title {
+            margin: 0 0 10px 0;
+            color: var(--text-dark);
+        }
+        .reg-closed-text {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.938rem;
+        }
+
         /* ── Responsive ── */
         @media (max-width: 640px) {
             .event-info-body { padding: 20px; }
@@ -303,6 +324,15 @@
                             </div>
                         </div>
                         <p id="eventDescription" class="event-description"></p>
+                    </div>
+                </div>
+
+                <!-- Registration Closed Notice -->
+                <div id="registrationClosed" class="card" style="display: none;">
+                    <div class="reg-closed-body">
+                        <i class="fas fa-lock reg-closed-icon"></i>
+                        <h3 class="reg-closed-title">Registration Closed</h3>
+                        <p class="reg-closed-text">Registration for this event is currently closed. Please contact the organizer for more information.</p>
                     </div>
                 </div>
 

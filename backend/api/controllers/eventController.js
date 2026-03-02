@@ -30,7 +30,8 @@ exports.getAvailableEvents = async (req, res) => {
         event_date,
         event_time,
         venue,
-        registration_open
+        registration_open,
+        event_logo
       FROM events
       WHERE registration_open = 1
       ORDER BY event_date ASC`

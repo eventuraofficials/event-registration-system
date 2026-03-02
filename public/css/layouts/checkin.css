@@ -4,6 +4,66 @@
     background: #F8FAFC;
 }
 
+/* ── Login Gate Overlay ── */
+.login-gate {
+    position: fixed;
+    inset: 0;
+    background: #F8FAFC;
+    z-index: 9000;
+    display: flex; /* visible by default — JS hides after auth */
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.login-gate-card {
+    width: 100%;
+    max-width: 400px;
+}
+.login-gate-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+.login-gate-header i {
+    font-size: 2.5rem;
+    color: var(--primary, #6366F1);
+    margin-bottom: 12px;
+    display: block;
+}
+.login-gate-header h2 {
+    margin: 0 0 6px 0;
+    font-size: 1.375rem;
+    color: #1E293B;
+}
+.login-gate-header p {
+    margin: 0;
+    color: #64748B;
+    font-size: 0.875rem;
+}
+.login-gate-error {
+    color: #e74c3c;
+    font-size: 0.875rem;
+    margin-bottom: 12px;
+    display: none;
+}
+.checkin-user-info {
+    font-size: 0.813rem;
+    color: #64748B;
+    margin-right: 8px;
+}
+.header-user-area {
+    display: none;
+}
+.checkin-logout-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+}
+.login-gate-submit {
+    width: 100%;
+}
+
 /* === SECTION VISIBILITY === */
 .section {
     display: none;

@@ -33,10 +33,11 @@
             <i class="fas fa-qrcode"></i>
             <span>Event Check-In</span>
         </a>
-        <div class="app-header-user">
-            <a href="/pages/admin.html" class="app-header-nav-link">
-                <i class="fas fa-user-shield"></i> Admin
-            </a>
+        <div class="app-header-user header-user-area" id="headerUserArea">
+            <span class="checkin-user-info" id="checkinUserDisplay"></span>
+            <button type="button" onclick="checkinLogout()" class="app-header-nav-link checkin-logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
         </div>
     </header>
 
@@ -140,6 +141,29 @@
                 <div class="scan-flash-dismiss">Tap anywhere to dismiss</div>
             </div>
         </main>
+        </div>
+    </div>
+
+    <!-- Login Gate (shown until authenticated) -->
+    <div id="loginGate" class="login-gate">
+        <div class="login-gate-card card">
+            <div class="login-gate-header">
+                <i class="fas fa-qrcode"></i>
+                <h2>Event Check-In</h2>
+                <p>Sign in to access the check-in scanner</p>
+            </div>
+            <div class="form-group">
+                <label for="checkinUsername">Username</label>
+                <input type="text" id="checkinUsername" placeholder="Enter username" autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label for="checkinPassword">Password</label>
+                <input type="password" id="checkinPassword" placeholder="Enter password" autocomplete="current-password">
+            </div>
+            <p id="loginGateError" class="login-gate-error"></p>
+            <button type="button" onclick="checkinLogin()" class="btn btn-primary login-gate-submit">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
         </div>
     </div>
 

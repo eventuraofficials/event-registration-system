@@ -1,5 +1,6 @@
 // Global state
 let currentCheckInEvent = null;
+let currentUser = null;
 let html5QrCode = null;
 let stats = {
     totalScanned: 0,
@@ -10,17 +11,109 @@ let recentCheckIns = [];
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
-    // Load available events for dropdown
+    // Wire up Enter key on login form
+    document.getElementById('checkinPassword').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') checkinLogin();
+    });
+    document.getElementById('checkinUsername').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') checkinLogin();
+    });
+
+    checkAuth();
+});
+
+// ── Authentication ────────────────────────────────────────────────────────────
+
+async function checkAuth() {
+    const token = localStorage.getItem('admin_token');
+    if (!token || !isTokenValid(token)) {
+        localStorage.removeItem('admin_token');
+        showLoginGate();
+        return;
+    }
+
+    try {
+        const resp = await fetch(`${API_BASE_URL}/admin/profile`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await resp.json();
+        if (!data.success) throw new Error('Invalid session');
+
+        currentUser = data.admin;
+        hideLoginGate();
+        loadEventsAfterAuth();
+    } catch {
+        localStorage.removeItem('admin_token');
+        showLoginGate();
+    }
+}
+
+async function checkinLogin() {
+    const username = document.getElementById('checkinUsername').value.trim();
+    const password = document.getElementById('checkinPassword').value;
+    const errorEl = document.getElementById('loginGateError');
+
+    errorEl.style.display = 'none';
+
+    if (!username || !password) {
+        errorEl.textContent = 'Please enter username and password.';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    try {
+        const resp = await fetch(`${API_BASE_URL}/admin/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await resp.json();
+
+        if (!data.success) {
+            errorEl.textContent = data.message || 'Invalid username or password.';
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        localStorage.setItem('admin_token', data.token);
+        currentUser = data.user;
+        hideLoginGate();
+        loadEventsAfterAuth();
+    } catch {
+        errorEl.textContent = 'Connection error. Please try again.';
+        errorEl.style.display = 'block';
+    }
+}
+
+function checkinLogout() {
+    localStorage.removeItem('admin_token');
+    currentUser = null;
+    resetScanner();
+    document.getElementById('eventSelectDropdown').innerHTML = '<option value="">-- Select an Event --</option>';
+    showLoginGate();
+}
+
+function showLoginGate() {
+    document.getElementById('loginGate').style.display = 'flex';
+    document.getElementById('headerUserArea').style.display = 'none';
+}
+
+function hideLoginGate() {
+    document.getElementById('loginGate').style.display = 'none';
+    document.getElementById('headerUserArea').style.display = 'flex';
+    const userEl = document.getElementById('checkinUserDisplay');
+    if (userEl && currentUser) {
+        userEl.textContent = currentUser.full_name || currentUser.username;
+    }
+}
+
+function loadEventsAfterAuth() {
     loadAvailableEventsForCheckIn();
 
-    // Check if there's an event code in URL
     const urlParams = new URLSearchParams(window.location.search);
     const eventCode = urlParams.get('event');
-
-    if (eventCode) {
-        selectEventForCheckIn(eventCode);
-    }
-});
+    if (eventCode) selectEventForCheckIn(eventCode);
+}
 
 // Load available events for dropdown
 async function loadAvailableEventsForCheckIn() {
