@@ -135,7 +135,7 @@ app.use('/uploads', express.static(uploadsPath));
 const adminRoutes = require('./api/routes/adminRoutes');
 const eventRoutes = require('./api/routes/eventRoutes');
 const guestRoutes = require('./api/routes/guestRoutes');
-const { authenticateToken, authorizeRole } = require('./api/middleware/auth');
+const { authenticateToken, authorizeRole } = require('./middleware/auth');
 
 // Public endpoint rate limiting (applied before route handlers)
 app.use('/api/events/available', publicLimiter);
