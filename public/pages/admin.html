@@ -163,7 +163,7 @@
                 </div>
 
                 <!-- Dashboard Grid Layout -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px; margin-top: 30px;">
+                <div class="overview-grid">
 
                     <!-- Today's Events Section -->
                     <div class="card" style="height: fit-content;">
@@ -189,7 +189,7 @@
                                 Quick Actions
                             </h2>
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                        <div class="quick-actions-grid">
                             <!-- Create Event Card -->
                             <div onclick="showSection('events'); setTimeout(() => showCreateEventForm(), 100);" class="quick-action-card">
                                 <div class="quick-action-icon indigo"><i class="fas fa-plus-circle"></i></div>
@@ -276,11 +276,11 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Event Code</th>
+                                    <th class="col-ev-code">Event Code</th>
                                     <th>Event Name</th>
-                                    <th>Date</th>
-                                    <th>Venue</th>
-                                    <th>Guests</th>
+                                    <th class="col-ev-date">Date</th>
+                                    <th class="col-ev-venue">Venue</th>
+                                    <th class="col-ev-guests">Guests</th>
                                     <th>Registration</th>
                                     <th>Actions</th>
                                 </tr>
@@ -563,7 +563,7 @@
                     <h1>Settings</h1>
                     <p style="color:#718096; margin:4px 0 0;">Manage your account and preferences</p>
                 </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; max-width:800px;">
+                <div class="settings-grid">
 
                     <!-- Change Password -->
                     <div class="card" style="padding:24px;">
@@ -609,7 +609,7 @@
 
     <!-- Add Guest Modal -->
     <div id="addGuestModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-        <div style="background:#fff; border-radius:12px; padding:28px; width:90%; max-width:500px; max-height:90vh; overflow-y:auto;">
+        <div class="admin-modal-box">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h3 style="margin:0; font-size:1.1rem;"><i class="fas fa-user-plus" style="color:#667eea; margin-right:8px;"></i>Add Guest Manually</h3>
                 <button onclick="closeAddGuestModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#718096;">&times;</button>
@@ -649,7 +649,7 @@
 
     <!-- Edit Guest Modal -->
     <div id="editGuestModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-        <div style="background:#fff; border-radius:12px; padding:28px; width:90%; max-width:500px; max-height:90vh; overflow-y:auto;">
+        <div class="admin-modal-box">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h3 style="margin:0; font-size:1.1rem;">Edit Guest</h3>
                 <button onclick="closeEditGuestModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#718096;">&times;</button>
@@ -690,7 +690,7 @@
 
     <!-- Create Staff Modal -->
     <div id="createStaffModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-        <div style="background:#fff; border-radius:12px; padding:28px; width:90%; max-width:440px;">
+        <div class="admin-modal-box">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h3 style="margin:0; font-size:1.1rem;">Add Staff Account</h3>
                 <button onclick="closeCreateStaffModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#718096;">&times;</button>

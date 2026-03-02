@@ -242,11 +242,11 @@ function renderEventsTable() {
 
     tbody.innerHTML = allEvents.map(event => `
         <tr>
-            <td><strong>${SecurityUtils.escapeHtml(event.event_code)}</strong></td>
+            <td class="col-ev-code"><strong>${SecurityUtils.escapeHtml(event.event_code)}</strong></td>
             <td>${SecurityUtils.escapeHtml(event.event_name)}</td>
-            <td>${formatDate(event.event_date)}</td>
-            <td>${SecurityUtils.escapeHtml(event.venue || 'TBA')}</td>
-            <td>${event.total_guests || 0} <small>(${event.total_attended || 0} attended)</small></td>
+            <td class="col-ev-date">${formatDate(event.event_date)}</td>
+            <td class="col-ev-venue">${SecurityUtils.escapeHtml(event.venue || 'TBA')}</td>
+            <td class="col-ev-guests">${event.total_guests || 0} <small>(${event.total_attended || 0} attended)</small></td>
             <td>
                 <span class="badge ${event.registration_open ? 'success' : 'danger'}">
                     ${event.registration_open ? 'Open' : 'Closed'}
@@ -511,11 +511,11 @@ function filterEvents(searchTerm) {
 
     tbody.innerHTML = filtered.map(event => `
         <tr>
-            <td><strong>${SecurityUtils.escapeHtml(event.event_code)}</strong></td>
+            <td class="col-ev-code"><strong>${SecurityUtils.escapeHtml(event.event_code)}</strong></td>
             <td>${SecurityUtils.escapeHtml(event.event_name)}</td>
-            <td>${formatDate(event.event_date)}</td>
-            <td>${SecurityUtils.escapeHtml(event.venue || 'TBA')}</td>
-            <td>${event.total_guests || 0} <small>(${event.total_attended || 0} attended)</small></td>
+            <td class="col-ev-date">${formatDate(event.event_date)}</td>
+            <td class="col-ev-venue">${SecurityUtils.escapeHtml(event.venue || 'TBA')}</td>
+            <td class="col-ev-guests">${event.total_guests || 0} <small>(${event.total_attended || 0} attended)</small></td>
             <td>
                 <span class="badge ${event.registration_open ? 'success' : 'danger'}">
                     ${event.registration_open ? 'Open' : 'Closed'}
