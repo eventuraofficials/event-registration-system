@@ -13,6 +13,226 @@
     <link rel="stylesheet" href="../css/layouts/mobile-responsive.css">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <style>
+        /* ── Section toggle ── */
+        .section { display: none; }
+        .section.active { display: block; }
+
+        /* ── Event info card ── */
+        .event-info-card {
+            border-top: 4px solid var(--primary);
+            padding: 0;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .event-info-card:hover { transform: none; }
+
+        .event-info-body { padding: 32px; }
+
+        .event-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: var(--radius-full);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 16px;
+        }
+
+        .event-info-name {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.25;
+            margin: 0 0 24px 0;
+        }
+
+        .event-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            background: var(--bg-base);
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+
+        .event-meta-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .event-meta-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--primary-light);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .event-meta-icon i { font-size: 0.875rem; color: var(--primary); }
+
+        .event-meta-label {
+            display: block;
+            font-size: 0.688rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+
+        .event-meta-value {
+            display: block;
+            font-size: 0.938rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            line-height: 1.3;
+        }
+
+        .event-description {
+            font-size: 0.938rem;
+            color: var(--text-light);
+            line-height: 1.7;
+            margin: 0;
+            padding: 20px 32px;
+            border-top: 1px solid var(--border-light);
+        }
+        .event-description:empty { display: none; }
+
+        /* ── Registration form card ── */
+        .form-card {
+            border-top: 4px solid var(--primary);
+        }
+
+        .form-card-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .form-card-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--primary-light);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.125rem;
+            flex-shrink: 0;
+        }
+
+        .form-card-header h2 {
+            margin: 0 0 3px 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .form-card-header p {
+            margin: 0;
+            font-size: 0.813rem;
+            color: var(--text-muted);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 15px 24px;
+            font-size: 1rem;
+            font-weight: 700;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all var(--transition);
+            margin-top: 8px;
+            font-family: var(--font-sans);
+        }
+        .btn-register:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+        }
+        .btn-register:active { transform: translateY(0); box-shadow: none; }
+
+        .form-note {
+            text-align: center;
+            font-size: 0.813rem;
+            color: var(--text-muted);
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .form-note i { color: var(--success); }
+
+        /* ── QR ticket — boarding pass header ── */
+        .qr-ticket-card {
+            padding: 0 !important;
+            overflow: hidden;
+        }
+
+        .qr-ticket-strip {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+            padding: 22px 32px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .qr-ticket-strip i {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.75);
+            flex-shrink: 0;
+        }
+
+        .qr-ticket-strip h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.3;
+        }
+
+        .qr-ticket-body {
+            padding: 28px 32px 32px;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .event-info-body { padding: 20px; }
+            .event-info-name { font-size: 1.375rem; }
+            .event-meta-grid { grid-template-columns: 1fr; gap: 12px; padding: 16px; }
+            .event-description { padding: 16px 20px; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+            .qr-ticket-strip { padding: 18px 20px; }
+            .qr-ticket-body { padding: 20px; }
+        }
+    </style>
 </head>
 <body>
     <!-- White Sticky Header -->
@@ -30,49 +250,85 @@
     <div class="app-layout-simple">
         <div class="content-wrapper">
             <main class="main-content">
-            <!-- Event Info & Registration Form -->
+
+            <!-- ── Registration Section ── -->
             <div id="registrationSection" class="section active">
+
                 <!-- Event Info Card -->
-                <div id="eventInfo" class="card">
-                    <div id="loadingEvent"></div>
+                <div id="eventInfo" class="card event-info-card">
+                    <div id="loadingEvent" class="event-info-body"></div>
                     <div id="eventDetails" style="display: none;">
-                        <h2><i class="fas fa-calendar-alt"></i> <span id="eventName"></span></h2>
-                        <div class="event-details" style="margin: 20px 0;">
-                            <p><i class="fas fa-calendar"></i> <span id="eventDate"></span></p>
-                            <p><i class="fas fa-clock"></i> <span id="eventTime"></span></p>
-                            <p><i class="fas fa-map-marker-alt"></i> <span id="eventVenue"></span></p>
+                        <div class="event-info-body">
+                            <div class="event-badge">
+                                <i class="fas fa-calendar-check"></i> Event Registration
+                            </div>
+                            <h1 class="event-info-name" id="eventName"></h1>
+                            <div class="event-meta-grid">
+                                <div class="event-meta-item">
+                                    <div class="event-meta-icon"><i class="fas fa-calendar"></i></div>
+                                    <div>
+                                        <span class="event-meta-label">Date</span>
+                                        <span class="event-meta-value" id="eventDate"></span>
+                                    </div>
+                                </div>
+                                <div class="event-meta-item">
+                                    <div class="event-meta-icon"><i class="fas fa-clock"></i></div>
+                                    <div>
+                                        <span class="event-meta-label">Time</span>
+                                        <span class="event-meta-value" id="eventTime"></span>
+                                    </div>
+                                </div>
+                                <div class="event-meta-item">
+                                    <div class="event-meta-icon"><i class="fas fa-map-marker-alt"></i></div>
+                                    <div>
+                                        <span class="event-meta-label">Venue</span>
+                                        <span class="event-meta-value" id="eventVenue"></span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <p id="eventDescription" style="color: #666;"></p>
+                        <p id="eventDescription" class="event-description"></p>
                     </div>
                 </div>
 
                 <!-- Registration Form -->
-                <div id="registrationFormCard" class="card" style="display: none;">
-                    <h2><i class="fas fa-clipboard-list"></i> Registration Form</h2>
+                <div id="registrationFormCard" class="card form-card" style="display: none;">
+                    <div class="form-card-header">
+                        <div class="form-card-icon">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <div>
+                            <h2>Registration Form</h2>
+                            <p>Fill in your details to receive your QR entry ticket</p>
+                        </div>
+                    </div>
+
                     <form id="guestForm">
-                        <div class="form-group">
-                            <label for="fullName">Full Name *</label>
-                            <input type="text" id="fullName" required autocomplete="name" autocorrect="off">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fullName">Full Name *</label>
+                                <input type="text" id="fullName" placeholder="Juan dela Cruz" required autocomplete="name" autocorrect="off">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address *</label>
+                                <input type="email" id="email" placeholder="juan@email.com" required autocomplete="email" autocorrect="off">
+                            </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="email">Email Address *</label>
-                            <input type="email" id="email" required autocomplete="email" autocorrect="off">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="contactNumber">Contact Number *</label>
-                            <input type="tel" id="contactNumber" required autocomplete="tel">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="contactNumber">Contact Number *</label>
+                                <input type="tel" id="contactNumber" placeholder="+63 9XX XXX XXXX" required autocomplete="tel">
+                            </div>
+                            <div class="form-group">
+                                <label for="companyName">Company / Organization</label>
+                                <input type="text" id="companyName" placeholder="Optional" autocomplete="organization" autocorrect="off">
+                            </div>
                         </div>
 
                         <div class="form-group">
                             <label for="homeAddress">Home Address</label>
-                            <textarea id="homeAddress" rows="3" autocomplete="street-address" autocorrect="on"></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="companyName">Company Name</label>
-                            <input type="text" id="companyName" autocomplete="organization" autocorrect="off">
+                            <textarea id="homeAddress" rows="2" placeholder="Optional" autocomplete="street-address" autocorrect="on"></textarea>
                         </div>
 
                         <div class="form-group">
@@ -86,66 +342,64 @@
                             </select>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-check"></i> Complete Registration
+                        <button type="submit" class="btn-register">
+                            <i class="fas fa-check-circle"></i>
+                            Complete Registration
                         </button>
                     </form>
+
+                    <p class="form-note">
+                        <i class="fas fa-lock"></i>
+                        Your information is secure and only used for event check-in
+                    </p>
                 </div>
             </div>
 
-            <!-- QR Code Display -->
+            <!-- ── QR Code Success Section ── -->
             <div id="qrCodeSection" class="section">
                 <div class="qr-success-container">
+
                     <!-- Success Header -->
                     <div class="qr-success-header">
                         <div class="success-icon-large">
                             <i class="fas fa-check-circle"></i>
                         </div>
                         <h1 class="qr-success-title">Registration Successful!</h1>
-                        <p class="qr-success-subtitle">Your digital ticket is ready</p>
+                        <p class="qr-success-subtitle">Your digital entry ticket is ready</p>
                     </div>
 
-                    <!-- QR Code Card -->
-                    <div class="qr-ticket-card">
-                        <!-- Event Name Prominent -->
-                        <div class="qr-event-header">
+                    <!-- QR Ticket Card — Boarding pass style -->
+                    <div class="qr-ticket-card card">
+                        <div class="qr-ticket-strip">
                             <i class="fas fa-calendar-alt"></i>
                             <h2 id="qrEventName"></h2>
                         </div>
-
-                        <!-- Attendee Name -->
-                        <div class="qr-attendee-name">
-                            <i class="fas fa-user"></i>
-                            <span id="qrAttendeeName"></span>
-                        </div>
-
-                        <!-- QR Code Display - Centered -->
-                        <div class="qr-code-display">
-                            <img id="qrCodeImage" src="" alt="QR Code" class="qr-code-img">
-                        </div>
-
-                        <!-- Guest Code -->
-                        <div class="qr-code-number">
-                            <span class="qr-label">Entry Code</span>
-                            <span class="qr-code-value" id="guestCodeDisplay"></span>
-                        </div>
-
-                        <!-- Divider -->
-                        <div class="qr-divider"></div>
-
-                        <!-- Guest Details -->
-                        <div class="qr-details-grid">
-                            <div class="qr-detail-item">
-                                <i class="fas fa-envelope"></i>
-                                <div class="qr-detail-content">
-                                    <span class="qr-detail-label">Email</span>
-                                    <span class="qr-detail-value" id="confirmEmail"></span>
+                        <div class="qr-ticket-body">
+                            <div class="qr-attendee-name">
+                                <i class="fas fa-user"></i>
+                                <span id="qrAttendeeName"></span>
+                            </div>
+                            <div class="qr-code-display">
+                                <img id="qrCodeImage" src="" alt="QR Code" class="qr-code-img">
+                            </div>
+                            <div class="qr-code-number">
+                                <span class="qr-label">Entry Code</span>
+                                <span class="qr-code-value" id="guestCodeDisplay"></span>
+                            </div>
+                            <div class="qr-divider"></div>
+                            <div class="qr-details-grid">
+                                <div class="qr-detail-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <div class="qr-detail-content">
+                                        <span class="qr-detail-label">Email</span>
+                                        <span class="qr-detail-value" id="confirmEmail"></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Scan Instructions Card -->
+                    <!-- Instructions Card -->
                     <div class="qr-instructions-card">
                         <h3 class="qr-instructions-title">
                             <i class="fas fa-info-circle"></i> How to Use Your QR Code
@@ -184,22 +438,21 @@
 
                     <!-- Action Buttons -->
                     <div class="qr-action-buttons">
-                        <button onclick="downloadQRCode()" class="btn btn-primary btn-lg">
+                        <button type="button" onclick="downloadQRCode()" class="btn btn-primary btn-lg">
                             <i class="fas fa-download"></i> Download QR Code
                         </button>
-                        <button onclick="printQRCode()" class="btn btn-secondary btn-lg">
+                        <button type="button" onclick="printQRCode()" class="btn btn-secondary btn-lg">
                             <i class="fas fa-print"></i> Print Ticket
                         </button>
-                        <button onclick="window.location.reload()" class="btn btn-outline">
+                        <button type="button" onclick="window.location.reload()" class="btn btn-outline">
                             <i class="fas fa-plus"></i> Register Another Guest
                         </button>
                     </div>
                 </div>
             </div>
-        </main>
 
-        <!-- Footer Component -->
-        <div id="footerContainer"></div>
+            </main>
+            <div id="footerContainer"></div>
         </div>
     </div>
 
@@ -209,26 +462,18 @@
         <p>Processing...</p>
     </div>
 
-    <!-- Component System -->
     <script src="../js/core/security-utils.js"></script>
     <script src="../js/core/components.js"></script>
     <script src="../components/Header.js"></script>
     <script src="../components/Footer.js"></script>
     <script src="../components/LoadingSpinner.js"></script>
-
-    <!-- App Scripts -->
     <script src="../js/core/config.js"></script>
     <script src="../js/pages/register.js"></script>
-
-    <!-- Initialize Components -->
     <script>
-        // Render Footer
         Components.mount('#footerContainer', 'Footer', {
             year: new Date().getFullYear(),
             text: 'Event Registration System. All rights reserved.'
         });
-
-        // Render Loading Spinner for event info
         document.getElementById('loadingEvent').innerHTML = Components.render('LoadingSpinner', {
             text: 'Loading event information...',
             size: 'default'
