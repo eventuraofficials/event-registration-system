@@ -114,10 +114,20 @@
                         <h3>Or Enter Guest Code Manually</h3>
                         <div class="form-group">
                             <input type="text" id="manualGuestCode" placeholder="Enter guest code">
-                            <button onclick="manualCheckIn()" class="btn btn-primary">
+                            <button type="button" onclick="manualCheckIn()" class="btn btn-primary">
                                 <i class="fas fa-sign-in-alt"></i> Check In
                             </button>
                         </div>
+                    </div>
+
+                    <!-- Guest Name Search -->
+                    <div class="guest-search-section">
+                        <h3>Search Guest by Name</h3>
+                        <div class="form-group">
+                            <input type="text" id="guestSearchInput" placeholder="Type name, email, or contact..."
+                                oninput="onGuestSearchInput(this.value)">
+                        </div>
+                        <div id="guestSearchResults" class="guest-search-results"></div>
                     </div>
                 </div>
 

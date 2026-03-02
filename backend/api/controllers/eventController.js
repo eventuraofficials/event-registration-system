@@ -239,7 +239,7 @@ exports.getEventByCode = async (req, res) => {
     const [events] = await db.execute(
       `SELECT
         id, event_name, event_code, event_date,
-        event_time, venue, description, registration_open, registration_form_config, event_logo
+        event_time, venue, description, registration_open, registration_form_config, event_logo, max_capacity
       FROM events
       WHERE event_code = ?`,
       [event_code]
@@ -254,6 +254,15 @@ exports.getEventByCode = async (req, res) => {
 
     // Parse form config if it exists
     const event = events[0];
+
+    // Include registered guest count for capacity display
+    if (event.max_capacity) {
+      const [countResult] = await db.execute(
+        'SELECT COUNT(*) as total FROM guests WHERE event_id = ?',
+        [event.id]
+      );
+      event.registered_count = countResult[0].total;
+    }
     if (event.registration_form_config) {
       try {
         event.registration_form_config = JSON.parse(event.registration_form_config);

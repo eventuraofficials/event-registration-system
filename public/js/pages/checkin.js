@@ -39,7 +39,7 @@ async function checkAuth() {
         const data = await resp.json();
         if (!data.success) throw new Error('Invalid session');
 
-        currentUser = data.admin;
+        currentUser = data.user;
         hideLoginGate();
         loadEventsAfterAuth();
     } catch {
@@ -381,6 +381,12 @@ async function performCheckIn(guestCode) {
         guest.attended = true;
         guest.check_in_time = new Date().toISOString();
 
+        // Invalidate name-search cache so the updated status shows on next search
+        if (cachedGuestList) {
+            const cached = cachedGuestList.find(g => g.guest_code === guestCode);
+            if (cached) cached.attended = 1;
+        }
+
         showScanFlash(guest, 'success');
         playSuccessSound();
         updateStats('success');
@@ -410,6 +416,92 @@ async function manualCheckIn() {
         document.getElementById('manualGuestCode').value = '';
         hideLoading();
     } catch (error) {
+        hideLoading();
+    }
+}
+
+// ── Guest Name Search ─────────────────────────────────────────────────────────
+
+let searchDebounce = null;
+let cachedGuestList = null;
+
+function onGuestSearchInput(query) {
+    clearTimeout(searchDebounce);
+    if (!query || query.trim().length < 2) {
+        document.getElementById('guestSearchResults').innerHTML = '';
+        return;
+    }
+    searchDebounce = setTimeout(() => searchGuests(query.trim()), 300);
+}
+
+async function searchGuests(query) {
+    if (!currentCheckInEvent) return;
+
+    const resultsEl = document.getElementById('guestSearchResults');
+    resultsEl.innerHTML = '<p class="empty-state">Searching...</p>';
+
+    try {
+        // Load guest list once per event session, then filter client-side
+        if (!cachedGuestList) {
+            const token = localStorage.getItem('admin_token');
+            const resp = await fetch(`${API_BASE_URL}/guests/event/${currentCheckInEvent.id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await resp.json();
+            cachedGuestList = data.success ? data.guests : [];
+        }
+
+        const q = query.toLowerCase();
+        const matches = cachedGuestList.filter(g =>
+            (g.full_name && g.full_name.toLowerCase().includes(q)) ||
+            (g.email && g.email.toLowerCase().includes(q)) ||
+            (g.contact_number && g.contact_number.includes(q)) ||
+            (g.guest_code && g.guest_code.toLowerCase().includes(q))
+        ).slice(0, 8);
+
+        if (matches.length === 0) {
+            resultsEl.innerHTML = '<p class="empty-state">No guests found</p>';
+            return;
+        }
+
+        resultsEl.innerHTML = matches.map(g => `
+            <div class="guest-result-item" id="gr-${g.id}">
+                <div class="guest-result-info">
+                    <div class="guest-result-name">${SecurityUtils.escapeHtml(g.full_name)}</div>
+                    <div class="guest-result-meta">${SecurityUtils.escapeHtml(g.email || '')}${g.company_name ? ' · ' + SecurityUtils.escapeHtml(g.company_name) : ''}</div>
+                </div>
+                <span class="guest-result-attended ${g.attended ? 'yes' : 'no'}">
+                    ${g.attended ? '✓ Checked In' : 'Not In'}
+                </span>
+                ${!g.attended ? `<button type="button" class="btn btn-primary guest-result-btn" onclick="checkInFromSearch('${SecurityUtils.escapeHtml(g.guest_code)}', ${g.id})">
+                    <i class="fas fa-sign-in-alt"></i> Check In
+                </button>` : ''}
+            </div>
+        `).join('');
+
+    } catch {
+        resultsEl.innerHTML = '<p class="empty-state">Search failed. Please try again.</p>';
+    }
+}
+
+async function checkInFromSearch(guestCode, guestId) {
+    showLoading();
+    try {
+        await performCheckIn(guestCode);
+        // Update cached list
+        if (cachedGuestList) {
+            const g = cachedGuestList.find(x => x.id === guestId);
+            if (g) g.attended = 1;
+        }
+        // Update result row UI
+        const row = document.getElementById(`gr-${guestId}`);
+        if (row) {
+            row.querySelector('.guest-result-attended').className = 'guest-result-attended yes';
+            row.querySelector('.guest-result-attended').textContent = '✓ Checked In';
+            const btn = row.querySelector('.guest-result-btn');
+            if (btn) btn.remove();
+        }
+    } finally {
         hideLoading();
     }
 }
@@ -531,6 +623,9 @@ function resetScanner() {
 
     // Reset state
     currentCheckInEvent = null;
+    cachedGuestList = null;
+    document.getElementById('guestSearchInput').value = '';
+    document.getElementById('guestSearchResults').innerHTML = '';
     stats = {
         totalScanned: 0,
         successCount: 0,

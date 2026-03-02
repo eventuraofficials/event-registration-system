@@ -239,6 +239,41 @@
             padding: 28px 32px 32px;
         }
 
+        /* ── Capacity badge ── */
+        .event-badge-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .event-badge-row .event-badge {
+            margin-bottom: 0;
+        }
+        .capacity-badge {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: var(--radius-full);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+        .capacity-badge.available {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        .capacity-badge.low {
+            background: #fef9c3;
+            color: #a16207;
+        }
+        .capacity-badge.full {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
         /* ── Registration Closed ── */
         .reg-closed-body {
             text-align: center;
@@ -295,8 +330,11 @@
                     <div id="eventDetails" style="display: none;">
                         <img id="eventLogo" class="event-logo-banner" alt="Event Logo">
                         <div class="event-info-body">
-                            <div class="event-badge">
-                                <i class="fas fa-calendar-check"></i> Event Registration
+                            <div class="event-badge-row">
+                                <div class="event-badge">
+                                    <i class="fas fa-calendar-check"></i> Event Registration
+                                </div>
+                                <div id="capacityBadge" class="capacity-badge"></div>
                             </div>
                             <h1 class="event-info-name" id="eventName"></h1>
                             <div class="event-meta-grid">

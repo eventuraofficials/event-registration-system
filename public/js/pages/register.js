@@ -57,6 +57,31 @@ async function loadEventFromURL() {
             return;
         }
 
+        // Show capacity badge if max_capacity is set
+        const capacityBadge = document.getElementById('capacityBadge');
+        if (capacityBadge && currentEvent.max_capacity) {
+            const remaining = currentEvent.max_capacity - (currentEvent.registered_count || 0);
+            if (remaining <= 0) {
+                // Event full — show closed notice instead of form
+                capacityBadge.className = 'capacity-badge full';
+                capacityBadge.innerHTML = '<i class="fas fa-times-circle"></i> Event Full';
+                capacityBadge.style.display = 'flex';
+                document.getElementById('registrationClosed').querySelector('h3').textContent = 'Event Full';
+                document.getElementById('registrationClosed').querySelector('p').textContent =
+                    'This event has reached its maximum capacity. Please contact the organizer.';
+                document.getElementById('registrationClosed').style.display = 'block';
+                return;
+            } else if (remaining <= 10) {
+                capacityBadge.className = 'capacity-badge low';
+                capacityBadge.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${remaining} spot${remaining === 1 ? '' : 's'} left`;
+                capacityBadge.style.display = 'flex';
+            } else {
+                capacityBadge.className = 'capacity-badge available';
+                capacityBadge.innerHTML = `<i class="fas fa-check-circle"></i> ${remaining} spots available`;
+                capacityBadge.style.display = 'flex';
+            }
+        }
+
         // Build dynamic registration form based on event config
         buildRegistrationForm();
 

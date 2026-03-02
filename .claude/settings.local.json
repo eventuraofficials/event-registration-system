@@ -64,7 +64,11 @@
       "Bash(git rm:*)",
       "Bash(timeout /t 5)",
       "Bash(render.yaml)",
-      "Bash(del ui-ux-improvements.js)"
+      "Bash(del ui-ux-improvements.js)",
+      "Bash(git mv:*)",
+      "Bash(cmd /c \"taskkill /PID 19408 /F\")",
+      "Bash(cmd /c \"netstat -ano | findstr :5000 | findstr LISTENING\")",
+      "Bash(cmd /c \"ipconfig | findstr /i ''IPv4''\")"
     ],
     "deny": [],
     "ask": []
