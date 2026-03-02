@@ -4,6 +4,14 @@
     background: #F8FAFC;
 }
 
+/* === SECTION VISIBILITY === */
+.section {
+    display: none;
+}
+.section.active {
+    display: block;
+}
+
 .scanner-header {
     display: flex;
     justify-content: space-between;
@@ -394,4 +402,131 @@
     .stats-bar {
         grid-template-columns: repeat(3, 1fr);
     }
+}
+
+/* === EVENT SELECT CARD === */
+.checkin-event-card {
+    max-width: 520px;
+    margin: 40px auto;
+}
+
+.checkin-event-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.checkin-event-icon {
+    width: 52px;
+    height: 52px;
+    background: var(--primary-light);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.checkin-event-header h2 {
+    margin: 0 0 4px;
+    font-size: 1.25rem;
+    color: var(--text-dark);
+}
+
+.checkin-event-header p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
+
+#eventSelectDropdown {
+    font-size: 16px !important;
+    padding: 14px 12px !important;
+    cursor: pointer;
+}
+
+.checkin-form-group-last {
+    margin-bottom: 0;
+}
+
+/* === SCAN RESULT FLASH === */
+.scan-flash {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.scan-flash.active {
+    display: flex;
+    animation: flashIn 0.15s ease;
+}
+
+@keyframes flashIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.scan-flash.success  { background: #059669; }
+.scan-flash.already-in { background: #D97706; }
+.scan-flash.error    { background: #DC2626; }
+
+.scan-flash-icon {
+    font-size: 5rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 24px;
+    line-height: 1;
+}
+
+.scan-flash-status {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 12px;
+    line-height: 1.2;
+}
+
+.scan-flash-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 8px;
+}
+
+.scan-flash-sub {
+    font-size: 0.938rem;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.scan-flash-dismiss {
+    margin-top: 32px;
+    font-size: 0.813rem;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.5px;
+}
+
+/* === COLORED STAT ITEMS === */
+.stat-item.stat-success { border-color: #10B981; }
+.stat-item.stat-success .stat-value { color: #10B981; }
+.stat-item.stat-success i { color: #10B981; }
+
+.stat-item.stat-error { border-color: #EF4444; }
+.stat-item.stat-error .stat-value { color: #EF4444; }
+.stat-item.stat-error i { color: #EF4444; }
+
+@media (max-width: 768px) {
+    .scan-flash-status { font-size: 1.75rem; }
+    .scan-flash-name   { font-size: 1.25rem; }
+    .scan-flash-icon   { font-size: 4rem; }
+    .checkin-event-card { margin: 20px auto; }
 }

@@ -46,20 +46,22 @@
         <main class="main-content">
             <!-- Event Selection for Check-in -->
             <div id="eventSelectSection" class="section active">
-                <div class="card">
-                    <h2>Select Event</h2>
-
-                    <!-- Dropdown Option -->
-                    <div class="form-group">
-                        <label for="eventSelectDropdown">Choose Event to Start Scanning</label>
-                        <select id="eventSelectDropdown" onchange="loadEventFromDropdown()" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; cursor: pointer;">
+                <div class="card checkin-event-card">
+                    <div class="checkin-event-header">
+                        <div class="checkin-event-icon">
+                            <i class="fas fa-qrcode"></i>
+                        </div>
+                        <div>
+                            <h2>Event Check-In</h2>
+                            <p>Select the event to begin scanning guest QR codes</p>
+                        </div>
+                    </div>
+                    <div class="form-group checkin-form-group-last">
+                        <label for="eventSelectDropdown">Choose Event</label>
+                        <select id="eventSelectDropdown" onchange="loadEventFromDropdown()">
                             <option value="">-- Select an Event --</option>
                         </select>
                     </div>
-
-                    <p style="text-align: center; margin-top: 15px; color: #666;">
-                        <i class="fas fa-camera"></i> Camera will activate after selecting an event
-                    </p>
                 </div>
             </div>
 
@@ -81,14 +83,14 @@
                                 <div class="stat-label">Total Scanned</div>
                             </div>
                         </div>
-                        <div class="stat-item">
+                        <div class="stat-item" id="successStatItem">
                             <i class="fas fa-check-circle"></i>
                             <div>
                                 <div class="stat-value" id="successCount">0</div>
                                 <div class="stat-label">Success</div>
                             </div>
                         </div>
-                        <div class="stat-item">
+                        <div class="stat-item" id="errorStatItem">
                             <i class="fas fa-exclamation-circle"></i>
                             <div>
                                 <div class="stat-value" id="errorCount">0</div>
@@ -126,11 +128,15 @@
                 </div>
             </div>
 
-            <!-- Guest Details Modal -->
-            <div id="guestModal" class="modal">
-                <div class="modal-content">
-                    <div id="guestDetails"></div>
+            <!-- Scan Result Flash (full-screen feedback) -->
+            <div id="scanFlash" class="scan-flash" onclick="hideScanFlash()">
+                <div class="scan-flash-icon">
+                    <i id="scanFlashIcon" class="fas fa-check-circle"></i>
                 </div>
+                <div id="scanFlashStatus" class="scan-flash-status"></div>
+                <div id="scanFlashName" class="scan-flash-name"></div>
+                <div id="scanFlashSub" class="scan-flash-sub"></div>
+                <div class="scan-flash-dismiss">Tap anywhere to dismiss</div>
             </div>
         </main>
         </div>

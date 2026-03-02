@@ -253,7 +253,7 @@ async function performCheckIn(guestCode) {
 
         // Check if already checked in
         if (guest.attended) {
-            showGuestModal(guest, 'already-checked-in');
+            showScanFlash(guest, 'already-checked-in');
             playErrorSound();
             updateStats('error');
             addRecentCheckIn(guest, false, 'Already checked in');
@@ -277,7 +277,7 @@ async function performCheckIn(guestCode) {
         guest.attended = true;
         guest.check_in_time = new Date().toISOString();
 
-        showGuestModal(guest, 'success');
+        showScanFlash(guest, 'success');
         playSuccessSound();
         updateStats('success');
         addRecentCheckIn(guest, true, 'Checked in successfully');
@@ -310,48 +310,46 @@ async function manualCheckIn() {
     }
 }
 
-// Show guest modal
-function showGuestModal(guest, status) {
-    const modal = document.getElementById('guestModal');
-    const detailsDiv = document.getElementById('guestDetails');
+// Show full-screen scan result flash
+function showScanFlash(guest, status) {
+    const flash = document.getElementById('scanFlash');
+    const iconEl = document.getElementById('scanFlashIcon');
+    const statusEl = document.getElementById('scanFlashStatus');
+    const nameEl = document.getElementById('scanFlashName');
+    const subEl = document.getElementById('scanFlashSub');
 
-    const isSuccess = status === 'success';
-    const isAlreadyCheckedIn = status === 'already-checked-in';
+    flash.className = 'scan-flash active';
 
-    detailsDiv.innerHTML = `
-        <div class="guest-detail-card">
-            <div class="guest-icon ${isSuccess ? 'success' : 'error'}">
-                <i class="fas fa-${isSuccess ? 'check-circle' : 'exclamation-circle'}"></i>
-            </div>
-            <h2>${isSuccess ? 'Check-In Successful!' : isAlreadyCheckedIn ? 'Already Checked In' : 'Error'}</h2>
-            <div class="guest-detail-info">
-                <p><strong>Name:</strong> <span>${SecurityUtils.escapeHtml(guest.full_name)}</span></p>
-                <p><strong>Company:</strong> <span>${SecurityUtils.escapeHtml(guest.company_name || 'N/A')}</span></p>
-                <p><strong>Email:</strong> <span>${SecurityUtils.escapeHtml(guest.email || 'N/A')}</span></p>
-                <p><strong>Guest Code:</strong> <span>${SecurityUtils.escapeHtml(guest.guest_code)}</span></p>
-                ${isAlreadyCheckedIn ? `
-                    <p><strong>Previous Check-in:</strong> <span>${formatDateTime(guest.check_in_time)}</span></p>
-                ` : ''}
-            </div>
-            <div class="modal-actions">
-                <button onclick="closeModal()" class="btn btn-primary">
-                    <i class="fas fa-check"></i> OK
-                </button>
-            </div>
-        </div>
-    `;
+    if (status === 'success') {
+        flash.classList.add('success');
+        iconEl.className = 'fas fa-check-circle';
+        statusEl.textContent = 'Check-In Successful!';
+        nameEl.textContent = guest.full_name;
+        subEl.textContent = guest.company_name || guest.guest_code;
+    } else if (status === 'already-checked-in') {
+        flash.classList.add('already-in');
+        iconEl.className = 'fas fa-user-clock';
+        statusEl.textContent = 'Already Checked In';
+        nameEl.textContent = guest.full_name;
+        subEl.textContent = guest.check_in_time
+            ? `Checked in at: ${formatDateTime(guest.check_in_time)}`
+            : guest.guest_code;
+    } else {
+        flash.classList.add('error');
+        iconEl.className = 'fas fa-times-circle';
+        statusEl.textContent = 'Check-In Failed';
+        nameEl.textContent = guest.full_name || '';
+        subEl.textContent = 'Invalid QR code or guest not found';
+    }
 
-    modal.classList.add('active');
-
-    // Auto-close after 3 seconds
-    setTimeout(() => {
-        closeModal();
-    }, 3000);
+    // Auto-dismiss after 2.5s
+    if (flash._timer) clearTimeout(flash._timer);
+    flash._timer = setTimeout(hideScanFlash, 2500);
 }
 
-// Close modal
-function closeModal() {
-    document.getElementById('guestModal').classList.remove('active');
+// Hide flash overlay
+function hideScanFlash() {
+    document.getElementById('scanFlash').classList.remove('active');
 }
 
 // Update statistics
@@ -360,8 +358,10 @@ function updateStats(type) {
 
     if (type === 'success') {
         stats.successCount++;
+        document.getElementById('successStatItem')?.classList.add('stat-success');
     } else if (type === 'error') {
         stats.errorCount++;
+        document.getElementById('errorStatItem')?.classList.add('stat-error');
     }
 
     document.getElementById('totalScanned').textContent = stats.totalScanned;
@@ -439,6 +439,8 @@ function resetScanner() {
     document.getElementById('successCount').textContent = '0';
     document.getElementById('errorCount').textContent = '0';
     document.getElementById('recentCheckIns').innerHTML = '<p class="empty-state">No check-ins yet</p>';
+    document.getElementById('successStatItem')?.classList.remove('stat-success');
+    document.getElementById('errorStatItem')?.classList.remove('stat-error');
 
     // Show event selection
     document.getElementById('scannerSection').classList.remove('active');
@@ -482,9 +484,3 @@ function formatTime2(date) {
     });
 }
 
-// Close modal when clicking outside
-document.getElementById('guestModal')?.addEventListener('click', (e) => {
-    if (e.target.id === 'guestModal') {
-        closeModal();
-    }
-});
