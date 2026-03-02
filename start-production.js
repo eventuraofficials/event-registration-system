@@ -84,3 +84,20 @@ try {
     console.error(error.stack);
     process.exit(1);
 }
+
+// Keep-alive: prevent Render free tier from spinning down after 15min inactivity
+// Enable by setting KEEP_ALIVE=true in environment variables
+if (process.env.KEEP_ALIVE === 'true' && process.env.APP_URL) {
+    const https = require('https');
+    const http = require('http');
+    const pingUrl = `${process.env.APP_URL}/api/health`;
+    const client = pingUrl.startsWith('https') ? https : http;
+
+    setInterval(() => {
+        client.get(pingUrl, (res) => {
+            res.resume(); // drain response
+        }).on('error', () => {}); // silently ignore errors
+    }, 14 * 60 * 1000); // ping every 14 minutes
+
+    console.log(`🔁 Keep-alive enabled — pinging ${pingUrl} every 14 minutes`);
+}

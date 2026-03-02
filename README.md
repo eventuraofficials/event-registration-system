@@ -96,13 +96,13 @@ event-registration-system/
 │   │   │   ├── adminController.js
 │   │   │   ├── eventController.js
 │   │   │   └── guestController.js
-│   │   ├── middleware/
-│   │   │   ├── auth.js
-│   │   │   └── upload.js        # Excel + image upload (multer)
 │   │   └── routes/
 │   │       ├── adminRoutes.js
 │   │       ├── eventRoutes.js
 │   │       └── guestRoutes.js
+│   ├── middleware/
+│   │   ├── auth.js
+│   │   └── upload.js            # Excel + image upload (multer)
 │   ├── db/
 │   │   └── config/
 │   │       ├── database.js      # DB connection + auto-init schema + migrations
