@@ -37,7 +37,7 @@ async function sendTicketEmail({ guestName, guestEmail, guestCode, eventName, ev
   }
 
   const formattedDate = eventDate
-    ? new Date(eventDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+    ? new Date(eventDate).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
     : '';
   const formattedTime = eventTime ? eventTime.substring(0, 5) : '';
 

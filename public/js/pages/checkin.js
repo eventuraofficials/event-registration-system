@@ -461,13 +461,13 @@ function playErrorSound() {
     audio.play().catch(err => {/* Audio play silently failed */});
 }
 
-// Format date and time
+// Format date and time — MM/DD/YYYY, h:mm A
 function formatDateTime(dateString) {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
         year: 'numeric',
         hour: 'numeric',
         minute: '2-digit',

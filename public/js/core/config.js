@@ -251,14 +251,22 @@ const fetchAPI = async (url, options = {}) => {
     }
 };
 
-// Date formatting
-const formatDate = (dateString) => {
-    const date = new Date(dateString);
+// Date formatting — MM/DD/YYYY
+// Uses local-time parsing for date-only strings (avoids UTC midnight off-by-one)
+const formatDate = (dateInput) => {
+    if (!dateInput) return '';
+    let date;
+    if (dateInput instanceof Date) {
+        date = dateInput;
+    } else {
+        const str = String(dateInput).split('T')[0]; // strip time portion
+        const [y, m, d] = str.split('-');
+        date = new Date(y, m - 1, d); // local time — no UTC shift
+    }
     return date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric'
     });
 };
 

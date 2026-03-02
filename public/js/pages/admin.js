@@ -695,12 +695,7 @@ function showEventQRModal(event) {
     modal.id = 'eventDetailsModal';
 
     // Format date and time for display
-    const eventDate = new Date(event.event_date).toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
+    const eventDate = formatDate(event.event_date);
 
     const eventTime = event.event_time ? formatEventTime(event.event_time) : 'TBA';
 
@@ -1888,13 +1883,13 @@ async function exportToCSV() {
     }
 }
 
-// Format date time
+// Format date time — MM/DD/YYYY, h:mm A
 function formatDateTime(dateString) {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
         year: 'numeric',
         hour: 'numeric',
         minute: '2-digit',

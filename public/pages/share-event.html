@@ -413,12 +413,9 @@
             document.getElementById('eventName').textContent = currentEvent.event_name;
             document.getElementById('eventCodeDisplay').textContent = currentEvent.event_code;
 
-            const date = new Date(currentEvent.event_date).toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
+            const dateParts = currentEvent.event_date.split('T')[0].split('-');
+            const localDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+            const date = localDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
 
             const details = `${date} • ${currentEvent.venue || 'TBA'}`;
             document.getElementById('eventDetails').textContent = details;
@@ -546,7 +543,7 @@
 
         function shareViaEmail() {
             const subject = `Invitation: ${currentEvent.event_name}`;
-            const body = `You're invited to ${currentEvent.event_name}!\n\nRegister here: ${registrationUrl}\n\nEvent Code: ${currentEvent.event_code}\n\nDate: ${new Date(currentEvent.event_date).toLocaleDateString()}\nVenue: ${currentEvent.venue || 'TBA'}\n\nSee you there!`;
+            const body = `You're invited to ${currentEvent.event_name}!\n\nRegister here: ${registrationUrl}\n\nEvent Code: ${currentEvent.event_code}\n\nDate: ${new Date(currentEvent.event_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}\nVenue: ${currentEvent.venue || 'TBA'}\n\nSee you there!`;
 
             window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         }
