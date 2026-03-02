@@ -244,35 +244,7 @@ exports.selfRegister = async (req, res) => {
       });
     }
 
-    // Check event capacity limit
-    if (events[0].max_capacity) {
-      const [countResult] = await db.execute(
-        'SELECT COUNT(*) as total FROM guests WHERE event_id = ?',
-        [event_id]
-      );
-
-      if (countResult[0].total >= events[0].max_capacity) {
-        return res.status(400).json({
-          success: false,
-          message: 'Sorry, this event has reached its maximum capacity'
-        });
-      }
-    }
-
-    // Check for duplicate registration
-    const [existing] = await db.execute(
-      'SELECT id FROM guests WHERE event_id = ? AND email = ?',
-      [event_id, email]
-    );
-
-    if (existing.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'You are already registered for this event'
-      });
-    }
-
-    // Generate guest code and QR code
+    // Generate guest code and QR code before transaction (async work done outside)
     const guestCode = generateGuestCode('SELF');
     const qrCode = await generateQRCode(guestCode, event_id);
 
@@ -280,25 +252,51 @@ exports.selfRegister = async (req, res) => {
     const validCategories = ['VIP', 'Speaker', 'Sponsor', 'Media', 'Regular'];
     const category = guest_category && validCategories.includes(guest_category) ? guest_category : 'Regular';
 
-    // Insert guest
-    const [result] = await db.execute(
-      `INSERT INTO guests (
-        event_id, guest_code, qr_code, full_name, email,
-        contact_number, home_address, company_name, guest_category,
-        registration_type, registration_source
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'self_registered', 'online_form')`,
-      [
-        event_id,
-        guestCode,
-        qrCode,
-        full_name,
-        email,
-        contact_number,
-        home_address || null,
-        company_name || null,
-        category
-      ]
-    );
+    // Atomic transaction: capacity check + duplicate check + insert
+    // Prevents race conditions when many guests register simultaneously
+    const doRegister = db.db.transaction(() => {
+      // Re-check capacity inside transaction (no other insert can slip between check and insert)
+      if (events[0].max_capacity) {
+        const countRow = db.db.prepare('SELECT COUNT(*) as total FROM guests WHERE event_id = ?').get(event_id);
+        if (countRow.total >= events[0].max_capacity) {
+          return { error: 'full' };
+        }
+      }
+
+      // Check duplicate email inside transaction
+      const dup = db.db.prepare('SELECT id FROM guests WHERE event_id = ? AND email = ?').get(event_id, email);
+      if (dup) {
+        return { error: 'duplicate' };
+      }
+
+      const row = db.db.prepare(`
+        INSERT INTO guests (
+          event_id, guest_code, qr_code, full_name, email,
+          contact_number, home_address, company_name, guest_category,
+          registration_type, registration_source
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'self_registered', 'online_form')
+      `).run(event_id, guestCode, qrCode, full_name, email, contact_number, home_address || null, company_name || null, category);
+
+      return { insertId: row.lastInsertRowid };
+    });
+
+    const txResult = doRegister();
+
+    if (txResult.error === 'full') {
+      return res.status(400).json({
+        success: false,
+        message: 'Sorry, this event has reached its maximum capacity'
+      });
+    }
+
+    if (txResult.error === 'duplicate') {
+      return res.status(400).json({
+        success: false,
+        message: 'You are already registered for this event'
+      });
+    }
+
+    const result = { insertId: txResult.insertId };
 
     res.status(201).json({
       success: true,
