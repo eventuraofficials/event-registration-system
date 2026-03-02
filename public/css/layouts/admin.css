@@ -307,6 +307,21 @@
 .data-table tbody tr:last-child td { border-bottom: none; }
 
 /* ============================================================
+   RESPONSIVE COLUMNS — guests table progressive disclosure
+   ≤899px : hide Guest Code, Company, Check-in Time
+   ≤640px : also hide Email, Category
+   ============================================================ */
+@media (max-width: 899px) {
+    .col-code,
+    .col-company,
+    .col-checkin { display: none; }
+}
+@media (max-width: 640px) {
+    .col-email,
+    .col-category { display: none; }
+}
+
+/* ============================================================
    SEARCH BOX
    ============================================================ */
 .search-box {
@@ -704,7 +719,6 @@
     .button-group .btn, .button-group a { width: 100%; text-align: center; justify-content: center; }
 
     .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .data-table { min-width: 580px; }
     .data-table th, .data-table td { padding: 10px; font-size: 0.83rem; }
 
     .form-row { grid-template-columns: 1fr; }

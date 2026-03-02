@@ -1463,17 +1463,17 @@ function renderGuestsTable() {
         const catColor = categoryColors[cat] || '#64748b';
         return `
         <tr>
-            <td><code>${SecurityUtils.escapeHtml(guest.guest_code)}</code></td>
+            <td class="col-code"><code>${SecurityUtils.escapeHtml(guest.guest_code)}</code></td>
             <td>${SecurityUtils.escapeHtml(guest.full_name)}</td>
-            <td>${SecurityUtils.escapeHtml(guest.email || 'N/A')}</td>
-            <td>${SecurityUtils.escapeHtml(guest.company_name || 'N/A')}</td>
-            <td><span style="background:${catColor}20;color:${catColor};padding:2px 8px;border-radius:20px;font-size:0.75rem;font-weight:600;">${cat}</span></td>
+            <td class="col-email">${SecurityUtils.escapeHtml(guest.email || 'N/A')}</td>
+            <td class="col-company">${SecurityUtils.escapeHtml(guest.company_name || 'N/A')}</td>
+            <td class="col-category"><span style="background:${catColor}20;color:${catColor};padding:2px 8px;border-radius:20px;font-size:0.75rem;font-weight:600;">${cat}</span></td>
             <td>
                 <span class="badge ${guest.attended ? 'success' : 'warning'}">
                     ${guest.attended ? 'Attended' : 'Pending'}
                 </span>
             </td>
-            <td>${guest.check_in_time ? formatDateTime(guest.check_in_time) : '—'}</td>
+            <td class="col-checkin">${guest.check_in_time ? formatDateTime(guest.check_in_time) : '—'}</td>
             <td>
                 ${guest.email ? `<button onclick="resendTicket(${guest.id})" class="action-btn" title="Resend QR ticket" style="color:#059669;">
                     <i class="fas fa-paper-plane"></i>
@@ -1517,17 +1517,17 @@ function filterGuests(searchTerm) {
         const catColor = categoryColors[cat] || '#64748b';
         return `
         <tr>
-            <td><code>${SecurityUtils.escapeHtml(guest.guest_code)}</code></td>
+            <td class="col-code"><code>${SecurityUtils.escapeHtml(guest.guest_code)}</code></td>
             <td>${SecurityUtils.escapeHtml(guest.full_name)}</td>
-            <td>${SecurityUtils.escapeHtml(guest.email || 'N/A')}</td>
-            <td>${SecurityUtils.escapeHtml(guest.company_name || 'N/A')}</td>
-            <td><span style="background:${catColor}20;color:${catColor};padding:2px 8px;border-radius:20px;font-size:0.75rem;font-weight:600;">${cat}</span></td>
+            <td class="col-email">${SecurityUtils.escapeHtml(guest.email || 'N/A')}</td>
+            <td class="col-company">${SecurityUtils.escapeHtml(guest.company_name || 'N/A')}</td>
+            <td class="col-category"><span style="background:${catColor}20;color:${catColor};padding:2px 8px;border-radius:20px;font-size:0.75rem;font-weight:600;">${cat}</span></td>
             <td>
                 <span class="badge ${guest.attended ? 'success' : 'warning'}">
                     ${guest.attended ? 'Attended' : 'Pending'}
                 </span>
             </td>
-            <td>${guest.check_in_time ? formatDateTime(guest.check_in_time) : '—'}</td>
+            <td class="col-checkin">${guest.check_in_time ? formatDateTime(guest.check_in_time) : '—'}</td>
             <td>
                 ${guest.email ? `<button onclick="resendTicket(${guest.id})" class="action-btn" title="Resend QR ticket" style="color:#059669;">
                     <i class="fas fa-paper-plane"></i>
