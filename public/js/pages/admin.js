@@ -180,8 +180,17 @@ function showDashboard() {
         staffNavLink.style.display = currentAdmin.role === 'super_admin' ? 'flex' : 'none';
     }
 
+    // Show Site Branding card only for super_admin
+    const brandingCard = document.getElementById('siteBrandingCard');
+    if (brandingCard) {
+        brandingCard.style.display = currentAdmin.role === 'super_admin' ? 'block' : 'none';
+    }
+
     // Store as currentUser for settings
     currentUser = currentAdmin;
+
+    // Load site branding and apply to header
+    loadSiteBranding();
 }
 
 // Load dashboard data
@@ -564,7 +573,7 @@ function showSection(sectionName) {
 
     // Load data for sections that need it
     if (sectionName === 'staff') loadStaff();
-    if (sectionName === 'settings') loadSettingsProfile();
+    if (sectionName === 'settings') { loadSettingsProfile(); loadSiteBranding(); }
 }
 
 // Show create event form
@@ -2157,6 +2166,12 @@ function openAddGuestModal() {
 
 function closeAddGuestModal() {
     document.getElementById('addGuestModal').style.display = 'none';
+    ['newGuestName','newGuestEmail','newGuestContact','newGuestCompany'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    const cat = document.getElementById('newGuestCategory');
+    if (cat) cat.value = 'Regular';
 }
 
 async function addGuestManually() {
@@ -2166,13 +2181,12 @@ async function addGuestManually() {
     const contact_number = document.getElementById('newGuestContact').value.trim();
 
     if (!full_name) return showAlert('Full name is required', 'danger');
-    if (!email) return showAlert('Email is required', 'danger');
-    if (!contact_number) return showAlert('Contact number is required', 'danger');
 
     showLoading();
     try {
-        const data = await fetchAPI(`${API_BASE_URL}/guests/register`, {
+        const data = await fetchAPI(`${API_BASE_URL}/guests/add`, {
             method: 'POST',
+            headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 event_id: eventId,
                 full_name,
@@ -2208,6 +2222,46 @@ async function resendTicket(guestId) {
     } catch (err) {
         hideLoading();
         showAlert(err.message || 'Failed to resend ticket', 'danger');
+    }
+}
+
+// ===================== SITE BRANDING =====================
+async function loadSiteBranding() {
+    try {
+        const data = await fetch(`${API_BASE_URL}/settings`).then(r => r.json());
+        if (!data.success) return;
+        const { site_name, site_tagline } = data.settings;
+        // Apply to admin header
+        const headerEl = document.getElementById('siteNameHeader');
+        if (headerEl && site_name) headerEl.textContent = site_name;
+        // Apply to browser tab
+        if (site_name) document.title = `Admin — ${site_name}`;
+        // Populate branding form if on settings section
+        const nameInput = document.getElementById('brandingSiteName');
+        const taglineInput = document.getElementById('brandingTagline');
+        if (nameInput) nameInput.value = site_name || '';
+        if (taglineInput) taglineInput.value = site_tagline || '';
+    } catch (e) { /* non-fatal */ }
+}
+
+async function saveSiteBranding() {
+    const site_name = (document.getElementById('brandingSiteName').value || '').trim();
+    const site_tagline = (document.getElementById('brandingTagline').value || '').trim();
+    if (!site_name) return showAlert('Site name is required', 'danger');
+    try {
+        const data = await fetchAPI(`${API_BASE_URL}/settings`, {
+            method: 'PUT',
+            headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ site_name, site_tagline })
+        });
+        if (!data.success) throw new Error(data.message);
+        // Apply immediately to header
+        const headerEl = document.getElementById('siteNameHeader');
+        if (headerEl) headerEl.textContent = site_name;
+        document.title = `Admin — ${site_name}`;
+        showAlert('Branding saved! Changes will appear on all pages after a refresh.', 'success');
+    } catch (err) {
+        showAlert(err.message || 'Failed to save branding', 'danger');
     }
 }
 

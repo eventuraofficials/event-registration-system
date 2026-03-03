@@ -10,6 +10,8 @@ router.get('/verify', guestController.getGuestByQR);
 router.post('/checkin', guestController.checkIn);
 
 // Protected routes
+router.post('/add', authenticateToken, guestController.addGuestManual);
+
 router.post('/upload-excel',
   authenticateToken,
   upload.single('file'),

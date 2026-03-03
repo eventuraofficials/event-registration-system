@@ -10,13 +10,18 @@ A production-ready event registration and attendance tracking system with QR cod
 
 - **Guest Self-Registration** — Public form with instant QR code boarding-pass ticket
 - **Event Logo / Banner** — Upload a custom logo shown on the registration page, ticket, and share page
+- **Site Branding** — Customize the site name per client (e.g. "Samsung Event Registration")
 - **Email QR Tickets** — Ticket emailed after registration (requires SMTP config — optional)
 - **Excel Bulk Import** — Pre-register guests via `.xlsx`/`.csv`; QR tickets auto-sent if email is enabled
 - **QR Code Check-In** — Camera scanner or manual code entry on any device
 - **Admin Dashboard** — Manage events, guests, staff accounts, and reports
+- **Guest Categories** — Tag guests (VIP, Regular, etc.) for easy filtering
 - **Export Reports** — Download attendance list as Excel, PDF, or CSV
-- **Role-based Access** — Super Admin, Admin, and Staff roles
+- **Role-based Access** — Super Admin and Staff roles
+- **Staff Management** — Create/delete staff accounts (super admin only)
 - **Activity Logs** — Audit trail of all admin actions
+- **Clone Events** — Duplicate an existing event as a starting point
+- **Pagination** — Server-side pagination handles 1,000+ guest lists smoothly
 - **Mobile Ready** — Fully responsive on iPhone, iPad, tablet, and desktop
 
 ---
@@ -63,7 +68,7 @@ Server starts at `http://localhost:5000`
 - **Username**: `admin`
 - **Password**: `admin123`
 
-> Change this password after first login.
+> Change this password immediately after first login via Settings → Change Password.
 
 ---
 
@@ -76,13 +81,27 @@ Server starts at `http://localhost:5000`
    - **Build Command**: `npm install`
    - **Start Command**: `npm start`
 5. Add Environment Variables:
-   - `NODE_ENV` = `production`
-   - `PORT` = `10000`
-   - `JWT_SECRET` = *(generate: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"` )*
-   - `APP_URL` = `https://your-app-name.onrender.com`
-   - `CORS_ORIGIN` = `https://your-app-name.onrender.com`
 
-> **Note**: Free tier uses ephemeral storage — database and uploads reset on restart. Add a Persistent Disk ($7/mo) for permanent data.
+| Variable | Value |
+|----------|-------|
+| `NODE_ENV` | `production` |
+| `PORT` | `10000` |
+| `JWT_SECRET` | *(generate: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`)* |
+| `APP_URL` | `https://your-app-name.onrender.com` |
+| `CORS_ORIGIN` | `https://your-app-name.onrender.com` |
+| `KEEP_ALIVE` | `true` *(prevents free-tier spin-down)* |
+
+### Persistent Storage (Recommended)
+
+Free tier uses **ephemeral storage** — the database and uploaded files reset on every restart. To persist data:
+
+1. Upgrade to **Render Starter** ($7/mo)
+2. Add a **Disk** → mount at `/opt/render/project/src/data` (for the database)
+3. Add a second **Disk** → mount at `/opt/render/project/src/uploads` (for event logos)
+
+### Multiple Clients
+
+Deploy a **separate Render Web Service** per client (same GitHub repo, different env vars). This provides full isolation — separate database, separate uploads, separate admin accounts.
 
 ---
 
@@ -95,11 +114,13 @@ event-registration-system/
 │   │   ├── controllers/
 │   │   │   ├── adminController.js
 │   │   │   ├── eventController.js
-│   │   │   └── guestController.js
+│   │   │   ├── guestController.js
+│   │   │   └── settingsController.js
 │   │   └── routes/
 │   │       ├── adminRoutes.js
 │   │       ├── eventRoutes.js
-│   │       └── guestRoutes.js
+│   │       ├── guestRoutes.js
+│   │       └── settingsRoutes.js
 │   ├── middleware/
 │   │   ├── auth.js
 │   │   └── upload.js            # Excel + image upload (multer)
@@ -153,6 +174,7 @@ event-registration-system/
 | POST | `/api/guests/register` | Self-register a guest |
 | GET | `/api/guests/verify?guest_code=X` | Verify guest QR code |
 | POST | `/api/guests/checkin` | Check in a guest |
+| GET | `/api/settings` | Site branding settings |
 
 ### Protected Endpoints (Bearer Token required)
 
@@ -160,6 +182,13 @@ event-registration-system/
 |--------|----------|-------------|
 | POST | `/api/admin/login` | Admin login |
 | GET | `/api/admin/profile` | Current admin profile |
+| PUT | `/api/admin/profile` | Update profile |
+| POST | `/api/admin/change-password` | Change password |
+| GET | `/api/admin/activity-logs` | Recent activity log |
+| GET | `/api/admin/users` | List staff accounts (super admin) |
+| POST | `/api/admin/create` | Create staff account (super admin) |
+| DELETE | `/api/admin/users/:id` | Delete staff account (super admin) |
+| PUT | `/api/settings` | Update site branding (super admin) |
 | POST | `/api/events` | Create event |
 | GET | `/api/events` | List all events |
 | PUT | `/api/events/:id` | Update event |
@@ -167,10 +196,15 @@ event-registration-system/
 | PATCH | `/api/events/:id/toggle-registration` | Open/close registration |
 | POST | `/api/events/:id/logo` | Upload event logo/banner |
 | POST | `/api/events/:id/clone` | Clone event |
-| GET | `/api/guests/event/:id` | Guests for an event |
+| GET | `/api/guests/event/:id` | Guests for an event (paginated) |
+| GET | `/api/guests/event/:id?slim=true` | Guest list without QR data (check-in) |
+| GET | `/api/guests/event/:id/stats` | Event attendance stats |
 | GET | `/api/guests/event/:id/export` | Export guest list (Excel) |
+| POST | `/api/guests/add` | Manually add a guest (admin) |
 | POST | `/api/guests/upload-excel` | Bulk import guests |
+| PUT | `/api/guests/:id` | Edit guest |
 | DELETE | `/api/guests/:id` | Delete guest |
+| POST | `/api/guests/:id/resend-ticket` | Resend QR ticket email |
 
 ---
 
@@ -198,6 +232,9 @@ Open `/pages/checkin.html` on a tablet/phone:
 ### 5. Export Reports
 **Reports** section → select event → export as **Excel**, **PDF**, or **CSV**.
 
+### 6. Site Branding
+**Settings** → **Site Branding** (super admin only) → set the site name (e.g. "Samsung Event Registration"). Applies to all page headers and browser tabs instantly.
+
 ---
 
 ## Environment Variables
@@ -209,6 +246,7 @@ Open `/pages/checkin.html` on a tablet/phone:
 | `JWT_SECRET` | Yes | Random string, min 32 chars |
 | `APP_URL` | Yes | Full app URL (used for QR code links) |
 | `CORS_ORIGIN` | Yes | Allowed CORS origin |
+| `KEEP_ALIVE` | No | `true` — self-ping every 14min to prevent Render spin-down |
 | `EMAIL_ENABLED` | No | `true` to enable email notifications |
 | `EMAIL_HOST` | No | SMTP host (e.g. `smtp.gmail.com`) |
 | `EMAIL_PORT` | No | SMTP port (`587` TLS / `465` SSL) |
@@ -227,13 +265,16 @@ Check server logs — likely `JWT_SECRET` not set or DB failed to initialize.
 Camera requires HTTPS. Use the deployed URL, not a local IP on other devices.
 
 **Data resets after a while**
-Expected on Render free tier (ephemeral disk). Add a Persistent Disk for permanent storage.
+Expected on Render free tier (ephemeral disk). Add a Persistent Disk (Starter plan) for permanent storage.
 
 **Excel upload fails**
 Required columns: `Full Name`, `Email`, `Contact Number`, `Home Address`, `Company Name`. Max 5 MB.
 
 **Logo not showing**
 Ensure the file is JPG, PNG, GIF, or WebP and under 2 MB.
+
+**Site name not updating on pages**
+The branding is loaded on every page via `/api/settings`. If it still shows the old name, do a hard refresh (Ctrl+Shift+R).
 
 ---
 

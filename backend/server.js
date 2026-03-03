@@ -135,6 +135,7 @@ app.use('/uploads', express.static(uploadsPath));
 const adminRoutes = require('./api/routes/adminRoutes');
 const eventRoutes = require('./api/routes/eventRoutes');
 const guestRoutes = require('./api/routes/guestRoutes');
+const settingsRoutes = require('./api/routes/settingsRoutes');
 const { authenticateToken, authorizeRole } = require('./middleware/auth');
 
 // Public endpoint rate limiting (applied before route handlers)
@@ -143,11 +144,13 @@ app.use('/api/events/checkin-available', publicLimiter);
 app.use('/api/events/public', publicLimiter);
 app.use('/api/guests/verify', publicLimiter);
 app.use('/api/guests/register', registrationLimiter);
+app.use('/api/settings', publicLimiter); // public read, called on every page load
 
 // API Routes
 app.use('/api/admin', adminRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/guests', guestRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Export loginLimiter for use in routes
 app.set('loginLimiter', loginLimiter);

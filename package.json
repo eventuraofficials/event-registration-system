@@ -6,14 +6,8 @@
   "scripts": {
     "start": "node start-production.js",
     "dev": "nodemon backend/server.js",
-    "test": "node production-test.js",
-    "test:full": "node full-workflow-test.js",
-    "test:all": "npm test && npm run test:full",
-    "init-db": "node backend/config/init-sqlite.js",
-    "production": "cross-env NODE_ENV=production node start-production.js",
-    "backup": "node -e \"require('./backend/utils/backup').createBackup()\"",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "init-db": "node backend/db/config/init-sqlite.js",
+    "backup": "node -e \"require('./backend/utils/backup').createBackup()\""
   },
   "keywords": [
     "event",
@@ -24,31 +18,21 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^12.4.1",
     "compression": "^1.8.1",
-    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "csurf": "^1.11.0",
     "dotenv": "^16.3.1",
     "exceljs": "^4.4.0",
     "express": "^4.18.2",
     "express-rate-limit": "^8.2.1",
-    "express-validator": "^7.0.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
-    "mysql2": "^3.6.5",
     "nodemailer": "^7.0.11",
-    "qrcode": "^1.5.3",
-    "sqlite3": "^5.1.7",
-    "uuid": "^9.0.1"
+    "qrcode": "^1.5.3"
   },
   "devDependencies": {
-    "axios": "^1.13.2",
-    "cross-env": "^10.1.0",
-    "eslint": "^9.39.1",
     "nodemon": "^3.0.2"
   }
 }

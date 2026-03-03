@@ -185,7 +185,7 @@
             <div class="landing-icon">
                 <i class="fas fa-calendar-check"></i>
             </div>
-            <h1>Event Registration</h1>
+            <h1 data-site-name>Event Registration</h1>
             <p>QR code ticketing and attendance tracking for your events.</p>
         </div>
 
@@ -225,5 +225,18 @@
         </div>
 
     </div>
+<script>
+(function() {
+    const base = window.location.hostname === 'localhost' || window.location.hostname.startsWith('192.168')
+        ? 'http://' + window.location.hostname + ':5000/api'
+        : window.location.origin + '/api';
+    fetch(base + '/settings').then(r => r.json()).then(data => {
+        if (!data.success || !data.settings.site_name) return;
+        const name = data.settings.site_name;
+        document.title = name;
+        document.querySelectorAll('[data-site-name]').forEach(el => { el.textContent = name; });
+    }).catch(function(){});
+})();
+</script>
 </body>
 </html>

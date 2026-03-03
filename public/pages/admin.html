@@ -53,7 +53,7 @@
                 </button>
                 <a href="#" class="app-header-logo">
                     <i class="fas fa-calendar-check"></i>
-                    <span>Event Admin</span>
+                    <span id="siteNameHeader">Event Admin</span>
                 </a>
             </div>
             <div class="app-header-user">
@@ -609,6 +609,25 @@
                         </div>
                         <button class="btn btn-primary" onclick="updateProfile()" style="width:100%;">
                             <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </div>
+
+                    <!-- Site Branding (super_admin only) -->
+                    <div class="card" id="siteBrandingCard" style="padding:24px; display:none; grid-column: 1 / -1;">
+                        <h3 style="margin:0 0 4px; font-size:1rem; font-weight:600;"><i class="fas fa-paint-brush" style="color:var(--primary); margin-right:8px;"></i>Site Branding</h3>
+                        <p style="color:#718096; font-size:0.85rem; margin:0 0 16px;">Change the site name shown on the header, registration page, and browser tab.</p>
+                        <div class="form-group" style="margin-bottom:12px;">
+                            <label class="form-label">Site Name</label>
+                            <input type="text" id="brandingSiteName" class="form-control" placeholder="e.g. Samsung Event Registration" maxlength="100">
+                            <small style="color:#94a3b8;">Shown in the page header and browser tab on all pages.</small>
+                        </div>
+                        <div class="form-group" style="margin-bottom:16px;">
+                            <label class="form-label">Tagline <span style="color:#94a3b8;font-weight:400;">(optional)</span></label>
+                            <input type="text" id="brandingTagline" class="form-control" placeholder="e.g. Official Event Registration Portal" maxlength="150">
+                            <small style="color:#94a3b8;">Shown below the site name on the registration page.</small>
+                        </div>
+                        <button class="btn btn-primary" onclick="saveSiteBranding()" style="width:100%;">
+                            <i class="fas fa-save"></i> Save Branding
                         </button>
                     </div>
                 </div>

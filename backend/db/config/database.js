@@ -112,6 +112,18 @@ if (adminCount.count === 0) {
 // Migrations — idempotent (safe to run every startup)
 try { db.exec('ALTER TABLE events ADD COLUMN event_logo TEXT'); } catch(e) { /* column already exists */ }
 
+// Site settings table
+db.exec(`
+  CREATE TABLE IF NOT EXISTS site_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+const _insertSetting = db.prepare(`INSERT OR IGNORE INTO site_settings (key, value) VALUES (?, ?)`);
+_insertSetting.run('site_name', 'Event Registration System');
+_insertSetting.run('site_tagline', '');
+
 console.log('✅ SQLite Database connected and ready');
 
 // Wrapper to make it compatible with MySQL promise-based queries

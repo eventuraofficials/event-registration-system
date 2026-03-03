@@ -337,6 +337,78 @@ exports.selfRegister = async (req, res) => {
 };
 
 /**
+ * Admin manually adds a guest (protected, registration_source = 'manual')
+ */
+exports.addGuestManual = async (req, res) => {
+  try {
+    let { event_id, full_name, email, contact_number, home_address, company_name, guest_category } = req.body;
+
+    full_name = sanitizeInput(full_name);
+    email = sanitizeInput(email);
+    contact_number = sanitizeInput(contact_number);
+    home_address = sanitizeInput(home_address);
+    company_name = sanitizeInput(company_name);
+    guest_category = sanitizeInput(guest_category);
+
+    if (!event_id || !full_name) {
+      return res.status(400).json({ success: false, message: 'Event ID and full name are required' });
+    }
+
+    const [events] = await db.execute(
+      'SELECT id, event_name, event_date, event_time, venue, max_capacity FROM events WHERE id = ?',
+      [event_id]
+    );
+    if (events.length === 0) {
+      return res.status(404).json({ success: false, message: 'Event not found' });
+    }
+
+    const validCategories = ['VIP', 'Speaker', 'Sponsor', 'Media', 'Regular'];
+    const category = guest_category && validCategories.includes(guest_category) ? guest_category : 'Regular';
+
+    const guestCode = generateGuestCode('MNL');
+    const qrCode = await generateQRCode(guestCode, event_id);
+
+    const doAdd = db.db.transaction(() => {
+      if (events[0].max_capacity) {
+        const countRow = db.db.prepare('SELECT COUNT(*) as total FROM guests WHERE event_id = ?').get(event_id);
+        if (countRow.total >= events[0].max_capacity) return { error: 'full' };
+      }
+      if (email) {
+        const dup = db.db.prepare('SELECT id FROM guests WHERE event_id = ? AND email = ?').get(event_id, email);
+        if (dup) return { error: 'duplicate' };
+      }
+      const row = db.db.prepare(`
+        INSERT INTO guests (
+          event_id, guest_code, qr_code, full_name, email,
+          contact_number, home_address, company_name, guest_category,
+          registration_type, registration_source
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pre_registered', 'manual')
+      `).run(event_id, guestCode, qrCode, full_name, email || null, contact_number || null,
+             home_address || null, company_name || null, category);
+      return { insertId: row.lastInsertRowid };
+    });
+
+    const txResult = doAdd();
+    if (txResult.error === 'full') {
+      return res.status(400).json({ success: false, message: 'Event has reached maximum capacity' });
+    }
+    if (txResult.error === 'duplicate') {
+      return res.status(400).json({ success: false, message: 'A guest with this email is already registered' });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Guest added successfully',
+      guest: { id: txResult.insertId, guestCode, qrCode, full_name, email, guest_category: category }
+    });
+
+  } catch (error) {
+    console.error('Add guest manual error:', error);
+    res.status(500).json({ success: false, message: 'Failed to add guest' });
+  }
+};
+
+/**
  * Get guest by QR code (for check-in)
  */
 exports.getGuestByQR = async (req, res) => {
