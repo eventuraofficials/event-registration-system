@@ -402,6 +402,22 @@ exports.addGuestManual = async (req, res) => {
       guest: { id: txResult.insertId, guestCode, qrCode, full_name, email, guest_category: category }
     });
 
+    // Send ticket email if guest has an email (non-blocking)
+    if (email) {
+      sendTicketEmail({
+        guestName: full_name,
+        guestEmail: email,
+        guestCode,
+        eventName: events[0].event_name,
+        eventDate: events[0].event_date,
+        eventTime: events[0].event_time,
+        venue: events[0].venue,
+        qrCodeDataUrl: qrCode
+      }).catch(err => {
+        console.error(`Manual add ticket email failed for ${email}:`, err.message);
+      });
+    }
+
   } catch (error) {
     console.error('Add guest manual error:', error);
     res.status(500).json({ success: false, message: 'Failed to add guest' });
