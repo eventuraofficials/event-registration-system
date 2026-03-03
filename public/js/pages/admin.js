@@ -180,11 +180,12 @@ function showDashboard() {
         staffNavLink.style.display = currentAdmin.role === 'super_admin' ? 'flex' : 'none';
     }
 
-    // Show Site Branding card only for super_admin
+    // Show super_admin-only settings cards
+    const isSuperAdmin = currentAdmin.role === 'super_admin';
     const brandingCard = document.getElementById('siteBrandingCard');
-    if (brandingCard) {
-        brandingCard.style.display = currentAdmin.role === 'super_admin' ? 'block' : 'none';
-    }
+    if (brandingCard) brandingCard.style.display = isSuperAdmin ? 'block' : 'none';
+    const emailTestCard = document.getElementById('emailTestCard');
+    if (emailTestCard) emailTestCard.style.display = isSuperAdmin ? 'block' : 'none';
 
     // Store as currentUser for settings
     currentUser = currentAdmin;
@@ -257,7 +258,14 @@ function renderEventsTable() {
             <td>${SecurityUtils.escapeHtml(event.event_name)}</td>
             <td class="col-ev-date">${formatDate(event.event_date)}</td>
             <td class="col-ev-venue">${SecurityUtils.escapeHtml(event.venue || 'TBA')}</td>
-            <td class="col-ev-guests">${event.total_guests || 0} <small>(${event.total_attended || 0} attended)</small></td>
+            <td class="col-ev-guests">
+                ${event.total_guests || 0}${event.max_capacity ? ` / ${event.max_capacity}` : ''} <small>(${event.total_attended || 0} attended)</small>
+                ${event.max_capacity ? (() => {
+                    const pct = Math.min(Math.round(((event.total_guests || 0) / event.max_capacity) * 100), 100);
+                    const color = pct >= 90 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#10b981';
+                    return `<div style="height:4px;background:#e2e8f0;border-radius:2px;margin-top:4px;"><div style="height:4px;width:${pct}%;background:${color};border-radius:2px;"></div></div>`;
+                })() : ''}
+            </td>
             <td>
                 <span class="badge ${event.registration_open ? 'success' : 'danger'}">
                     ${event.registration_open ? 'Open' : 'Closed'}
@@ -413,18 +421,21 @@ async function renderRecentActivity() {
     const ACTION_META = {
         LOGIN:              { icon: 'fa-sign-in-alt',    color: '#667eea' },
         LOGOUT:             { icon: 'fa-sign-out-alt',   color: '#a0aec0' },
-        CREATE_EVENT:       { icon: 'fa-calendar-plus',  color: '#667eea' },
-        UPDATE_EVENT:       { icon: 'fa-calendar-edit',  color: '#ed8936' },
-        DELETE_EVENT:       { icon: 'fa-calendar-times', color: '#fc8181' },
-        CLONE_EVENT:        { icon: 'fa-copy',           color: '#9f7aea' },
-        GUEST_REGISTERED:   { icon: 'fa-user-plus',      color: '#48bb78' },
-        GUEST_CHECKED_IN:   { icon: 'fa-check-circle',   color: '#38b2ac' },
+        // Event actions
+        EVENT_CREATED:      { icon: 'fa-calendar-plus',  color: '#667eea' },
+        EVENT_UPDATED:      { icon: 'fa-calendar-alt',   color: '#ed8936' },
+        EVENT_DELETED:      { icon: 'fa-calendar-times', color: '#fc8181' },
+        EVENT_CLONED:       { icon: 'fa-copy',           color: '#9f7aea' },
+        // Guest actions
+        GUEST_ADDED:        { icon: 'fa-user-plus',      color: '#48bb78' },
+        GUEST_UPDATED:      { icon: 'fa-user-edit',      color: '#ed8936' },
         GUEST_DELETED:      { icon: 'fa-user-times',     color: '#fc8181' },
-        IMPORT_GUESTS:      { icon: 'fa-file-import',    color: '#4299e1' },
+        GUESTS_IMPORTED:    { icon: 'fa-file-import',    color: '#4299e1' },
+        CHECK_IN:           { icon: 'fa-check-circle',   color: '#38b2ac' },
         RESEND_TICKET:      { icon: 'fa-envelope',       color: '#ed8936' },
         CHANGE_PASSWORD:    { icon: 'fa-key',            color: '#9f7aea' },
-        CREATE_ADMIN:       { icon: 'fa-user-shield',    color: '#667eea' },
-        DELETE_ADMIN:       { icon: 'fa-user-minus',     color: '#fc8181' },
+        CREATE_STAFF:       { icon: 'fa-user-shield',    color: '#667eea' },
+        DELETE_STAFF:       { icon: 'fa-user-minus',     color: '#fc8181' },
     };
 
     try {
@@ -526,7 +537,14 @@ function filterEvents(searchTerm) {
             <td>${SecurityUtils.escapeHtml(event.event_name)}</td>
             <td class="col-ev-date">${formatDate(event.event_date)}</td>
             <td class="col-ev-venue">${SecurityUtils.escapeHtml(event.venue || 'TBA')}</td>
-            <td class="col-ev-guests">${event.total_guests || 0} <small>(${event.total_attended || 0} attended)</small></td>
+            <td class="col-ev-guests">
+                ${event.total_guests || 0}${event.max_capacity ? ` / ${event.max_capacity}` : ''} <small>(${event.total_attended || 0} attended)</small>
+                ${event.max_capacity ? (() => {
+                    const pct = Math.min(Math.round(((event.total_guests || 0) / event.max_capacity) * 100), 100);
+                    const color = pct >= 90 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#10b981';
+                    return `<div style="height:4px;background:#e2e8f0;border-radius:2px;margin-top:4px;"><div style="height:4px;width:${pct}%;background:${color};border-radius:2px;"></div></div>`;
+                })() : ''}
+            </td>
             <td>
                 <span class="badge ${event.registration_open ? 'success' : 'danger'}">
                     ${event.registration_open ? 'Open' : 'Closed'}
@@ -1783,7 +1801,9 @@ async function exportToExcel() {
     showLoading();
 
     try {
-        const response = await fetch(`${API_BASE_URL}/guests/event/${eventId}/export`, {
+        const status = document.getElementById('reportStatusFilter')?.value || '';
+        const url = `${API_BASE_URL}/guests/event/${eventId}/export${status ? `?status=${status}` : ''}`;
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${authToken}`
@@ -1837,7 +1857,10 @@ async function exportToPDF() {
 
         if (!data.success) throw new Error(data.message);
 
-        const guests = data.guests;
+        const statusFilter = document.getElementById('reportStatusFilter')?.value || '';
+        let guests = data.guests;
+        if (statusFilter === 'attended') guests = guests.filter(g => g.attended);
+        else if (statusFilter === 'not_attended') guests = guests.filter(g => !g.attended);
         const event = allEvents.find(e => e.id == eventId);
         const eventName = event ? event.event_name : 'Event';
         const eventDate = event ? formatDate(event.event_date) : '';
@@ -1917,7 +1940,10 @@ async function exportToCSV() {
 
         if (!data.success) throw new Error(data.message);
 
-        const guests = data.guests;
+        const statusFilter = document.getElementById('reportStatusFilter')?.value || '';
+        let guests = data.guests;
+        if (statusFilter === 'attended') guests = guests.filter(g => g.attended);
+        else if (statusFilter === 'not_attended') guests = guests.filter(g => !g.attended);
         const event = allEvents.find(e => e.id == eventId);
         if (!event) throw new Error('Event not found. Please refresh and try again.');
 
@@ -2262,6 +2288,39 @@ async function saveSiteBranding() {
         showAlert('Branding saved! Changes will appear on all pages after a refresh.', 'success');
     } catch (err) {
         showAlert(err.message || 'Failed to save branding', 'danger');
+    }
+}
+
+// ===================== EMAIL TEST =====================
+async function testEmailConnection() {
+    const btn = document.getElementById('emailTestBtn');
+    const result = document.getElementById('emailTestResult');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+    result.style.display = 'none';
+    try {
+        const data = await fetchAPI(`${API_BASE_URL}/admin/test-email`, {
+            method: 'POST',
+            headers: getAuthHeaders()
+        });
+        result.style.display = 'block';
+        if (data.success) {
+            result.style.background = '#d1fae5';
+            result.style.color = '#065f46';
+            result.innerHTML = `<i class="fas fa-check-circle"></i> ${SecurityUtils.escapeHtml(data.message)}`;
+        } else {
+            result.style.background = '#fee2e2';
+            result.style.color = '#991b1b';
+            result.innerHTML = `<i class="fas fa-times-circle"></i> ${SecurityUtils.escapeHtml(data.message)}`;
+        }
+    } catch (err) {
+        result.style.display = 'block';
+        result.style.background = '#fee2e2';
+        result.style.color = '#991b1b';
+        result.innerHTML = `<i class="fas fa-times-circle"></i> ${SecurityUtils.escapeHtml(err.message || 'Connection failed')}`;
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-plug"></i> Test SMTP Connection';
     }
 }
 

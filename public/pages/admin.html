@@ -525,6 +525,14 @@
                             <option value="">-- Choose Event --</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="reportStatusFilter"><strong>Filter by Attendance</strong></label>
+                        <select id="reportStatusFilter">
+                            <option value="">All Guests</option>
+                            <option value="attended">Attended Only</option>
+                            <option value="not_attended">Not Attended Only</option>
+                        </select>
+                    </div>
                     <div class="button-group">
                         <button onclick="exportToExcel()" class="btn btn-success">
                             <i class="fas fa-file-excel"></i> Export to Excel
@@ -609,6 +617,16 @@
                         </div>
                         <button class="btn btn-primary" onclick="updateProfile()" style="width:100%;">
                             <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </div>
+
+                    <!-- Email Test (super_admin only) -->
+                    <div class="card" id="emailTestCard" style="padding:24px; display:none;">
+                        <h3 style="margin:0 0 4px; font-size:1rem; font-weight:600;"><i class="fas fa-envelope" style="color:var(--primary); margin-right:8px;"></i>Email / SMTP</h3>
+                        <p style="color:#718096; font-size:0.85rem; margin:0 0 16px;">Verify that the email server is reachable and credentials are correct.</p>
+                        <div id="emailTestResult" style="display:none; padding:10px 14px; border-radius:8px; font-size:0.85rem; margin-bottom:14px;"></div>
+                        <button class="btn btn-primary" onclick="testEmailConnection()" id="emailTestBtn" style="width:100%;">
+                            <i class="fas fa-plug"></i> Test SMTP Connection
                         </button>
                     </div>
 

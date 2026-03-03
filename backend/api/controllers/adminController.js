@@ -395,16 +395,19 @@ exports.deleteAdmin = async (req, res) => {
 exports.getActivityLogs = async (req, res) => {
   try {
     const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const offset = Math.max(parseInt(req.query.offset) || 0, 0);
     const [logs] = await db.execute(
       `SELECT al.id, al.action, al.description, al.ip_address, al.created_at,
-              au.username
+              au.username, e.event_name
        FROM activity_logs al
        LEFT JOIN admin_users au ON al.user_id = au.id
+       LEFT JOIN events e ON al.event_id = e.id
        ORDER BY al.created_at DESC
-       LIMIT ?`,
-      [limit]
+       LIMIT ? OFFSET ?`,
+      [limit, offset]
     );
-    res.json({ success: true, logs });
+    const [[{ total }]] = await db.execute('SELECT COUNT(*) as total FROM activity_logs');
+    res.json({ success: true, logs, total, offset, limit });
   } catch (error) {
     console.error('Get activity logs error:', error);
     res.status(500).json({ success: false, message: 'Server error' });

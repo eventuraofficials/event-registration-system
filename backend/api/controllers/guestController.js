@@ -848,6 +848,8 @@ exports.updateGuest = async (req, res) => {
     const validCategories = ['VIP', 'Speaker', 'Sponsor', 'Media', 'Regular'];
     const category = guest_category && validCategories.includes(guest_category) ? guest_category : 'Regular';
 
+    const [existing] = await db.execute('SELECT event_id FROM guests WHERE id = ?', [id]);
+
     const [result] = await db.execute(
       `UPDATE guests SET
         full_name = ?, email = ?, contact_number = ?,
@@ -862,6 +864,10 @@ exports.updateGuest = async (req, res) => {
     }
 
     res.json({ success: true, message: 'Guest updated successfully' });
+
+    const eventId = existing.length > 0 ? existing[0].event_id : null;
+    logActivity(req.user?.id, eventId, id, 'GUEST_UPDATED',
+      `Updated guest: ${full_name}${email ? ` <${email}>` : ''}`, req).catch(() => {});
   } catch (error) {
     console.error('Update guest error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
