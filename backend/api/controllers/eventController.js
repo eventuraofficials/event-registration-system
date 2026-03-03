@@ -1,4 +1,17 @@
 const db = require('../../db/config/database');
+
+async function logActivity(userId, eventId, action, description, req) {
+  try {
+    await db.execute(
+      `INSERT INTO activity_logs (user_id, event_id, action, description, ip_address, user_agent)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [userId || null, eventId || null, action, description,
+       req ? (req.ip || null) : null,
+       req ? (req.get('user-agent') || null) : null]
+    );
+  } catch (e) { /* non-fatal */ }
+}
+
 /**
  * Validate email format
  */
@@ -148,6 +161,9 @@ exports.createEvent = async (req, res) => {
         registration_url: registrationURL
       }
     });
+
+    logActivity(req.user.id, result.insertId, 'EVENT_CREATED',
+      `Created event: ${event_name} (${event_code})`, req).catch(() => {});
 
   } catch (error) {
     console.error('Create event error:', error);
@@ -374,6 +390,9 @@ exports.updateEvent = async (req, res) => {
       message: 'Event updated successfully'
     });
 
+    logActivity(req.user.id, id, 'EVENT_UPDATED',
+      `Updated event: ${event_name}`, req).catch(() => {});
+
   } catch (error) {
     console.error('Update event error:', error);
     res.status(500).json({
@@ -390,6 +409,8 @@ exports.deleteEvent = async (req, res) => {
   try {
     const { id } = req.params;
 
+    const [rows] = await db.execute('SELECT event_name, event_code FROM events WHERE id = ?', [id]);
+
     const [result] = await db.execute('DELETE FROM events WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
@@ -403,6 +424,11 @@ exports.deleteEvent = async (req, res) => {
       success: true,
       message: 'Event deleted successfully'
     });
+
+    if (rows.length > 0) {
+      logActivity(req.user.id, null, 'EVENT_DELETED',
+        `Deleted event: ${rows[0].event_name} (${rows[0].event_code})`, req).catch(() => {});
+    }
 
   } catch (error) {
     console.error('Delete event error:', error);
@@ -516,6 +542,10 @@ exports.cloneEvent = async (req, res) => {
       message: 'Event cloned successfully',
       event: { id: result.insertId, event_name: newName, event_code: newCode }
     });
+
+    logActivity(req.user.id, result.insertId, 'EVENT_CLONED',
+      `Cloned event: ${src.event_name} → ${newName}`, req).catch(() => {});
+
   } catch (error) {
     console.error('Clone event error:', error);
     res.status(500).json({ success: false, message: 'Server error' });

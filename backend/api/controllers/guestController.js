@@ -134,6 +134,9 @@ exports.uploadExcel = async (req, res) => {
       duplicates
     });
 
+    logActivity(req.user?.id, event_id, null, 'GUESTS_IMPORTED',
+      `Bulk imported ${imported.length} guest(s) via Excel${eventDetails ? ` for "${eventDetails.event_name}"` : ''}`, req).catch(() => {});
+
     // Send ticket emails asynchronously after response (non-blocking)
     // 300ms delay between sends to avoid Gmail rate limiting
     if (emailQueue.length > 0 && eventDetails && isEmailConfigured()) {
@@ -402,6 +405,9 @@ exports.addGuestManual = async (req, res) => {
       guest: { id: txResult.insertId, guestCode, qrCode, full_name, email, guest_category: category }
     });
 
+    logActivity(req.user?.id, event_id, txResult.insertId, 'GUEST_ADDED',
+      `Manually added guest: ${full_name}${email ? ` <${email}>` : ''}`, req).catch(() => {});
+
     // Send ticket email if guest has an email (non-blocking)
     if (email) {
       sendTicketEmail({
@@ -662,6 +668,8 @@ exports.deleteGuest = async (req, res) => {
   try {
     const { id } = req.params;
 
+    const [rows] = await db.execute('SELECT full_name, email, event_id FROM guests WHERE id = ?', [id]);
+
     const [result] = await db.execute('DELETE FROM guests WHERE id = ?', [id]);
 
     if (result.affectedRows === 0) {
@@ -675,6 +683,12 @@ exports.deleteGuest = async (req, res) => {
       success: true,
       message: 'Guest deleted successfully'
     });
+
+    if (rows.length > 0) {
+      const g = rows[0];
+      logActivity(req.user?.id, g.event_id, null, 'GUEST_DELETED',
+        `Deleted guest: ${g.full_name}${g.email ? ` <${g.email}>` : ''}`, req).catch(() => {});
+    }
 
   } catch (error) {
     console.error('Delete guest error:', error);
