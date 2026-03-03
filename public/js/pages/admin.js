@@ -715,7 +715,8 @@ async function handleCreateEvent(e) {
         event_time: document.getElementById('eventTime').value || null,
         venue: document.getElementById('eventVenue').value || null,
         description: document.getElementById('eventDescription').value || null,
-        max_capacity: maxCapacityValue ? parseInt(maxCapacityValue) : null
+        max_capacity: maxCapacityValue ? parseInt(maxCapacityValue) : null,
+        client_name: document.getElementById('eventClientName')?.value?.trim() || null
     };
 
     showLoading();
@@ -964,6 +965,10 @@ function showEditEventModal(event) {
                             <small style="color: #666;">Event code cannot be changed</small>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="editClientName">Client / Company Name <span style="color:#94a3b8;font-weight:400;">(optional)</span></label>
+                        <input type="text" id="editClientName" name="editClientName" value="${SecurityUtils.escapeHtml(event.client_name || '')}" placeholder="e.g. Samsung — shown on registration page header">
+                    </div>
 
                     <div class="form-row">
                         <div class="form-group">
@@ -1056,6 +1061,7 @@ async function handleEditEventSubmit(e) {
     const descriptionInput = form.querySelector('#editEventDescription') || document.getElementById('editEventDescription');
     const maxCapacityInput = form.querySelector('#editEventMaxCapacity') || document.getElementById('editEventMaxCapacity');
     const registrationOpenInput = form.querySelector('#editEventRegistrationOpen') || document.getElementById('editEventRegistrationOpen');
+    const clientNameInput = form.querySelector('#editClientName') || document.getElementById('editClientName');
 
     const eventId = eventIdInput?.value;
 
@@ -1071,7 +1077,8 @@ async function handleEditEventSubmit(e) {
         venue: venueInput?.value || null,
         description: descriptionInput?.value || null,
         max_capacity: maxCapacityInput?.value ? parseInt(maxCapacityInput.value) : null,
-        registration_open: registrationOpenInput?.checked ? 1 : 0
+        registration_open: registrationOpenInput?.checked ? 1 : 0,
+        client_name: clientNameInput?.value?.trim() || null
     };
 
     // Validate required fields

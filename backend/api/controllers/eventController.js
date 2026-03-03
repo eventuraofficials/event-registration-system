@@ -69,13 +69,14 @@ exports.getAvailableEvents = async (req, res) => {
  */
 exports.createEvent = async (req, res) => {
   try {
-    let { event_name, event_code, event_date, event_time, venue, description, max_capacity, registration_open } = req.body;
+    let { event_name, event_code, event_date, event_time, venue, description, max_capacity, registration_open, client_name } = req.body;
 
     // Sanitize inputs
     event_name = sanitizeString(event_name, 255);
     event_code = sanitizeString(event_code, 50);
     venue = sanitizeString(venue, 255);
     description = sanitizeString(description, 1000);
+    client_name = client_name ? sanitizeString(client_name, 150) : null;
 
     // Validate event_code format (alphanumeric, dash, underscore only)
     if (!/^[a-zA-Z0-9_-]+$/.test(event_code)) {
@@ -134,8 +135,8 @@ exports.createEvent = async (req, res) => {
     const [result] = await db.execute(
       `INSERT INTO events (
         event_name, event_code, event_qr_code, event_date, event_time,
-        venue, description, max_capacity, registration_open, created_by
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        venue, description, max_capacity, registration_open, client_name, created_by
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         event_name,
         event_code,
@@ -145,7 +146,8 @@ exports.createEvent = async (req, res) => {
         venue || null,
         description || null,
         max_capacity || null,
-        registration_open !== undefined ? (registration_open ? 1 : 0) : 1, // Default to open (1)
+        registration_open !== undefined ? (registration_open ? 1 : 0) : 1,
+        client_name || null,
         req.user.id
       ]
     );
@@ -255,7 +257,7 @@ exports.getEventByCode = async (req, res) => {
     const [events] = await db.execute(
       `SELECT
         id, event_name, event_code, event_date,
-        event_time, venue, description, registration_open, registration_form_config, event_logo, max_capacity
+        event_time, venue, description, registration_open, registration_form_config, event_logo, max_capacity, client_name
       FROM events
       WHERE event_code = ?`,
       [event_code]
@@ -318,7 +320,7 @@ exports.getEventByCode = async (req, res) => {
 exports.updateEvent = async (req, res) => {
   try {
     const { id } = req.params;
-    const { event_name, event_date, event_time, venue, description, registration_open, max_capacity, registration_form_config } = req.body;
+    const { event_name, event_date, event_time, venue, description, registration_open, max_capacity, registration_form_config, client_name } = req.body;
 
     // Check if request body is empty
     if (Object.keys(req.body).length === 0) {
@@ -372,10 +374,11 @@ exports.updateEvent = async (req, res) => {
         description = ?,
         registration_open = COALESCE(?, registration_open),
         max_capacity = ?,
+        client_name = ?,
         registration_form_config = COALESCE(?, registration_form_config)
       WHERE id = ?`,
       [event_name, event_date, event_time || null, venue || null, description || null,
-       registration_open, max_capacity || null, formConfigString, id]
+       registration_open, max_capacity || null, client_name || null, formConfigString, id]
     );
 
     if (result.affectedRows === 0) {

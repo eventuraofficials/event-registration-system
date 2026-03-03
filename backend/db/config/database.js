@@ -111,6 +111,7 @@ if (adminCount.count === 0) {
 
 // Migrations — idempotent (safe to run every startup)
 try { db.exec('ALTER TABLE events ADD COLUMN event_logo TEXT'); } catch(e) { /* column already exists */ }
+try { db.exec('ALTER TABLE events ADD COLUMN client_name TEXT'); } catch(e) { /* column already exists */ }
 
 // Site settings table
 db.exec(`

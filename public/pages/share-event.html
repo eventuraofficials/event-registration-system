@@ -420,6 +420,12 @@
         }
 
         function displayEventInfo() {
+            // Per-event client branding override
+            if (currentEvent.client_name) {
+                document.querySelectorAll('[data-site-name]').forEach(el => { el.textContent = currentEvent.client_name; });
+                document.title = currentEvent.client_name + ' — Share Event';
+            }
+
             // Show logo if available
             const logoEl = document.getElementById('shareEventLogo');
             if (logoEl && currentEvent.event_logo) {

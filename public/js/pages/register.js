@@ -45,6 +45,12 @@ async function loadEventFromURL() {
             logoEl.style.display = 'block';
         }
 
+        // Override site name with per-event client branding if set
+        if (currentEvent.client_name) {
+            document.querySelectorAll('[data-site-name]').forEach(el => { el.textContent = currentEvent.client_name; });
+            document.title = currentEvent.client_name + ' — Registration';
+        }
+
         document.getElementById('eventName').textContent = currentEvent.event_name;
         document.getElementById('eventDate').textContent = formatDate(currentEvent.event_date);
         document.getElementById('eventTime').textContent = formatTime(currentEvent.event_time);
