@@ -14,7 +14,11 @@ if (!fs.existsSync(dataDir)) {
 const dbPath = path.join(dataDir, 'event_registration.db');
 const db = new Database(dbPath);
 
-// Enable foreign keys
+// Performance & concurrency settings
+db.pragma('journal_mode = WAL');   // WAL mode: concurrent reads + writes, much faster
+db.pragma('synchronous = NORMAL'); // Safe + fast (vs FULL which flushes every write)
+db.pragma('cache_size = -16000');  // 16MB page cache
+db.pragma('temp_store = MEMORY');  // Temp tables in RAM
 db.pragma('foreign_keys = ON');
 
 // Auto-initialize schema (safe to run every startup)

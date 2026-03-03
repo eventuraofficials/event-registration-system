@@ -74,10 +74,11 @@ const loginLimiter = rateLimit({
   skipSuccessfulRequests: true
 });
 
-// Rate limit for guest registration (prevent spam)
+// Rate limit for guest registration
+// Set high — corporate events have 100s of guests on the same office WiFi (shared IP)
 const registrationLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 20, // 20 registrations per IP per hour
+  max: 300, // 300 registrations per IP per hour (covers large events on shared WiFi)
   message: 'Too many registrations from this IP, please try again later.'
 });
 
