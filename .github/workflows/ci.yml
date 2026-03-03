@@ -77,11 +77,10 @@ jobs:
           echo "PORT=5000" >> .env
 
       - name: Initialize database
-        run: npm run init-db
+        run: mkdir -p data && npm run init-db
 
       - name: Run tests
         run: npm test
-        continue-on-error: true
 
   build:
     name: Build Check
@@ -100,7 +99,7 @@ jobs:
         run: npm ci
 
       - name: Check production build
-        run: npm run production &
+        run: mkdir -p data logs uploads/event-logos && npm start &
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-test-secret-32-characters-long' }}
           NODE_ENV: production
