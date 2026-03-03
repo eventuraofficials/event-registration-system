@@ -1802,8 +1802,8 @@ async function exportToExcel() {
 
     try {
         const status = document.getElementById('reportStatusFilter')?.value || '';
-        const url = `${API_BASE_URL}/guests/event/${eventId}/export${status ? `?status=${status}` : ''}`;
-        const response = await fetch(url, {
+        const exportUrl = `${API_BASE_URL}/guests/event/${eventId}/export${status ? `?status=${status}` : ''}`;
+        const response = await fetch(exportUrl, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${authToken}`
