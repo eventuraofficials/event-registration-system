@@ -335,23 +335,56 @@ function displayQRCode(guest) {
     showAlert('Registration successful! Please save your QR code for event entry.', 'success');
 }
 
-// Download QR code
-function downloadQRCode() {
-    const qrImage = document.getElementById('qrCodeImage');
-    const guestCode = document.getElementById('guestCodeDisplay').textContent;
+// Convert base64 data URL to Blob
+function dataURLtoBlob(dataURL) {
+    const [header, data] = dataURL.split(',');
+    const mime = header.match(/:(.*?);/)[1];
+    const binary = atob(data);
+    const arr = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+}
 
-    // iOS Safari doesn't support programmatic downloads — open in new tab instead
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+// Download QR code — works on iOS, Android, and desktop
+async function downloadQRCode() {
+    const qrImage = document.getElementById('qrCodeImage');
+    const guestCode = document.getElementById('guestCodeDisplay').textContent.trim();
+    const filename = `QR-${guestCode}.png`;
+
+    // iPad Pro on iOS 13+ reports as MacIntel with touch support
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    const blob = dataURLtoBlob(qrImage.src);
+    const file = new File([blob], filename, { type: 'image/png' });
+
+    // 1. Web Share API — native share sheet on iOS and Android (best UX)
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+            await navigator.share({ files: [file], title: `QR Code - ${guestCode}` });
+            return;
+        } catch (e) {
+            if (e.name === 'AbortError') return; // user cancelled
+            // Share failed — fall through to next method
+        }
+    }
+
+    // 2. iOS fallback — navigate to data URL (user saves via long-press)
     if (isIOS) {
-        const win = window.open();
-        win.document.write(`<html><head><title>QR Code - ${guestCode}</title></head><body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f8f9fa;"><img src="${qrImage.src}" style="max-width:90vw;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.15);" /><p style="text-align:center;font-family:sans-serif;color:#666;margin-top:12px;">Long-press the image to save it</p></body></html>`);
+        const newTab = window.open(qrImage.src, '_blank');
+        if (!newTab) window.location.href = qrImage.src; // popup blocked fallback
         return;
     }
 
+    // 3. Desktop / Android Chrome / Samsung Internet — blob object URL download
+    const objectURL = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.href = qrImage.src;
-    link.download = `QR-Code-${guestCode}.png`;
+    link.href = objectURL;
+    link.download = filename;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(objectURL), 3000);
 }
 
 // Print QR code
