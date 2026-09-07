@@ -9,6 +9,8 @@
     <title>Admin Dashboard - Event Registration System</title>
     <meta name="description" content="Admin dashboard for event management and guest tracking">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css"> 
     <link rel="stylesheet" href="../css/theme/modern-theme.css?v=20251126">
     <link rel="stylesheet" href="../css/components/components.css">
     <link rel="stylesheet" href="../css/layouts/minimalist-layout.css">
@@ -48,8 +50,8 @@
         <!-- White Sticky Header -->
         <header class="app-header">
             <div style="display: flex; align-items: center; gap: 16px;">
-                <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-                    <i class="fas fa-bars"></i>
+<button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+                        <i class="fas fa-bars"></i>
                 </button>
                 <a href="#" class="app-header-logo">
                     <i class="fas fa-calendar-check"></i>
@@ -64,15 +66,7 @@
                 </button>
             </div>
         </header>
-.sr-only {
-    position: absolute;
-    width: 1px; height: 1px;
-    padding: 0; margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-}
+
         <!-- Sidebar Overlay (Mobile) -->
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileMenu()"></div>
 
@@ -379,12 +373,12 @@
                     <div class="card-header">
                         <h2>Select Event</h2>
                     </div>
-                    <div class="form-group">
-                        <select id="guestEventSelect" onchange="loadGuestsForEvent()">
-                            <option value="">-- Select Event --</option>
-                        </select>
-                    </div>
-                </div>
+                 <div class="form-group">
+    <label for="guestEventSelect" class="sr-only">Select Event</label>
+    <select id="guestEventSelect" onchange="loadGuestsForEvent()">
+        <option value="">-- Select Event --</option>
+    </select>
+</div>
 
                 <div id="guestsListCard" class="card" style="display: none;">
                     <div class="card-header">
