@@ -2280,24 +2280,39 @@ async function loadSiteBranding() {
 async function saveSiteBranding() {
     const site_name = (document.getElementById('brandingSiteName').value || '').trim();
     const site_tagline = (document.getElementById('brandingTagline').value || '').trim();
+    const font_style = document.getElementById('brandingFontStyle')?.value || 'inter';
+    const font_size = document.getElementById('brandingFontSize')?.value || '16px';
     if (!site_name) return showAlert('Site name is required', 'danger');
     try {
         const data = await fetchAPI(`${API_BASE_URL}/settings`, {
             method: 'PUT',
             headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
-            body: JSON.stringify({ site_name, site_tagline })
+            body: JSON.stringify({ site_name, site_tagline, font_style, font_size })
         });
         if (!data.success) throw new Error(data.message);
-        // Apply immediately to header
         const headerEl = document.getElementById('siteNameHeader');
         if (headerEl) headerEl.textContent = site_name;
-        document.title = `Admin — ${site_name}`;
+        document.title = `Admin – ${site_name}`;
+        applyBranding({ site_name, font_style, font_size });
         showAlert('Branding saved! Changes will appear on all pages after a refresh.', 'success');
     } catch (err) {
         showAlert(err.message || 'Failed to save branding', 'danger');
     }
 }
 
+function applyBranding(settings) {
+    if (settings.font_size) document.documentElement.style.fontSize = settings.font_size;
+    if (settings.font_style) {
+        const fonts = {
+            inter: "'Inter', sans-serif",
+            poppins: "'Poppins', sans-serif",
+            roboto: "'Roboto', sans-serif",
+            playfair: "'Playfair Display', serif",
+            montserrat: "'Montserrat', sans-serif"
+        };
+        document.documentElement.style.fontFamily = fonts[settings.font_style] || fonts.inter;
+    }
+}
 // ===================== EMAIL TEST =====================
 async function testEmailConnection() {
     const btn = document.getElementById('emailTestBtn');
