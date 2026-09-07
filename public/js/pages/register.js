@@ -44,12 +44,13 @@ async function loadEventFromURL() {
             logoEl.src = `/uploads/event-logos/${currentEvent.event_logo}`;
             logoEl.style.display = 'block';
         }
-
-        // Override site name with per-event client branding if set
-        if (currentEvent.client_name) {
-            document.querySelectorAll('[data-site-name]').forEach(el => { el.textContent = currentEvent.client_name; });
-            document.title = currentEvent.client_name + ' — Registration';
-        }
+         
+        // Override site name with per-event client branding, fallback to event name
+        const displayName = currentEvent.client_name || currentEvent.event_name;
+        if (displayName) {
+    document.querySelectorAll('[data-site-name]').forEach(el => { el.textContent = displayName; });
+    document.title = displayName + ' – Registration';
+    } 
 
         document.getElementById('eventName').textContent = currentEvent.event_name;
         document.getElementById('eventDate').textContent = formatDate(currentEvent.event_date);
