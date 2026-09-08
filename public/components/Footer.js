@@ -1,3 +1,8 @@
+/**
+ * FOOTER COMPONENT
+ * ================
+ * Reusable footer with dynamic site name from API
+ */
 Components.register('Footer', function({
     year = new Date().getFullYear(),
     text = null,
@@ -12,7 +17,6 @@ Components.register('Footer', function({
             const siteName = s.site_name || 'Event Registration System';
             const el = document.getElementById(footerId);
             if (el) el.textContent = `© ${year} ${siteName}. All rights reserved.`;
-            // Apply font branding globally
             if (s.font_size) document.documentElement.style.fontSize = s.font_size;
             if (s.font_style) {
                 const fonts = {

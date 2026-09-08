@@ -2272,7 +2272,7 @@ async function loadSiteBranding() {
         // Populate branding form if on settings section
         const nameInput = document.getElementById('brandingSiteName');
         const taglineInput = document.getElementById('brandingTagline');
-        if (nameInput) nameInput.value = site_name || '';
+        if (nameInput) nameInput.value = site_name || '';const allowed = ['site_name', 'site_tagline', 'font_size', 'font_style'];
         if (taglineInput) taglineInput.value = site_tagline || '';
     } catch (e) { /* non-fatal */ }
 }
@@ -2297,6 +2297,20 @@ async function saveSiteBranding() {
         showAlert('Branding saved! Changes will appear on all pages after a refresh.', 'success');
     } catch (err) {
         showAlert(err.message || 'Failed to save branding', 'danger');
+    }
+}
+
+function applyBranding(settings) {
+    if (settings.font_size) document.documentElement.style.fontSize = settings.font_size;
+    if (settings.font_style) {
+        const fonts = {
+            inter: "'Inter', sans-serif",
+            poppins: "'Poppins', sans-serif",
+            roboto: "'Roboto', sans-serif",
+            playfair: "'Playfair Display', serif",
+            montserrat: "'Montserrat', sans-serif"
+        };
+        document.documentElement.style.fontFamily = fonts[settings.font_style] || fonts.inter;
     }
 }
 
