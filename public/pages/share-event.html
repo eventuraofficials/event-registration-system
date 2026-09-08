@@ -421,9 +421,10 @@
 
         function displayEventInfo() {
             // Per-event client branding override
-            if (currentEvent.client_name) {
-                document.querySelectorAll('[data-site-name]').forEach(el => { el.textContent = currentEvent.client_name; });
-                document.title = currentEvent.client_name + ' — Share Event';
+                    const displayName = currentEvent.client_name || currentEvent.event_name;
+            if (displayName) {
+                document.querySelectorAll('[data-site-name]').forEach(el => { el.textContent = displayName; });
+                document.title = displayName + ' – Share Event';
             }
 
             // Show logo if available
