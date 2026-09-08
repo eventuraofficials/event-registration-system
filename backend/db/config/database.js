@@ -116,6 +116,8 @@ if (adminCount.count === 0) {
 // Migrations — idempotent (safe to run every startup)
 try { db.exec('ALTER TABLE events ADD COLUMN event_logo TEXT'); } catch(e) { /* column already exists */ }
 try { db.exec('ALTER TABLE events ADD COLUMN client_name TEXT'); } catch(e) { /* column already exists */ }
+try { db.exec('ALTER TABLE events ADD COLUMN font_style TEXT'); } catch(e) { /* column already exists */ }
+try { db.exec('ALTER TABLE events ADD COLUMN font_size TEXT'); } catch(e) { /* column already exists */ }
 
 // Site settings table
 db.exec(`
@@ -128,6 +130,7 @@ db.exec(`
 const _insertSetting = db.prepare(`INSERT OR IGNORE INTO site_settings (key, value) VALUES (?, ?)`);
 _insertSetting.run('site_name', 'Event Registration System');
 _insertSetting.run('site_tagline', '');
+_insertSetting.run('footer_text', 'All rights reserved.');
 
 console.log('✅ SQLite Database connected and ready');
 
