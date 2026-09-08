@@ -9,6 +9,7 @@ let currentGuestSearch = '';
 let pendingImportFile = null;
 let pendingImportEventId = null;
 let dashboardRefreshTimer = null;
+let recentActivityExpanded = false;
 
 // Helper function to get fresh auth token
 function getAuthToken() {
@@ -583,7 +584,7 @@ async function renderRecentActivity() {
     };
 
     try {
-        const response = await fetch('/api/admin/activity-logs?limit=15', {
+        const response = await fetch('/api/admin/activity-logs?limit=25', {
             headers: getAuthHeaders()
         });
         const data = await response.json();
@@ -597,30 +598,44 @@ async function renderRecentActivity() {
             return;
         }
 
-        container.innerHTML = data.logs.map((log, index) => {
-            const meta = ACTION_META[log.action] || { icon: 'fa-circle', color: '#a0aec0' };
-            const actor = log.username ? SecurityUtils.escapeHtml(log.username) : 'System';
-            const desc  = SecurityUtils.escapeHtml(log.description || log.action);
-            const ts    = new Date(log.created_at);
-            const isLast = index === data.logs.length - 1;
-            return `
-            <div style="display: flex; gap: 15px; padding: 15px; border-bottom: ${isLast ? 'none' : '1px solid #e2e8f0'}; transition: background 0.2s ease;"
-                 onmouseover="this.style.background='#f7fafc'"
-                 onmouseout="this.style.background='transparent'">
-                <div style="flex-shrink: 0;">
-                    <div style="width: 40px; height: 40px; border-radius: 10px; background: ${meta.color}15; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas ${meta.icon}" style="color: ${meta.color}; font-size: 1.1rem;"></i>
+        const previewLimit = 5;
+        const visibleLogs = recentActivityExpanded ? data.logs : data.logs.slice(0, previewLimit);
+        const hasMore = data.logs.length > previewLimit;
+
+        container.innerHTML = `
+            ${visibleLogs.map((log, index) => {
+                const meta = ACTION_META[log.action] || { icon: 'fa-circle', color: '#a0aec0' };
+                const actor = log.username ? SecurityUtils.escapeHtml(log.username) : 'System';
+                const desc  = SecurityUtils.escapeHtml(log.description || log.action);
+                const ts    = new Date(log.created_at);
+                const isLast = index === visibleLogs.length - 1;
+                return `
+                <div style="display: flex; gap: 15px; padding: 15px; border-bottom: ${isLast ? 'none' : '1px solid #e2e8f0'}; transition: background 0.2s ease;"
+                     onmouseover="this.style.background='#f7fafc'"
+                     onmouseout="this.style.background='transparent'">
+                    <div style="flex-shrink: 0;">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: ${meta.color}15; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas ${meta.icon}" style="color: ${meta.color}; font-size: 1.1rem;"></i>
+                        </div>
                     </div>
-                </div>
-                <div style="flex: 1; min-width: 0;">
-                    <div style="font-weight: 600; font-size: 0.9rem; color: #2d3748; margin-bottom: 4px;">${desc}</div>
-                    <div style="font-size: 0.8rem; color: #718096; margin-bottom: 4px;">by ${actor}</div>
-                    <div style="font-size: 0.75rem; color: #a0aec0;">
-                        <i class="fas fa-clock" style="margin-right: 4px;"></i>${formatTimeAgo(ts)}
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 600; font-size: 0.9rem; color: #2d3748; margin-bottom: 4px;">${desc}</div>
+                        <div style="font-size: 0.8rem; color: #718096; margin-bottom: 4px;">by ${actor}</div>
+                        <div style="font-size: 0.75rem; color: #a0aec0;">
+                            <i class="fas fa-clock" style="margin-right: 4px;"></i>${formatTimeAgo(ts)}
+                        </div>
                     </div>
+                </div>`;
+            }).join('')}
+            ${hasMore ? `
+                <div style="padding-top: 10px; text-align: center;">
+                    <button type="button" class="btn btn-secondary" style="width: 100%; font-size: 0.85rem; padding: 10px 12px;" onclick="recentActivityExpanded = !recentActivityExpanded; renderRecentActivity();">
+                        <i class="fas ${recentActivityExpanded ? 'fa-chevron-up' : 'fa-chevron-down'}" style="margin-right: 6px;"></i>
+                        ${recentActivityExpanded ? 'View less' : 'See more'}
+                    </button>
                 </div>
-            </div>`;
-        }).join('');
+            ` : ''}
+        `;
     } catch (err) {
         container.innerHTML = `
             <div style="text-align: center; padding: 20px; color: #a0aec0; font-size: 0.9rem;">
