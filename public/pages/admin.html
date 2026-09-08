@@ -356,84 +356,185 @@
                             <i class="fas fa-times"></i> Cancel
                         </button>
                     </div>
-                    <form id="newEventForm">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="eventName">Event Name *</label>
-                                <input type="text" id="eventName" required>
+
+                    <form id="newEventForm" class="event-form-shell">
+                        <div class="event-form-section">
+                            <div class="event-form-header">
+                                <h3><i class="fas fa-circle-info"></i> Event Details</h3>
+                                <p class="event-form-note">Basic info</p>
                             </div>
-                            <div class="form-group">
-                                                                <label for="eventClientName">Client / Company Name <span class="label-optional">(optional)</span></label>
-                                <input type="text" id="eventClientName" placeholder="e.g. Samsung — shown on registration page header">
-                              </div>
-                              <div class="form-group">
-                                <label for="eventFontStyle">Font Style <span class="label-optional">(optional)</span></label>
-                                <select id="eventFontStyle">
-                                    <option value="inter">Default (Inter)</option>
-                                    <option value="inter">Inter (Modern)</option>
-                                    <option value="poppins">Poppins (Friendly)</option>
-                                    <option value="roboto">Roboto (Clean)</option>
-                                    <option value="playfair">Playfair Display (Elegant)</option>
-                                    <option value="montserrat">Montserrat (Bold)</option>
-                                </select>
-                              </div>
-                              <div class="form-group">
-                                <label for="eventFontSize">Font Size <span class="label-optional">(optional)</span></label>
-                                <select id="eventFontSize">
-                                    <option value="inter">Default (Inter)</option>
-                                    <option value="14px">Small (14px)</option>
-                                    <option value="16px">Medium (16px)</option>
-                                    <option value="18px">Large (18px)</option>
-                                    <option value="20px">Extra Large (20px)</option>
-                                </select>
-                              </div>
-                              <div class="form-group">
-                                  <label for="eventCodeInput">Event Code *</label>
-                            </div>
-                            <div class="form-group">
-                                <label for="eventCodeInput">Event Code *</label>
-                                <div style="display: flex; gap: 10px;">
-                                    <input type="text" id="eventCodeInput" required style="flex: 1;">
-                                    <button type="button" onclick="generateEventCode()" class="btn btn-outline" title="Auto-generate event code">
-                                        <i class="fas fa-magic"></i> Auto
-                                    </button>
+
+                            <div class="event-form-grid">
+                                <div class="form-group">
+                                    <label for="eventName">Event Name *</label>
+                                    <input type="text" id="eventName" required>
                                 </div>
-                                <small style="color: #666; font-size: 0.85rem;">Auto-generated from event name or click "Auto" button</small>
+
+                                <div class="form-group">
+                                    <label for="eventClientName">Client / Company Name <span class="label-optional">(optional)</span></label>
+                                    <input type="text" id="eventClientName" placeholder="e.g. Samsung — shown on registration page header">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="eventCodeInput">Event Code *</label>
+                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                        <input type="text" id="eventCodeInput" required style="flex: 1;">
+                                        <button type="button" onclick="generateEventCode()" class="btn btn-outline" title="Auto-generate event code">
+                                            <i class="fas fa-magic"></i> Auto
+                                        </button>
+                                    </div>
+                                    <small style="color: #666; font-size: 0.85rem; display: block; margin-top: 6px;">Auto-generated from event name or click the Auto button</small>
+                                </div>
+                            </div>
+
+                            <div class="event-form-grid" style="margin-top: 16px;">
+                                <div class="form-group">
+                                    <label for="eventDate">Event Date *</label>
+                                    <input type="date" id="eventDate" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventTime">Event Time</label>
+                                    <input type="time" id="eventTime">
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventVenue">Venue</label>
+                                    <input type="text" id="eventVenue" placeholder="e.g. Grand Ballroom, Manila">
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-top: 16px;">
+                                <label for="eventDescription">Description</label>
+                                <textarea id="eventDescription" rows="4" placeholder="Add event details for guests on the registration page"></textarea>
                             </div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="eventDate">Event Date *</label>
-                                <input type="date" id="eventDate" required>
+
+                        <div class="event-form-section">
+                            <div class="event-form-header">
+                                <h3><i class="fas fa-sliders-h"></i> Registration & Access</h3>
+                                <p class="event-form-note">Flow settings</p>
                             </div>
-                            <div class="form-group">
-                                <label for="eventTime">Event Time</label>
-                                <input type="time" id="eventTime">
+
+                            <div class="event-form-grid">
+                                <div class="form-group">
+                                    <label for="eventRegistrationMode">Registration Mode</label>
+                                    <select id="eventRegistrationMode">
+                                        <option value="upload">Upload Pre-Registered Guests</option>
+                                        <option value="online">Online Registration</option>
+                                        <option value="hybrid" selected>Hybrid (Recommended)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="eventCheckinMode">Check-in Settings</label>
+                                    <select id="eventCheckinMode">
+                                        <option value="scan_or_manual" selected>Scan / Manual</option>
+                                        <option value="scan_only">Scan Only</option>
+                                        <option value="manual_only">Manual Only</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="eventQrSize">QR Code Settings</label>
+                                    <select id="eventQrSize">
+                                        <option value="small">Small</option>
+                                        <option value="medium" selected>Medium</option>
+                                        <option value="large">Large</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="eventMaxCapacity">Maximum Capacity</label>
+                                    <input type="number" id="eventMaxCapacity" min="1" placeholder="Leave empty for unlimited">
+                                    <small style="color: #666; font-size: 0.85rem; display: block; margin-top: 6px;">Optional: Set maximum number of guests allowed to register</small>
+                                </div>
+                            </div>
+
+                            <div class="event-form-grid" style="margin-top: 16px;">
+                                <div class="form-group">
+                                    <label>Registration Fields</label>
+                                    <div class="form-group-inline">
+                                        <label><input type="checkbox" name="eventRegistrationField" value="full_name" checked> Full Name</label>
+                                        <label><input type="checkbox" name="eventRegistrationField" value="email" checked> Email</label>
+                                        <label><input type="checkbox" name="eventRegistrationField" value="contact_number" checked> Contact Number</label>
+                                        <label><input type="checkbox" name="eventRegistrationField" value="home_address"> Home Address</label>
+                                        <label><input type="checkbox" name="eventRegistrationField" value="company_name"> Company Name</label>
+                                        <label><input type="checkbox" name="eventRegistrationField" value="guest_category"> Guest Category</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="event-form-grid" style="margin-top: 16px;">
+                                <div class="form-group">
+                                    <label>Check-in Options</label>
+                                    <div class="form-group-inline">
+                                        <label><input type="checkbox" id="eventAllowWalkIn" checked> Allow walk-in registration</label>
+                                        <label><input type="checkbox" id="eventRequireManualConfirmation"> Require manual confirmation</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="eventVenue">Venue</label>
-                            <input type="text" id="eventVenue">
-                        </div>
-                        <div class="form-group">
-                            <label for="eventDescription">Description</label>
-                            <textarea id="eventDescription" rows="4"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="eventMaxCapacity">Maximum Capacity</label>
-                            <input type="number" id="eventMaxCapacity" min="1" placeholder="Leave empty for unlimited">
-                            <small style="color: #666; font-size: 0.85rem;">Optional: Set maximum number of guests allowed to register</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Event Logo / Banner <span class="label-optional">(optional)</span></label>
-                            <div class="logo-upload-area" id="logoUploadArea" onclick="document.getElementById('eventLogoInput').click()">
-                                <i class="fas fa-image"></i>
-                                <p>Click to upload logo or banner</p>
-                                <small>JPG, PNG, GIF, WebP — max 2 MB</small>
+
+                        <div class="event-form-section">
+                            <div class="event-form-header">
+                                <h3><i class="fas fa-id-card"></i> Branding & Badge</h3>
+                                <p class="event-form-note">Appearance</p>
                             </div>
-                            <input type="file" id="eventLogoInput" accept="image/*" class="visually-hidden" onchange="previewLogo(this, 'eventLogoPreview', 'logoUploadArea')">
-                            <img id="eventLogoPreview" class="logo-preview">
+
+                            <div class="event-form-grid">
+                                <div class="form-group">
+                                    <label for="eventFontStyle">Font Style <span class="label-optional">(optional)</span></label>
+                                    <select id="eventFontStyle">
+                                        <option value="inter">Default (Inter)</option>
+                                        <option value="poppins">Poppins (Friendly)</option>
+                                        <option value="roboto">Roboto (Clean)</option>
+                                        <option value="playfair">Playfair Display (Elegant)</option>
+                                        <option value="montserrat">Montserrat (Bold)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="eventFontSize">Font Size <span class="label-optional">(optional)</span></label>
+                                    <select id="eventFontSize">
+                                        <option value="inter">Default (Inter)</option>
+                                        <option value="14px">Small (14px)</option>
+                                        <option value="16px">Medium (16px)</option>
+                                        <option value="18px">Large (18px)</option>
+                                        <option value="20px">Extra Large (20px)</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="eventBadgeMode">Badge Settings</label>
+                                    <select id="eventBadgeMode">
+                                        <option value="standard" selected>Standard Badge</option>
+                                        <option value="vip">VIP Badge</option>
+                                        <option value="sponsor">Sponsor Badge</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="event-form-grid" style="margin-top: 16px;">
+                                <div class="form-group">
+                                    <label>Badge Options</label>
+                                    <div class="form-group-inline">
+                                        <label><input type="checkbox" id="eventBadgeShowQr" checked> Show QR code on badge</label>
+                                        <label><input type="checkbox" id="eventBadgeShowCompany"> Show company name on badge</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-top: 16px;">
+                                <label>Event Logo / Banner <span class="label-optional">(optional)</span></label>
+                                <div class="logo-upload-area" id="logoUploadArea" onclick="document.getElementById('eventLogoInput').click()">
+                                    <i class="fas fa-image"></i>
+                                    <p>Click to upload logo or banner</p>
+                                    <small>JPG, PNG, GIF, WebP — max 2 MB</small>
+                                </div>
+                                <input type="file" id="eventLogoInput" accept="image/*" class="visually-hidden" onchange="previewLogo(this, 'eventLogoPreview', 'logoUploadArea')">
+                                <img id="eventLogoPreview" class="logo-preview">
+                            </div>
                         </div>
+
                         <button type="submit" class="btn btn-success">
                             <i class="fas fa-save"></i> Create Event
                         </button>
@@ -451,53 +552,73 @@
                     <div class="card-header">
                         <h2>Select Event</h2>
                     </div>
-                 <div class="form-group">
-    <label for="guestEventSelect" class="sr-only">Select Event</label>
-    <select id="guestEventSelect" onchange="loadGuestsForEvent()">
-        <option value="">-- Select Event --</option>
-    </select>
-</div>
+                    <div class="guest-picker-card">
+                        <div class="guest-picker-header">
+                            <span class="guest-picker-kicker">Current Event</span>
+                            <span class="guest-picker-pill">Live</span>
+                        </div>
+                        <label for="guestEventSelect" class="sr-only">Select Event</label>
+                        <select id="guestEventSelect" class="guest-event-select" onchange="loadGuestsForEvent()">
+                            <option value="">-- Select Event --</option>
+                        </select>
+                    </div>
+                </div>
 
                 <div id="guestsListCard" class="card" style="display: none;">
-                    <div class="card-header">
-                        <h2>Guest List <span id="guestCountBadge" style="font-size:0.8rem; font-weight:400; color:#718096;"></span></h2>
-                        <div class="filter-group">
-                            <button onclick="openAddGuestModal()" class="btn btn-primary" title="Add Guest Manually">
-                                <i class="fas fa-user-plus"></i> Add Guest
-                            </button>
-                            <button onclick="exportGuestList()" class="btn btn-success" title="Export to Excel">
-                                <i class="fas fa-file-excel"></i> Export
-                            </button>
-                            <select id="guestStatusFilter" onchange="loadGuestsForEvent()">
-                                <option value="">All Status</option>
-                                <option value="attended">Attended</option>
-                                <option value="not_attended">Not Attended</option>
-                            </select>
-                            <div class="search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" id="guestSearchInput" placeholder="Search guests...">
+                    <div class="card-header" style="display:block;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;">
+                            <h2>Guest List <span id="guestCountBadge" style="font-size:0.8rem; font-weight:400; color:#718096;"></span></h2>
+                            <div class="filter-group" style="flex-wrap:wrap;">
+                                <button onclick="openAddGuestModal()" class="btn btn-primary" title="Add Guest Manually">
+                                    <i class="fas fa-user-plus"></i> Add Guest
+                                </button>
+                                <button onclick="exportGuestList()" class="btn btn-success" title="Export to Excel">
+                                    <i class="fas fa-file-excel"></i> Export
+                                </button>
+                                <select id="guestStatusFilter" onchange="loadGuestsForEvent()">
+                                    <option value="">All</option>
+                                    <option value="registered">Registered</option>
+                                    <option value="attended">Attended</option>
+                                    <option value="walk_in">Walk-in</option>
+                                    <option value="vip">VIP</option>
+                                    <option value="company">Company</option>
+                                    <option value="registration_source">Registration Source</option>
+                                </select>
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="guestSearchInput" placeholder="Search guest, email, company, mobile">
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th class="col-code">Guest Code</th>
-                                    <th>Name</th>
-                                    <th class="col-email">Email</th>
-                                    <th class="col-company">Company</th>
-                                    <th class="col-category">Category</th>
-                                    <th>Status</th>
-                                    <th class="col-checkin">Check-in Time</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="guestsTableBody">
-                                <tr><td colspan="8">Select an event to view guests</td></tr>
-                            </tbody>
-                        </table>
-                        <div id="guestPagination"></div>
+                    <div class="table-container" style="display:grid; grid-template-columns: 1.7fr 0.7fr; gap:20px; align-items:start;">
+                        <div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-code">Guest</th>
+                                        <th>Company</th>
+                                        <th>Status</th>
+                                        <th>Registration</th>
+                                        <th>Check-in</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="guestsTableBody">
+                                    <tr><td colspan="6">Select an event to view guests</td></tr>
+                                </tbody>
+                            </table>
+                            <div id="guestPagination"></div>
+                        </div>
+                        <aside id="guestProfilePanel" style="display:none; border:1px solid #e2e8f0; border-radius:12px; background:#f8fafc; padding:16px; min-height:240px; position:sticky; top:20px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                <h3 id="guestProfileName" style="margin:0; font-size:1.1rem;">Guest Profile</h3>
+                                <button type="button" class="btn btn-outline btn-sm" onclick="closeGuestProfile()">Close</button>
+                            </div>
+                            <div id="guestProfileBody" style="color:#475569; line-height:1.7; font-size:0.92rem;">
+                                Select a guest to view details.
+                            </div>
+                        </aside>
                     </div>
                 </div>
             </section>
@@ -617,7 +738,37 @@
                             <option value="not_attended">Not Attended Only</option>
                         </select>
                     </div>
-                    <div class="button-group">
+
+                    <div id="reportSummary" style="display: none; margin-top: 20px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
+                            <div class="card" style="padding: 16px; border-left: 4px solid #4f46e5;">
+                                <div style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;">Registered</div>
+                                <div id="reportTotalRegistered" style="font-size: 1.8rem; font-weight: 700; color: #0f172a; margin-top: 8px;">0</div>
+                            </div>
+                            <div class="card" style="padding: 16px; border-left: 4px solid #10b981;">
+                                <div style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;">Attended</div>
+                                <div id="reportTotalAttended" style="font-size: 1.8rem; font-weight: 700; color: #0f172a; margin-top: 8px;">0</div>
+                            </div>
+                            <div class="card" style="padding: 16px; border-left: 4px solid #f59e0b;">
+                                <div style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;">Attendance</div>
+                                <div id="reportAttendanceRate" style="font-size: 1.8rem; font-weight: 700; color: #0f172a; margin-top: 8px;">0%</div>
+                            </div>
+                            <div class="card" style="padding: 16px; border-left: 4px solid #ef4444;">
+                                <div style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;">No Shows</div>
+                                <div id="reportNoShows" style="font-size: 1.8rem; font-weight: 700; color: #0f172a; margin-top: 8px;">0</div>
+                            </div>
+                            <div class="card" style="padding: 16px; border-left: 4px solid #06b6d4;">
+                                <div style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;">Walk-ins</div>
+                                <div id="reportWalkIns" style="font-size: 1.8rem; font-weight: 700; color: #0f172a; margin-top: 8px;">0</div>
+                            </div>
+                            <div class="card" style="padding: 16px; border-left: 4px solid #8b5cf6;">
+                                <div style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;">Peak Check-in</div>
+                                <div id="reportPeakCheckin" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin-top: 8px;">N/A</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="button-group" style="margin-top: 20px;">
                         <button onclick="exportToExcel()" class="btn btn-success">
                             <i class="fas fa-file-excel"></i> Export to Excel
                         </button>

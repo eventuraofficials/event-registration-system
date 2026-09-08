@@ -2,6 +2,7 @@ const db = require('../../db/config/database');
 const { generateGuestCode, generateQRCode } = require('../../utils/qrGenerator');
 const { parseExcelFile, validateGuestData, checkDuplicates } = require('../../utils/excelParser');
 const { sendTicketEmail, isEmailConfigured } = require('../../utils/emailService');
+const { buildEventSummary } = require('../../utils/eventSummary');
 const fs = require('fs');
 const ExcelJS = require('exceljs');
 
@@ -363,6 +364,32 @@ exports.selfRegister = async (req, res) => {
     }
 
     if (txResult.error === 'duplicate') {
+      const [existingGuests] = await db.execute(
+        `SELECT id, guest_code, qr_code, full_name, email, company_name, guest_category, event_id
+         FROM guests WHERE event_id = ? AND email = ? LIMIT 1`,
+        [event_id, email]
+      );
+
+      const existingGuest = existingGuests[0];
+
+      if (existingGuest) {
+        return res.status(200).json({
+          success: true,
+          duplicate: true,
+          message: 'You are already registered for this event',
+          guest: {
+            id: existingGuest.id,
+            guestCode: existingGuest.guest_code,
+            qrCode: existingGuest.qr_code,
+            full_name: existingGuest.full_name,
+            email: existingGuest.email,
+            company_name: existingGuest.company_name,
+            guest_category: existingGuest.guest_category,
+            event_name: events[0].event_name
+          }
+        });
+      }
+
       return res.status(400).json({
         success: false,
         message: 'You are already registered for this event'
@@ -665,8 +692,13 @@ exports.getGuestsByEvent = async (req, res) => {
       dataParams.push(s, s, s, s, s);
       countParams.push(s, s, s, s, s);
     }
-    if (status === 'attended') whereClause += ' AND g.attended = 1';
-    else if (status === 'not_attended') whereClause += ' AND g.attended = 0';
+
+    const filterClause = buildGuestStatusFilter(status, 'g');
+    if (filterClause.whereClause) {
+      whereClause += filterClause.whereClause;
+      dataParams.push(...filterClause.params);
+      countParams.push(...filterClause.params);
+    }
 
     const baseQuery = `
       SELECT g.*, e.event_name, a.full_name as checked_in_by_name
@@ -717,21 +749,33 @@ exports.getEventStats = async (req, res) => {
   try {
     const { event_id } = req.params;
 
-    const [stats] = await db.execute(
-      `SELECT
-        COUNT(*) as total_registered,
-        SUM(CASE WHEN attended = 1 THEN 1 ELSE 0 END) as total_attended,
-        SUM(CASE WHEN attended = 0 THEN 1 ELSE 0 END) as total_not_attended,
-        SUM(CASE WHEN registration_type = 'pre_registered' THEN 1 ELSE 0 END) as pre_registered,
-        SUM(CASE WHEN registration_type = 'self_registered' THEN 1 ELSE 0 END) as self_registered
-      FROM guests
-      WHERE event_id = ?`,
+    const [guests] = await db.execute(
+      `SELECT * FROM guests WHERE event_id = ? ORDER BY created_at DESC`,
       [event_id]
     );
 
+    const summary = buildEventSummary(guests);
+    const totalRegistered = summary.total_registered;
+    const totalAttended = summary.total_attended;
+    const preRegistered = guests.filter((guest) => String(guest.registration_type || '').toLowerCase() === 'pre_registered').length;
+    const selfRegistered = guests.filter((guest) => String(guest.registration_type || '').toLowerCase() === 'self_registered').length;
+
+    const stats = {
+      total_registered: totalRegistered,
+      total_attended: totalAttended,
+      total_not_attended: Math.max(totalRegistered - totalAttended, 0),
+      pre_registered: preRegistered,
+      self_registered: selfRegistered,
+      attendance_rate: summary.attendance_rate,
+      no_shows: summary.no_shows,
+      walk_ins: summary.walk_ins,
+      peak_check_in_time: summary.peak_check_in_time
+    };
+
     res.json({
       success: true,
-      stats: stats[0]
+      stats,
+      summary: stats
     });
 
   } catch (error) {

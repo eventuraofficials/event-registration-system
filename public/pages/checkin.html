@@ -44,6 +44,7 @@
     <!-- Simple Layout (No Sidebar) -->
     <div class="app-layout-simple">
         <div class="content-wrapper">
+            <div id="networkStatusBanner" class="network-status-banner hidden" role="status" aria-live="polite"></div>
         <main class="main-content">
             <!-- Event Selection for Check-in -->
             <div id="eventSelectSection" class="section active">
@@ -101,33 +102,73 @@
                         </div>
                     </div>
 
-                    <!-- QR Scanner -->
-                    <div class="scanner-container">
-                        <div id="qr-reader"></div>
-                        <div class="scanner-overlay">
-                            <div class="scanner-line"></div>
+                    <div class="checkin-mode-switcher" aria-label="Check-in action modes">
+                        <button type="button" class="checkin-mode-btn active" data-mode="scan" aria-pressed="true" onclick="setCheckInMode('scan')">
+                            <i class="fas fa-qrcode"></i> Scan QR
+                        </button>
+                        <button type="button" class="checkin-mode-btn" data-mode="search" aria-pressed="false" onclick="setCheckInMode('search')">
+                            <i class="fas fa-search"></i> Search Guest
+                        </button>
+                        <button type="button" class="checkin-mode-btn" data-mode="walkin" aria-pressed="false" onclick="setCheckInMode('walkin')">
+                            <i class="fas fa-user-plus"></i> Walk-in
+                        </button>
+                    </div>
+
+                    <div id="scanPanel" class="checkin-panel active">
+                        <div class="scanner-container">
+                            <div id="qr-reader"></div>
+                            <div class="scanner-overlay">
+                                <div class="scanner-line"></div>
+                            </div>
+                        </div>
+
+                        <div class="manual-input">
+                            <h3>Or Enter Guest Code Manually</h3>
+                            <div class="form-group">
+                                <input type="text" id="manualGuestCode" placeholder="Enter guest code">
+                                <button type="button" onclick="manualCheckIn()" class="btn btn-primary">
+                                    <i class="fas fa-sign-in-alt"></i> Check In
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Manual Input -->
-                    <div class="manual-input">
-                        <h3>Or Enter Guest Code Manually</h3>
-                        <div class="form-group">
-                            <input type="text" id="manualGuestCode" placeholder="Enter guest code">
-                            <button type="button" onclick="manualCheckIn()" class="btn btn-primary">
-                                <i class="fas fa-sign-in-alt"></i> Check In
+                    <div id="searchPanel" class="checkin-panel">
+                        <div class="guest-search-section">
+                            <h3>Search Guest</h3>
+                            <div class="form-group">
+                                <input type="text" id="guestSearchInput" placeholder="Search name, company, email, or guest code..."
+                                    oninput="onGuestSearchInput(this.value)">
+                            </div>
+                            <div id="guestSearchResults" class="guest-search-results"></div>
+                        </div>
+                    </div>
+
+                    <div id="walkinPanel" class="checkin-panel">
+                        <div class="walkin-form">
+                            <h3>Quick Walk-in Registration</h3>
+                            <div class="form-group">
+                                <label for="walkInName">Full Name</label>
+                                <input type="text" id="walkInName" placeholder="Enter guest full name">
+                            </div>
+                            <div class="form-row compact">
+                                <div class="form-group">
+                                    <label for="walkInEmail">Email</label>
+                                    <input type="email" id="walkInEmail" placeholder="Optional email">
+                                </div>
+                                <div class="form-group">
+                                    <label for="walkInContact">Contact</label>
+                                    <input type="tel" id="walkInContact" placeholder="Optional contact">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="walkInCompany">Company / Organization</label>
+                                <input type="text" id="walkInCompany" placeholder="Optional company">
+                            </div>
+                            <button type="button" class="btn btn-success" onclick="addWalkInGuest()">
+                                <i class="fas fa-user-plus"></i> Register Walk-in
                             </button>
                         </div>
-                    </div>
-
-                    <!-- Guest Name Search -->
-                    <div class="guest-search-section">
-                        <h3>Search Guest</h3>
-                        <div class="form-group">
-                            <input type="text" id="guestSearchInput" placeholder="Search name, company, email, or guest code..."
-                                oninput="onGuestSearchInput(this.value)">
-                        </div>
-                        <div id="guestSearchResults" class="guest-search-results"></div>
                     </div>
                 </div>
 

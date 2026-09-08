@@ -8,6 +8,64 @@ let stats = {
     errorCount: 0
 };
 let recentCheckIns = [];
+let activeCheckInMode = 'scan';
+
+function getCheckInAuthHeaders() {
+    const token = localStorage.getItem('admin_token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function setCheckInMode(mode) {
+    activeCheckInMode = mode;
+
+    document.querySelectorAll('.checkin-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.id === `${mode}Panel`);
+    });
+
+    document.querySelectorAll('.checkin-mode-btn').forEach(button => {
+        const isActive = button.dataset.mode === mode;
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-pressed', String(isActive));
+    });
+}
+
+function updateNetworkBanner(type, message) {
+    const banner = document.getElementById('networkStatusBanner');
+    if (!banner) return;
+
+    banner.className = `network-status-banner ${type}`;
+    banner.textContent = message;
+}
+
+function clearNetworkBanner() {
+    const banner = document.getElementById('networkStatusBanner');
+    if (!banner) return;
+    banner.className = 'network-status-banner hidden';
+    banner.textContent = '';
+}
+
+async function requestWithRetry(requestFn, { retries = 2, retryMessage = 'Connection is slow. Retrying…' } = {}) {
+    let lastError = null;
+
+    for (let attempt = 0; attempt <= retries; attempt += 1) {
+        try {
+            return await requestFn();
+        } catch (error) {
+            lastError = error;
+
+            if (attempt < retries) {
+                updateNetworkBanner('warning', `${retryMessage} (${attempt + 1}/${retries + 1})`);
+                await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
+                continue;
+            }
+
+            updateNetworkBanner('error', 'Connection is unstable. Please retry the action.');
+            throw error;
+        }
+    }
+
+    throw lastError;
+}
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,6 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Enter') checkinLogin();
     });
 
+    setCheckInMode('scan');
+    window.addEventListener('online', () => updateNetworkBanner('success', 'Connection restored. You can continue scanning.'));
+    window.addEventListener('offline', () => updateNetworkBanner('error', 'Network offline. Manual entry is still available, or retry when the connection returns.'));
     checkAuth();
 });
 
@@ -290,13 +351,16 @@ function onScanFailure(error) {
 // Perform check-in
 async function performCheckIn(guestCode) {
     try {
-        // First, get guest details
         const token = localStorage.getItem('admin_token');
         const authHeaders = token ? { 'Authorization': `Bearer ${token}` } : {};
-        const guestData = await fetchAPI(
+
+        const guestData = await requestWithRetry(() => fetchAPI(
             `${API.verifyGuest}?guest_code=${encodeURIComponent(guestCode)}&event_id=${currentCheckInEvent.id}`,
             { headers: authHeaders }
-        );
+        ), {
+            retries: 2,
+            retryMessage: 'Checking guest record…'
+        });
 
         if (!guestData.success) {
             throw new Error('Guest not found');
@@ -306,21 +370,25 @@ async function performCheckIn(guestCode) {
 
         // Check if already checked in
         if (guest.attended) {
+            clearNetworkBanner();
             showScanFlash(guest, 'already-checked-in');
             playErrorSound();
             updateStats('error');
-            addRecentCheckIn(guest, false, 'Already checked in');
+            addRecentCheckIn(guest, false, `Already checked in at ${formatDateTime(guest.check_in_time || new Date().toISOString())}`);
             return;
         }
 
         // Perform check-in
-        const checkInData = await fetchAPI(API.checkIn, {
+        const checkInData = await requestWithRetry(() => fetchAPI(API.checkIn, {
             method: 'POST',
             headers: authHeaders,
             body: JSON.stringify({
                 guest_code: guestCode,
                 event_id: currentCheckInEvent.id
             })
+        }), {
+            retries: 2,
+            retryMessage: 'Submitting check-in…'
         });
 
         if (!checkInData.success) {
@@ -330,6 +398,7 @@ async function performCheckIn(guestCode) {
         // Success!
         guest.attended = true;
         guest.check_in_time = new Date().toISOString();
+        clearNetworkBanner();
 
         // Invalidate name-search cache so the updated status shows on next search
         if (cachedGuestList) {
@@ -367,6 +436,89 @@ async function manualCheckIn() {
         hideLoading();
     } catch (error) {
         hideLoading();
+    }
+}
+
+async function addWalkInGuest() {
+    if (!currentCheckInEvent) {
+        showAlert('Please select an event first', 'danger');
+        return;
+    }
+
+    const fullName = document.getElementById('walkInName')?.value.trim();
+    const email = document.getElementById('walkInEmail')?.value.trim();
+    const contactNumber = document.getElementById('walkInContact')?.value.trim();
+    const companyName = document.getElementById('walkInCompany')?.value.trim();
+
+    if (!fullName) {
+        showAlert('Please enter the guest’s full name.', 'danger');
+        return;
+    }
+
+    showLoading();
+
+    try {
+        const payload = {
+            event_id: currentCheckInEvent.id,
+            full_name: fullName,
+            email: email || '',
+            contact_number: contactNumber || '',
+            home_address: '',
+            company_name: companyName || '',
+            guest_category: 'Regular'
+        };
+
+        const response = await requestWithRetry(() => fetchAPI(`${API_BASE_URL}/guests/add`, {
+            method: 'POST',
+            headers: {
+                ...getCheckInAuthHeaders(),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        }), {
+            retries: 2,
+            retryMessage: 'Sending walk-in registration…'
+        });
+
+        if (!response.success) {
+            throw new Error(response.message || 'Walk-in registration failed');
+        }
+
+        const guest = response.guest || {
+            full_name: fullName,
+            guest_code: 'WALK-IN',
+            company_name: companyName || '',
+            email: email || ''
+        };
+
+        document.getElementById('walkInName').value = '';
+        document.getElementById('walkInEmail').value = '';
+        document.getElementById('walkInContact').value = '';
+        document.getElementById('walkInCompany').value = '';
+
+        showScanFlash(guest, 'success');
+        playSuccessSound();
+        updateStats('success');
+        addRecentCheckIn(guest, true, 'Walk-in registered');
+
+        if (cachedGuestList) {
+            cachedGuestList.unshift({
+                id: guest.id || Date.now(),
+                full_name: guest.full_name,
+                company_name: guest.company_name || '',
+                email: guest.email || '',
+                guest_code: guest.guestCode || guest.guest_code || 'WALK-IN',
+                attended: 0
+            });
+        }
+
+        setCheckInMode('search');
+        document.getElementById('guestSearchInput')?.focus();
+        hideLoading();
+    } catch (error) {
+        hideLoading();
+        showAlert(error.message || 'Walk-in registration failed', 'danger');
+        updateStats('error');
     }
 }
 

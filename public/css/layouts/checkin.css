@@ -4,6 +4,41 @@
     background: #F8FAFC;
 }
 
+.network-status-banner {
+    margin: 16px 0 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: none;
+    border: 1px solid transparent;
+}
+
+.network-status-banner.hidden {
+    display: none;
+}
+
+.network-status-banner.warning {
+    display: block;
+    background: #fff7ed;
+    border-color: #fdba74;
+    color: #9a4f00;
+}
+
+.network-status-banner.error {
+    display: block;
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #991b1b;
+}
+
+.network-status-banner.success {
+    display: block;
+    background: #ecfdf5;
+    border-color: #86efac;
+    color: #166534;
+}
+
 /* ── Login Gate Overlay ── */
 .login-gate {
     position: fixed;
@@ -90,24 +125,62 @@
 }
 
 .scanner-header h2 {
-
-    /* Event-day layout: prioritize the scan action and keep the context visible. */
-    .scanner-section .card,
-    #scannerSection > .card:first-child {
-        border-top: 4px solid var(--primary);
-    }
-
-    #scannerSection > .card:first-child {
-        background: #ffffff;
-    }
-
-    .scanner-header .btn {
-        min-height: 44px;
-    }
     margin: 0;
     color: #1E293B;
     font-size: 1.5rem;
     font-weight: 600;
+}
+
+.checkin-mode-switcher {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin: 20px 0 22px;
+}
+
+.checkin-mode-btn {
+    border: 1px solid #dfe7f1;
+    background: #f8fafc;
+    color: #334155;
+    border-radius: 10px;
+    padding: 11px 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.checkin-mode-btn.active {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    border-color: #4f46e5;
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.18);
+}
+
+.checkin-panel {
+    display: none;
+}
+
+.checkin-panel.active {
+    display: block;
+}
+
+.walkin-form {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+}
+
+.walkin-form h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: #1e293b;
+}
+
+.form-row.compact {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
 }
 
 /* Stats Bar */

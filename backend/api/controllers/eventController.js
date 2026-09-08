@@ -1,4 +1,5 @@
 const db = require('../../db/config/database');
+const { normalizeEventSetup, buildRegistrationFormConfig } = require('../../utils/eventSetup');
 
 async function logActivity(userId, eventId, action, description, req) {
   try {
@@ -70,6 +71,10 @@ exports.getAvailableEvents = async (req, res) => {
 exports.createEvent = async (req, res) => {
   try {
 let { event_name, event_code, event_date, event_time, venue, description, max_capacity, registration_open, client_name, font_style, font_size } = req.body;
+    const normalizedSetup = normalizeEventSetup(req.body);
+    const registrationConfig = buildRegistrationFormConfig(normalizedSetup);
+    const registrationConfigString = JSON.stringify(registrationConfig);
+
     // Sanitize inputs
     event_name = sanitizeString(event_name, 255);
     event_code = sanitizeString(event_code, 50);
@@ -134,8 +139,8 @@ let { event_name, event_code, event_date, event_time, venue, description, max_ca
     const [result] = await db.execute(
       `INSERT INTO events (
         event_name, event_code, event_qr_code, event_date, event_time,
-                venue, description, max_capacity, registration_open, client_name, font_style, font_size, created_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        venue, description, max_capacity, registration_open, registration_form_config, client_name, font_style, font_size, created_by
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         event_name,
         event_code,
@@ -146,11 +151,12 @@ let { event_name, event_code, event_date, event_time, venue, description, max_ca
         description || null,
         max_capacity || null,
         registration_open !== undefined ? (registration_open ? 1 : 0) : 1,
-                 client_name || null,
-          font_style || null,
-          font_size || null,
-          req.user.id
-        ]
+        registrationConfigString,
+        client_name || null,
+        font_style || null,
+        font_size || null,
+        req.user.id
+      ]
     );
 
     res.status(201).json({
@@ -161,7 +167,9 @@ let { event_name, event_code, event_date, event_time, venue, description, max_ca
         event_name,
         event_code,
         event_qr_code: eventQRCode,
-        registration_url: registrationURL
+        registration_url: registrationURL,
+        registration_mode: registrationConfig.registration_mode,
+        registration_form_config: registrationConfig
       }
     });
 
@@ -322,6 +330,12 @@ exports.updateEvent = async (req, res) => {
   try {
     const { id } = req.params;
             const { event_name, event_date, event_time, venue, description, registration_open, max_capacity, registration_form_config, client_name, font_style, font_size } = req.body;
+    const setupPayload = req.body.registration_setup || req.body;
+    const normalizedSetup = normalizeEventSetup(setupPayload);
+    const generatedFormConfig = buildRegistrationFormConfig(normalizedSetup);
+    const effectiveFormConfigString = registration_form_config
+      ? JSON.stringify(registration_form_config)
+      : JSON.stringify(generatedFormConfig);
 
     // Check if request body is empty
     if (Object.keys(req.body).length === 0) {
@@ -375,13 +389,13 @@ exports.updateEvent = async (req, res) => {
         description = ?,
         registration_open = COALESCE(?, registration_open),
         max_capacity = ?,
-                client_name = ?,
-          font_style = ?,
-          font_size = ?,
-          registration_form_config = COALESCE(?, registration_form_config)
+        client_name = ?,
+        font_style = ?,
+        font_size = ?,
+        registration_form_config = COALESCE(?, registration_form_config)
         WHERE id = ?`,
         [event_name, event_date, event_time || null, venue || null, description || null,
-       registration_open, max_capacity || null, client_name || null, font_style || null, font_size || null, formConfigString, id]
+       registration_open, max_capacity || null, client_name || null, font_style || null, font_size || null, effectiveFormConfigString, id]
     );
 
     if (result.affectedRows === 0) {

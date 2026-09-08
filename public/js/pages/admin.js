@@ -57,6 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
         searchTimeout = setTimeout(() => filterGuests(e.target.value), 300);
     });
 
+    document.getElementById('reportEventSelect')?.addEventListener('change', loadReportSummary);
+
     setupDashboardShortcuts();
     window.addEventListener('hashchange', () => {
         const sectionName = window.location.hash.replace('#', '');
@@ -370,10 +372,17 @@ function renderEventHealth() {
         const attended = Number(event.total_attended || 0);
         const rate = total ? Math.round((attended / total) * 100) : 0;
         const tone = rate >= 70 ? 'healthy' : rate >= 35 ? 'watch' : 'quiet';
+        const statusLabel = rate >= 70 ? 'Healthy' : rate >= 35 ? 'Watch' : 'Low';
         return `<button type="button" class="event-health-row" onclick="showSection('events')">
-            <span class="event-health-main"><strong>${SecurityUtils.escapeHtml(event.event_name)}</strong><small>${total} registered · ${event.registration_open ? 'Registration open' : 'Registration closed'}</small></span>
+            <span class="event-health-main">
+                <strong>${SecurityUtils.escapeHtml(event.event_name)}</strong>
+                <small>${total} registered · ${attended} checked in</small>
+            </span>
             <span class="event-health-bar"><span class="${tone}" style="width:${rate}%"></span></span>
-            <strong class="event-health-rate">${rate}%</strong>
+            <span class="event-health-right">
+                <strong class="event-health-rate">${rate}%</strong>
+                <small class="event-health-status ${tone}">${statusLabel}</small>
+            </span>
         </button>`;
     }).join('');
 }
@@ -647,6 +656,47 @@ function populateEventSelects() {
     });
 }
 
+async function loadReportSummary() {
+    const eventId = document.getElementById('reportEventSelect')?.value;
+    const summaryContainer = document.getElementById('reportSummary');
+    if (!summaryContainer) return;
+
+    if (!eventId) {
+        summaryContainer.style.display = 'none';
+        return;
+    }
+
+    try {
+        const data = await fetchAPI(`${API_BASE_URL}/guests/event/${eventId}/stats`, {
+            headers: getAuthHeaders()
+        });
+
+        if (!data.success) throw new Error(data.message || 'Unable to load report summary');
+
+        const stats = data.summary || data.stats || {};
+        summaryContainer.style.display = 'block';
+
+        const setStat = (id, value) => {
+            const node = document.getElementById(id);
+            if (node) node.textContent = value;
+        };
+
+        const totalRegistered = Number(stats.total_registered || 0);
+        const totalAttended = Number(stats.total_attended || 0);
+        const attendanceRate = totalRegistered > 0 ? Math.round((totalAttended / totalRegistered) * 100) : 0;
+
+        setStat('reportTotalRegistered', totalRegistered);
+        setStat('reportTotalAttended', totalAttended);
+        setStat('reportAttendanceRate', `${attendanceRate}%`);
+        setStat('reportNoShows', Number(stats.no_shows || Math.max(totalRegistered - totalAttended, 0)));
+        setStat('reportWalkIns', Number(stats.walk_ins || 0));
+        setStat('reportPeakCheckin', stats.peak_check_in_time || 'N/A');
+    } catch (error) {
+        summaryContainer.style.display = 'none';
+        showAlert(error.message || 'Unable to load report summary', 'danger');
+    }
+}
+
 // Filter events
 function filterEvents(searchTerm) {
     const tbody = document.getElementById('eventsTableBody');
@@ -846,6 +896,7 @@ async function handleCreateEvent(e) {
     e.preventDefault();
 
     const maxCapacityValue = document.getElementById('eventMaxCapacity').value;
+    const registrationFields = Array.from(document.querySelectorAll('input[name="eventRegistrationField"]:checked')).map((input) => input.value);
 
     const eventData = {
         event_name: document.getElementById('eventName').value,
@@ -855,9 +906,26 @@ async function handleCreateEvent(e) {
         venue: document.getElementById('eventVenue').value || null,
         description: document.getElementById('eventDescription').value || null,
         max_capacity: maxCapacityValue ? parseInt(maxCapacityValue) : null,
-          client_name: document.getElementById('eventClientName')?.value?.trim() || null,
-                font_style: document.getElementById('eventFontStyle')?.value || 'inter',
-        font_size: document.getElementById('eventFontSize')?.value || '16px'
+        client_name: document.getElementById('eventClientName')?.value?.trim() || null,
+        font_style: document.getElementById('eventFontStyle')?.value || 'inter',
+        font_size: document.getElementById('eventFontSize')?.value || '16px',
+        registration_mode: document.getElementById('eventRegistrationMode')?.value || 'hybrid',
+        registration_fields: registrationFields.length ? registrationFields : ['full_name', 'email', 'contact_number'],
+        checkin_settings: {
+            mode: document.getElementById('eventCheckinMode')?.value || 'scan_or_manual',
+            allow_walk_in: document.getElementById('eventAllowWalkIn')?.checked ?? true,
+            require_manual_confirmation: document.getElementById('eventRequireManualConfirmation')?.checked ?? false
+        },
+        badge_settings: {
+            print_mode: document.getElementById('eventBadgeMode')?.value || 'standard',
+            show_qr: document.getElementById('eventBadgeShowQr')?.checked ?? true,
+            show_company: document.getElementById('eventBadgeShowCompany')?.checked ?? false
+        },
+        qr_settings: {
+            size: document.getElementById('eventQrSize')?.value || 'medium',
+            foreground_color: '#111111',
+            background_color: '#ffffff'
+        }
       };
   
       showLoading();
@@ -1677,6 +1745,9 @@ async function loadGuestsPage(page) {
         currentEventGuests = data.guests;
         currentGuestPage = data.page;
         renderGuestsTable(data);
+        if (!data.guests || data.guests.length === 0) {
+            closeGuestProfile();
+        }
         hideLoading();
     } catch (error) {
         hideLoading();
@@ -1694,7 +1765,6 @@ function goToGuestPage(page) {
 function renderGuestsTable(meta) {
     const tbody = document.getElementById('guestsTableBody');
 
-    // Update count badge
     const badge = document.getElementById('guestCountBadge');
     if (badge) {
         const total = (meta && meta.total != null) ? meta.total : currentEventGuests.length;
@@ -1706,9 +1776,10 @@ function renderGuestsTable(meta) {
     }
 
     if (currentEventGuests.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No guests found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No guests found</td></tr>';
         const pEl = document.getElementById('guestPagination');
         if (pEl) pEl.innerHTML = '';
+        closeGuestProfile();
         return;
     }
 
@@ -1717,34 +1788,42 @@ function renderGuestsTable(meta) {
     tbody.innerHTML = currentEventGuests.map(guest => {
         const cat = guest.guest_category || 'Regular';
         const catColor = categoryColors[cat] || '#64748b';
+        const statusLabel = guest.attended ? 'Attended' : (guest.registration_source === 'manual' ? 'Walk-in' : 'Registered');
+        const statusClass = guest.attended ? 'success' : (guest.registration_source === 'manual' ? 'info' : 'warning');
+        const registrationLabel = guest.registration_source === 'manual' ? 'Onsite' : (guest.registration_source === 'excel_upload' ? 'Excel' : 'Online');
+        const companyName = SecurityUtils.escapeHtml(guest.company_name || '—');
         return `
-        <tr>
-            <td class="col-code"><code>${SecurityUtils.escapeHtml(guest.guest_code)}</code></td>
-            <td>${SecurityUtils.escapeHtml(guest.full_name)}</td>
-            <td class="col-email">${SecurityUtils.escapeHtml(guest.email || 'N/A')}</td>
-            <td class="col-company">${SecurityUtils.escapeHtml(guest.company_name || 'N/A')}</td>
-            <td class="col-category"><span style="background:${catColor}20;color:${catColor};padding:2px 8px;border-radius:20px;font-size:0.75rem;font-weight:600;">${cat}</span></td>
+        <tr data-guest-id="${guest.id}" style="cursor:pointer;" onclick="openGuestProfile(${guest.id})">
+            <td class="col-code">
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                    <strong>${SecurityUtils.escapeHtml(guest.full_name)}</strong>
+                    <code style="font-size:0.72rem; color:#64748b;">${SecurityUtils.escapeHtml(guest.guest_code)}</code>
+                </div>
+            </td>
+            <td class="col-company">${companyName}</td>
             <td>
-                <span class="badge ${guest.attended ? 'success' : 'warning'}">
-                    ${guest.attended ? 'Attended' : 'Pending'}
+                <span class="badge ${statusClass}">
+                    ${statusLabel}
                 </span>
+            </td>
+            <td>
+                <span style="background:#eef2ff;color:#4338ca;padding:2px 8px;border-radius:20px;font-size:0.75rem; font-weight:600;">${registrationLabel}</span>
             </td>
             <td class="col-checkin">${guest.check_in_time ? formatDateTime(guest.check_in_time) : '—'}</td>
             <td>
-                ${guest.email ? `<button onclick="resendTicket(${guest.id})" class="action-btn" title="Resend QR ticket" style="color:#059669;">
+                ${guest.email ? `<button onclick="event.stopPropagation(); resendTicket(${guest.id})" class="action-btn" title="Resend QR ticket" style="color:#059669;">
                     <i class="fas fa-paper-plane"></i>
                 </button>` : ''}
-                <button onclick="openEditGuestModal(${guest.id})" class="action-btn" title="Edit" style="color:var(--primary);">
+                <button onclick="event.stopPropagation(); openEditGuestModal(${guest.id})" class="action-btn" title="Edit" style="color:var(--primary);">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button onclick="deleteGuest(${guest.id})" class="action-btn delete" title="Delete">
+                <button onclick="event.stopPropagation(); deleteGuest(${guest.id})" class="action-btn delete" title="Delete">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
         </tr>
     `}).join('');
 
-    // Pagination controls
     const pEl = document.getElementById('guestPagination');
     if (!pEl) return;
     if (!meta || !meta.totalPages || meta.totalPages <= 1) {
@@ -1763,6 +1842,39 @@ function renderGuestsTable(meta) {
             </div>
         </div>
     `;
+}
+
+function openGuestProfile(guestId) {
+    const panel = document.getElementById('guestProfilePanel');
+    const profileBody = document.getElementById('guestProfileBody');
+    const nameEl = document.getElementById('guestProfileName');
+    const guest = currentEventGuests.find(item => Number(item.id) === Number(guestId));
+
+    if (!guest || !panel || !profileBody || !nameEl) return;
+
+    nameEl.textContent = guest.full_name || 'Guest Profile';
+    const status = guest.attended ? '🟢 ATTENDED' : (guest.registration_source === 'manual' ? '🔵 WALK-IN' : '🟡 REGISTERED');
+    const checkInText = guest.check_in_time ? formatDateTime(guest.check_in_time) : '—';
+    const sourceText = guest.registration_source === 'manual' ? 'Walk-in' : guest.registration_source === 'excel_upload' ? 'Excel Upload' : 'Online';
+
+    profileBody.innerHTML = `
+        <div style="display:grid; gap:10px;">
+            <div><strong>Registration ID</strong><br>${SecurityUtils.escapeHtml(guest.guest_code || '—')}</div>
+            <div><strong>Email</strong><br>${guest.email ? `<a href="mailto:${SecurityUtils.escapeHtml(guest.email)}">${SecurityUtils.escapeHtml(guest.email)}</a>` : '—'}</div>
+            <div><strong>Mobile</strong><br>${SecurityUtils.escapeHtml(guest.contact_number || '—')}</div>
+            <div><strong>Company</strong><br>${SecurityUtils.escapeHtml(guest.company_name || '—')}</div>
+            <div><strong>Registration Source</strong><br>${sourceText}</div>
+            <div><strong>Status</strong><br>${status}</div>
+            <div><strong>Check-in Time</strong><br>${checkInText}</div>
+        </div>
+    `;
+
+    panel.style.display = 'block';
+}
+
+function closeGuestProfile() {
+    const panel = document.getElementById('guestProfilePanel');
+    if (panel) panel.style.display = 'none';
 }
 
 // Filter guests — server-side search (searches all records, not just current page)

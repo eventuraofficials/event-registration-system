@@ -320,6 +320,13 @@ async function handleRegistration(e) {
             throw new Error(data.message);
         }
 
+        if (data.duplicate && data.guest) {
+            displayQRCode(data.guest);
+            showAlert('You are already registered for this event. Your saved ticket is shown below.', 'info');
+            hideLoading();
+            return;
+        }
+
         // Display QR code and success message
         displayQRCode(data.guest);
 
