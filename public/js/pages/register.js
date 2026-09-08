@@ -3,19 +3,7 @@ let currentEvent = null;
 
 // Initialize page on load
 document.addEventListener('DOMContentLoaded', () => {
-    // Load site name immediately from API
-    fetch('/api/settings')
-        .then(r => r.json())
-        .then(data => {
-            const siteName = data.settings?.site_name;
-            if (siteName) {
-                document.querySelectorAll('[data-site-name]').forEach(el => {
-                    el.textContent = siteName;
-                });
-                document.title = siteName + ' – Registration';
-            }
-        })
-        .catch(() => {});
+    // Site name will be set after event loads
 
     loadEventFromURL();
     document.getElementById('guestForm').addEventListener('submit', handleRegistration);

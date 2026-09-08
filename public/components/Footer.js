@@ -15,8 +15,9 @@ Components.register('Footer', function({
         .then(data => {
             const s = data.settings || {};
             const siteName = s.site_name || 'Event Registration System';
+            const footerText = s.footer_text || 'All rights reserved.';
             const el = document.getElementById(footerId);
-            if (el) el.textContent = `© ${year} ${siteName}. All rights reserved.`;
+            if (el) el.textContent = `© ${year} ${siteName}. ${footerText}`;
             if (s.font_size) document.documentElement.style.fontSize = s.font_size;
             if (s.font_style) {
                 const fonts = {

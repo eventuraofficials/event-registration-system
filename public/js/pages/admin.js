@@ -2284,12 +2284,13 @@ async function saveSiteBranding() {
     const site_tagline = (document.getElementById('brandingTagline').value || '').trim();
     const font_style = document.getElementById('brandingFontStyle')?.value || 'inter';
     const font_size = document.getElementById('brandingFontSize')?.value || '16px';
+    const footer_text = document.getElementById('brandingFooterText')?.value?.trim() || 'All rights reserved.';
     if (!site_name) return showAlert('Site name is required', 'danger');
     try {
         const data = await fetchAPI(`${API_BASE_URL}/settings`, {
             method: 'PUT',
             headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
-            body: JSON.stringify({ site_name, site_tagline, font_style, font_size })
+            body: JSON.stringify({ site_name, site_tagline, font_style, font_size, footer_text })
         });
         if (!data.success) throw new Error(data.message);
         const headerEl = document.getElementById('siteNameHeader');

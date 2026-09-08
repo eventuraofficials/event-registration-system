@@ -20,7 +20,7 @@ exports.getSettings = async (req, res) => {
  */
 exports.updateSettings = async (req, res) => {
   try {
-const allowed = ['site_name', 'site_tagline', 'font_size', 'font_style'];
+const allowed = ['site_name', 'site_tagline', 'font_size', 'font_style', 'footer_text'];
     const updates = [];
 
     for (const key of allowed) {
