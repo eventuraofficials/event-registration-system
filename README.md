@@ -13,6 +13,7 @@ A production-ready event registration and attendance tracking system with QR cod
 - **Site Branding** — Customize the site name per client (e.g. "Samsung Event Registration")
 - **Email QR Tickets** — Ticket emailed after registration (requires SMTP config — optional)
 - **Excel Bulk Import** — Pre-register guests via `.xlsx`/`.csv`; QR tickets auto-sent if email is enabled
+- **Import Preview & Duplicate Safety** — Review valid, invalid, and duplicate rows before confirming an import
 - **QR Code Check-In** — Camera scanner or manual code entry on any device
 - **Admin Dashboard** — Manage events, guests, staff accounts, and reports
 - **Guest Categories** — Tag guests (VIP, Regular, etc.) for easy filtering
@@ -23,6 +24,7 @@ A production-ready event registration and attendance tracking system with QR cod
 - **Clone Events** — Duplicate an existing event as a starting point
 - **Pagination** — Server-side pagination handles 1,000+ guest lists smoothly
 - **Mobile Ready** — Fully responsive on iPhone, iPad, tablet, and desktop
+- **Automated Verification** — Unit tests and a hybrid end-to-end smoke test cover import, registration, check-in, and export
 
 ---
 
@@ -60,6 +62,10 @@ cp .env.production .env
 
 # 4. Start dev server
 npm run dev
+
+# 5. Run automated checks
+npm test
+npm run test:e2e
 ```
 
 Server starts at `http://localhost:5000`
@@ -172,8 +178,6 @@ event-registration-system/
 | GET | `/api/events/checkin-available` | All events (for check-in page) |
 | GET | `/api/events/public/:event_code` | Event details by code |
 | POST | `/api/guests/register` | Self-register a guest |
-| GET | `/api/guests/verify?guest_code=X` | Verify guest QR code |
-| POST | `/api/guests/checkin` | Check in a guest |
 | GET | `/api/settings` | Site branding settings |
 
 ### Protected Endpoints (Bearer Token required)
@@ -202,6 +206,9 @@ event-registration-system/
 | GET | `/api/guests/event/:id/export` | Export guest list (Excel) |
 | POST | `/api/guests/add` | Manually add a guest (admin) |
 | POST | `/api/guests/upload-excel` | Bulk import guests |
+| POST | `/api/guests/upload-excel?preview=true` | Preview guest rows without saving |
+| GET | `/api/guests/verify?guest_code=X&event_id=Y` | Verify guest QR code (staff token required) |
+| POST | `/api/guests/checkin` | Check in a guest (staff token required) |
 | PUT | `/api/guests/:id` | Edit guest |
 | DELETE | `/api/guests/:id` | Delete guest |
 | POST | `/api/guests/:id/resend-ticket` | Resend QR ticket email |

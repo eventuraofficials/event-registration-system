@@ -8,9 +8,13 @@ const path = require('path');
  */
 async function parseExcelFile(filePath) {
   try {
-    // Create workbook and read file
+    // Create workbook and read Excel or CSV input using the matching parser.
     const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.readFile(filePath);
+    if (path.extname(filePath).toLowerCase() === '.csv') {
+      await workbook.csv.readFile(filePath, { parserOptions: { delimiter: ',', quote: '"' } });
+    } else {
+      await workbook.xlsx.readFile(filePath);
+    }
 
     // Get first worksheet
     const worksheet = workbook.worksheets[0];

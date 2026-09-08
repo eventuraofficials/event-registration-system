@@ -61,6 +61,9 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  // Authenticated dashboard traffic has its own authorization boundary and
+  // should not be blocked by the public burst limiter during normal polling.
+  skip: (req) => Boolean(req.headers.authorization),
 });
 
 // Apply rate limiting to API routes

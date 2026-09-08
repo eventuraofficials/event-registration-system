@@ -38,6 +38,7 @@ async function loadEventFromURL() {
         // Display event information
         document.getElementById('loadingEvent').style.display = 'none';
         document.getElementById('eventDetails').style.display = 'block';
+        document.getElementById('eventInfo').setAttribute('aria-busy', 'false');
 
         // Show event logo if available
         const logoEl = document.getElementById('eventLogo');
@@ -78,6 +79,7 @@ async function loadEventFromURL() {
         document.getElementById('eventTime').textContent = formatTime(currentEvent.event_time);
         document.getElementById('eventVenue').textContent = currentEvent.venue || 'TBA';
         document.getElementById('eventDescription').textContent = currentEvent.description || '';
+        document.getElementById('eventName').focus({ preventScroll: true });
 
         // Check if registration is open
         if (!currentEvent.registration_open) {
@@ -245,6 +247,7 @@ function createFormField(id, type, label, required, options) {
         inputEl = document.createElement('textarea');
         inputEl.id = id;
         inputEl.rows = 3;
+        inputEl.autocomplete = id === 'homeAddress' ? 'street-address' : 'off';
         if (required) inputEl.required = true;
     } else if (type === 'select') {
         inputEl = document.createElement('select');
@@ -263,9 +266,11 @@ function createFormField(id, type, label, required, options) {
         inputEl = document.createElement('input');
         inputEl.type = type;
         inputEl.id = id;
+        inputEl.autocomplete = id === 'fullName' ? 'name' : id === 'email' ? 'email' : id === 'contactNumber' ? 'tel' : 'off';
         if (required) inputEl.required = true;
     }
 
+    inputEl.setAttribute('aria-required', required ? 'true' : 'false');
     div.appendChild(inputEl);
     return div;
 }
@@ -352,6 +357,7 @@ function displayQRCode(guest) {
 
     // Scroll to top to show the QR code
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('qrSuccessTitle').focus({ preventScroll: true });
 
     // Show success alert
     showAlert('Registration successful! Please save your QR code for event entry.', 'success');

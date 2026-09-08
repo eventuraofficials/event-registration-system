@@ -751,3 +751,67 @@
         font-size: 1.25rem;
     }
 }
+
+/* ============================================================
+   RESPONSIVE CONTRACT
+   320 / 375 / 768 / 1024 / 1440 breakpoints
+   ============================================================ */
+:root {
+    --touch-target: 44px;
+    --mobile-gutter: clamp(12px, 4vw, 24px);
+}
+
+button,
+button:not(.alert-close):not(.hamburger-menu),
+.btn,
+a.btn,
+select,
+input[type="submit"],
+input[type="button"] {
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+}
+
+@media (min-width: 1025px) and (max-width: 1439px) {
+    .container,
+    .content-wrapper { padding-left: 28px; padding-right: 28px; }
+}
+
+@media (min-width: 1440px) {
+    .container,
+    .content-wrapper { max-width: 1180px; }
+    body { font-size: 16px; }
+}
+
+@media (max-width: 1024px) {
+    .content-wrapper { padding-left: var(--mobile-gutter); padding-right: var(--mobile-gutter); }
+    .app-header { padding-left: var(--mobile-gutter); padding-right: var(--mobile-gutter); }
+    .card { border-radius: 12px; }
+}
+
+@media (max-width: 768px) {
+    .content-wrapper,
+    .main-content { padding-left: var(--mobile-gutter); padding-right: var(--mobile-gutter); }
+    .app-header { min-height: 56px; }
+    .app-header-logo { min-height: var(--touch-target); }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { font-size: .875rem; }
+    input, select, textarea { min-height: var(--touch-target); font-size: 16px !important; }
+    .table-container { margin-left: calc(var(--mobile-gutter) * -1); margin-right: calc(var(--mobile-gutter) * -1); padding: 0 var(--mobile-gutter); }
+}
+
+@media (max-width: 375px) {
+    :root { --mobile-gutter: 12px; }
+    .content-wrapper, .main-content { padding-left: 12px; padding-right: 12px; }
+    .card { padding: 14px; }
+    .btn, button:not(.alert-close):not(.hamburger-menu) { padding-left: 12px; padding-right: 12px; }
+}
+
+@media (max-width: 320px) {
+    body { font-size: 14px; }
+    .app-header-logo { font-size: .95rem; }
+    .app-header-logo i { font-size: 1.15rem; }
+    .card { padding: 12px; }
+    .btn, button:not(.alert-close):not(.hamburger-menu) { width: 100%; }
+    .stats-grid { grid-template-columns: 1fr !important; }
+}

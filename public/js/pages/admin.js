@@ -6,6 +6,9 @@ let allEvents = [];
 let currentEventGuests = [];
 let currentGuestPage = 1;
 let currentGuestSearch = '';
+let pendingImportFile = null;
+let pendingImportEventId = null;
+let dashboardRefreshTimer = null;
 
 // Helper function to get fresh auth token
 function getAuthToken() {
@@ -52,6 +55,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('guestSearchInput')?.addEventListener('input', (e) => {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => filterGuests(e.target.value), 300);
+    });
+
+    setupDashboardShortcuts();
+    window.addEventListener('hashchange', () => {
+        const sectionName = window.location.hash.replace('#', '');
+        if (sectionName) showSection(sectionName, false);
     });
 });
 
@@ -192,14 +201,88 @@ function showDashboard() {
 
     // Load site branding and apply to header
     loadSiteBranding();
+
+    const initialSection = window.location.hash.replace('#', '');
+    if (initialSection && document.getElementById(`${initialSection}Section`)) {
+        showSection(initialSection, false);
+    }
 }
 
 // Load dashboard data
 async function loadDashboardData() {
-    await loadEvents();
-    updateOverviewStats();
-    renderTodaysEvents();
-    renderRecentActivity();
+    try {
+        const loaded = await loadEvents();
+        if (!loaded) throw new Error('Dashboard data could not be loaded');
+        updateOverviewStats();
+        renderTodaysEvents();
+        renderRecentActivity();
+        updateDashboardTimestamp();
+        return true;
+    } catch (error) {
+        const timestamp = document.getElementById('dashboardLastUpdated');
+        if (timestamp) timestamp.textContent = 'Update failed';
+        showAlert('Dashboard data could not be loaded. Please retry.', 'danger');
+        return false;
+    }
+
+    if (!dashboardRefreshTimer) {
+        dashboardRefreshTimer = setInterval(() => {
+            if (document.getElementById('overviewSection')?.classList.contains('active')) {
+                loadDashboardData();
+            }
+        }, 30000);
+    }
+}
+
+async function refreshDashboard() {
+    const refreshButton = document.querySelector('.dashboard-toolbar .icon-button');
+    refreshButton?.classList.add('is-refreshing');
+    try {
+        const refreshed = await loadDashboardData();
+        if (refreshed) showAlert('Dashboard refreshed.', 'success');
+    } catch (error) {
+        showAlert('Unable to refresh dashboard. Please try again.', 'danger');
+    } finally {
+        refreshButton?.classList.remove('is-refreshing');
+    }
+}
+
+function updateDashboardTimestamp() {
+    const timestamp = document.getElementById('dashboardLastUpdated');
+    if (timestamp) timestamp.textContent = `Updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+}
+
+function setupDashboardShortcuts() {
+    document.addEventListener('keydown', (event) => {
+        const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
+        if (typing) return;
+
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+            event.preventDefault();
+            showSection('events');
+            setTimeout(() => document.getElementById('eventSearchInput')?.focus(), 50);
+            return;
+        }
+
+        const actions = {
+            r: refreshDashboard,
+            n: () => { showSection('events'); setTimeout(showCreateEventForm, 100); },
+            i: () => showSection('upload'),
+            s: () => window.open('/pages/checkin.html', '_blank')
+        };
+
+        if (event.key === '?') {
+            event.preventDefault();
+            showAlert('Shortcuts: R refresh, N new event, I import guests, S scanner, Ctrl+K search.', 'info');
+            return;
+        }
+
+        const action = actions[event.key.toLowerCase()];
+        if (action) {
+            event.preventDefault();
+            action();
+        }
+    });
 }
 
 // Load all events
@@ -218,15 +301,22 @@ async function loadEvents() {
             renderEventsTable();
             populateEventSelects();
             renderRecentEvents();
+            return true;
         } else {
 
             allEvents = [];
             renderEventsTable();
+            return false;
         }
     } catch (error) {
         console.error('Failed to load events:', error);
         allEvents = [];
         renderEventsTable();
+        const healthList = document.getElementById('eventHealthList');
+        if (healthList) {
+            healthList.innerHTML = '<div class="dashboard-empty compact" role="alert"><i class="fas fa-wifi"></i><p>Unable to load events. Use Refresh to try again.</p></div>';
+        }
+        return false;
     }
 }
 
@@ -241,6 +331,51 @@ function updateOverviewStats() {
     document.getElementById('totalGuests').textContent = totalGuests;
     document.getElementById('totalAttended').textContent = totalAttended;
     document.getElementById('attendanceRate').textContent = attendanceRate + '%';
+
+    const openEvents = allEvents.filter(event => event.registration_open).length;
+    const noShows = Math.max(totalGuests - totalAttended, 0);
+    document.getElementById('activeEventsDetail').textContent = `${openEvents} open now`;
+    document.getElementById('guestSourceDetail').textContent = `${allEvents.length} event${allEvents.length === 1 ? '' : 's'} tracked`;
+    document.getElementById('noShowDetail').textContent = `${noShows} not yet checked in`;
+
+    const ring = document.getElementById('attendanceRing');
+    if (ring) {
+        ring.style.setProperty('--attendance', `${attendanceRate * 3.6}deg`);
+        ring.setAttribute('aria-label', `${attendanceRate} percent attendance`);
+    }
+    const ringValue = document.getElementById('attendanceRingValue');
+    const checkedIn = document.getElementById('attendanceCheckedIn');
+    const pending = document.getElementById('attendancePending');
+    if (ringValue) ringValue.textContent = `${attendanceRate}%`;
+    if (checkedIn) checkedIn.textContent = totalAttended;
+    if (pending) pending.textContent = noShows;
+    renderEventHealth();
+}
+
+function renderEventHealth() {
+    const container = document.getElementById('eventHealthList');
+    if (!container) return;
+
+    const events = [...allEvents]
+        .sort((a, b) => Number(b.total_guests || 0) - Number(a.total_guests || 0))
+        .slice(0, 5);
+
+    if (!events.length) {
+        container.innerHTML = '<div class="dashboard-empty compact"><i class="fas fa-calendar-plus"></i><p>No events yet. Create your first event to see its health here.</p></div>';
+        return;
+    }
+
+    container.innerHTML = events.map(event => {
+        const total = Number(event.total_guests || 0);
+        const attended = Number(event.total_attended || 0);
+        const rate = total ? Math.round((attended / total) * 100) : 0;
+        const tone = rate >= 70 ? 'healthy' : rate >= 35 ? 'watch' : 'quiet';
+        return `<button type="button" class="event-health-row" onclick="showSection('events')">
+            <span class="event-health-main"><strong>${SecurityUtils.escapeHtml(event.event_name)}</strong><small>${total} registered · ${event.registration_open ? 'Registration open' : 'Registration closed'}</small></span>
+            <span class="event-health-bar"><span class="${tone}" style="width:${rate}%"></span></span>
+            <strong class="event-health-rate">${rate}%</strong>
+        </button>`;
+    }).join('');
 }
 
 // Render events table
@@ -572,7 +707,11 @@ function filterEvents(searchTerm) {
 }
 
 // Show section
-function showSection(sectionName) {
+function showSection(sectionName, updateUrl = true) {
+    if (updateUrl && window.location.hash !== `#${sectionName}`) {
+        history.replaceState(null, '', `#${sectionName}`);
+    }
+
     // Hide all sections
     document.querySelectorAll('.dashboard-section').forEach(section => {
         section.classList.remove('active');
@@ -1743,7 +1882,7 @@ async function handleFileUpload(e) {
     document.getElementById('progressFill').style.width = '50%';
 
     try {
-        const response = await fetch(`${API_BASE_URL}/guests/upload-excel`, {
+        const response = await fetch(`${API_BASE_URL}/guests/upload-excel?preview=true`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${authToken}`
@@ -1760,13 +1899,22 @@ async function handleFileUpload(e) {
         }
 
         // Show results
+        pendingImportFile = file;
+        pendingImportEventId = eventId;
+        const summary = data.summary;
+        const resultClass = summary.invalid > 0 || summary.duplicatesFound > 0 ? 'alert-warning' : 'alert-success';
         document.getElementById('uploadResults').innerHTML = `
-            <div class="alert alert-success">
-                <h3>Upload Summary</h3>
-                <p><strong>Total Rows:</strong> ${data.summary.totalRows}</p>
-                <p><strong>Imported:</strong> ${data.summary.imported}</p>
-                <p><strong>Failed:</strong> ${data.summary.failed}</p>
-                ${data.summary.duplicatesFound > 0 ? `<p><strong>Duplicates Found:</strong> ${data.summary.duplicatesFound}</p>` : ''}
+            <div class="alert ${resultClass}" role="status" aria-live="polite">
+                <h3>Import Review Complete</h3>
+                <p><strong>Total rows:</strong> ${summary.totalRows}</p>
+                <p><strong>Ready to import:</strong> ${summary.importable}</p>
+                <p><strong>Invalid rows:</strong> ${summary.invalid}</p>
+                <p><strong>Duplicates:</strong> ${summary.duplicatesFound}</p>
+                ${summary.duplicatesFound > 0 ? '<p>Duplicate rows were not added to the guest list.</p>' : ''}
+                ${summary.invalid > 0 ? '<p>Correct invalid rows and upload again before importing.</p>' : ''}
+                <button type="button" class="btn btn-primary" onclick="confirmGuestImport()" ${summary.invalid > 0 || summary.importable === 0 ? 'disabled' : ''}>
+                    <i class="fas fa-check"></i> Confirm Import (${summary.importable})
+                </button>
             </div>
         `;
         document.getElementById('uploadResults').style.display = 'block';
@@ -1777,13 +1925,52 @@ async function handleFileUpload(e) {
             document.getElementById('progressFill').style.width = '0%';
         }, 2000);
 
-        showAlert('Excel file uploaded successfully!', 'success');
-        loadEvents();
+        showAlert('File reviewed. Confirm the import when the summary is correct.', 'info');
 
     } catch (error) {
         hideLoading();
         document.getElementById('uploadProgress').style.display = 'none';
         showAlert(error.message || 'Upload failed', 'danger');
+    }
+}
+
+async function confirmGuestImport() {
+    if (!pendingImportFile || !pendingImportEventId) {
+        showAlert('Upload a guest file first.', 'danger');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', pendingImportFile);
+    formData.append('event_id', pendingImportEventId);
+
+    showLoading();
+    try {
+        const response = await fetch(`${API_BASE_URL}/guests/upload-excel`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${getAuthToken()}` },
+            body: formData
+        });
+        const data = await response.json();
+        if (!data.success) throw new Error(data.message);
+
+        document.getElementById('uploadResults').innerHTML = `
+            <div class="alert alert-success" role="status" aria-live="polite">
+                <h3>Import Completed</h3>
+                <p><strong>Imported:</strong> ${data.summary.imported}</p>
+                <p><strong>Skipped duplicates:</strong> ${data.summary.skipped || data.summary.duplicatesFound || 0}</p>
+                <p><strong>Failed:</strong> ${data.summary.failed}</p>
+            </div>
+        `;
+        pendingImportFile = null;
+        pendingImportEventId = null;
+        document.getElementById('excelFileInput').value = '';
+        loadEvents();
+        showAlert('Guest import completed successfully.', 'success');
+    } catch (error) {
+        showAlert(error.message || 'Import failed. Please try again.', 'danger');
+    } finally {
+        hideLoading();
     }
 }
 

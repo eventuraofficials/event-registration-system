@@ -6,8 +6,8 @@ const { upload } = require('../../middleware/upload');
 
 // Public routes
 router.post('/register', guestController.selfRegister);
-router.get('/verify', guestController.getGuestByQR);
-router.post('/checkin', guestController.checkIn);
+router.get('/verify', authenticateToken, guestController.getGuestByQR);
+router.post('/checkin', authenticateToken, guestController.checkIn);
 
 // Protected routes
 router.post('/add', authenticateToken, guestController.addGuestManual);

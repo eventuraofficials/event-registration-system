@@ -14,6 +14,22 @@
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <style>
+        .skip-link {
+            position: fixed;
+            top: 8px;
+            left: 8px;
+            z-index: 200;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            background: var(--text-dark);
+            color: var(--white);
+            font-weight: 600;
+            text-decoration: none;
+            transform: translateY(-150%);
+            transition: transform var(--transition-fast);
+        }
+        .skip-link:focus { transform: translateY(0); }
+
         /* ── Section toggle ── */
         .section { display: none; }
         .section.active { display: block; }
@@ -310,25 +326,26 @@
     </style>
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <!-- White Sticky Header — no navigation links for guests -->
-    <header class="app-header">
+    <header class="app-header" aria-label="Site header">
         <div class="app-header-logo">
             <i class="fas fa-calendar-check"></i>
-            <span data-site-name>Event Registration</span>
+            <span data-site-name>Loading...</span>
         </div>
     </header>
 
     <!-- Simple Layout (No Sidebar) -->
     <div class="app-layout-simple">
         <div class="content-wrapper">
-            <main class="main-content">
+            <main id="main-content" class="main-content" tabindex="-1">
 
             <!-- ── Registration Section ── -->
             <div id="registrationSection" class="section active">
 
                 <!-- Event Info Card -->
-                <div id="eventInfo" class="card event-info-card">
-                    <div id="loadingEvent" class="event-info-body"></div>
+                <div id="eventInfo" class="card event-info-card" aria-busy="true">
+                    <div id="loadingEvent" class="event-info-body" role="status" aria-live="polite"></div>
                     <div id="eventDetails" style="display: none;">
                         <img id="eventLogo" class="event-logo-banner" alt="Event Logo">
                         <div class="event-info-body">
@@ -338,7 +355,7 @@
                                 </div>
                                 <div id="capacityBadge" class="capacity-badge"></div>
                             </div>
-                            <h1 class="event-info-name" id="eventName"></h1>
+                            <h1 class="event-info-name" id="eventName" tabindex="-1"></h1>
                             <div class="event-meta-grid">
                                 <div class="event-meta-item">
                                     <div class="event-meta-icon"><i class="fas fa-calendar"></i></div>
@@ -388,7 +405,7 @@
                         </div>
                     </div>
 
-                    <form id="guestForm">
+                    <form id="guestForm" aria-describedby="formNote">
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="fullName">Full Name *</label>
@@ -433,7 +450,7 @@
                         </button>
                     </form>
 
-                    <p class="form-note">
+                    <p id="formNote" class="form-note">
                         <i class="fas fa-lock"></i>
                         Your information is secure and only used for event check-in
                     </p>
@@ -441,7 +458,7 @@
             </div>
 
             <!-- ── QR Code Success Section ── -->
-            <div id="qrCodeSection" class="section">
+            <div id="qrCodeSection" class="section" role="region" aria-labelledby="qrSuccessTitle" aria-live="polite">
                 <div class="qr-success-container">
 
                     <!-- Success Header -->
@@ -449,7 +466,7 @@
                         <div class="success-icon-large">
                             <i class="fas fa-check-circle"></i>
                         </div>
-                        <h1 class="qr-success-title">Registration Successful!</h1>
+                        <h1 id="qrSuccessTitle" class="qr-success-title" tabindex="-1">Registration Successful!</h1>
                         <p class="qr-success-subtitle">Your digital entry ticket is ready</p>
                     </div>
 
@@ -543,9 +560,9 @@
     </div>
 
     <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="spinner"></div>
-        <p>Processing...</p>
+    <div id="loadingOverlay" class="loading-overlay" role="status" aria-live="polite" aria-hidden="true">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Processing, please wait...</p>
     </div>
 
     <script src="../js/core/security-utils.js"></script>

@@ -291,8 +291,11 @@ function onScanFailure(error) {
 async function performCheckIn(guestCode) {
     try {
         // First, get guest details
+        const token = localStorage.getItem('admin_token');
+        const authHeaders = token ? { 'Authorization': `Bearer ${token}` } : {};
         const guestData = await fetchAPI(
-            `${API.verifyGuest}?guest_code=${guestCode}&event_id=${currentCheckInEvent.id}`
+            `${API.verifyGuest}?guest_code=${encodeURIComponent(guestCode)}&event_id=${currentCheckInEvent.id}`,
+            { headers: authHeaders }
         );
 
         if (!guestData.success) {
@@ -313,6 +316,7 @@ async function performCheckIn(guestCode) {
         // Perform check-in
         const checkInData = await fetchAPI(API.checkIn, {
             method: 'POST',
+            headers: authHeaders,
             body: JSON.stringify({
                 guest_code: guestCode,
                 event_id: currentCheckInEvent.id
@@ -400,6 +404,7 @@ async function searchGuests(query) {
         const q = query.toLowerCase();
         const matches = cachedGuestList.filter(g =>
             (g.full_name && g.full_name.toLowerCase().includes(q)) ||
+            (g.company_name && g.company_name.toLowerCase().includes(q)) ||
             (g.email && g.email.toLowerCase().includes(q)) ||
             (g.contact_number && g.contact_number.includes(q)) ||
             (g.guest_code && g.guest_code.toLowerCase().includes(q))

@@ -149,6 +149,22 @@ textarea:focus-visible,
     outline-offset: 2px;
 }
 
+:focus-visible {
+    outline: 3px solid #0f766e;
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
 /* === MINIMALIST CARD SYSTEM === */
 .card {
     background: var(--white);
@@ -162,6 +178,52 @@ textarea:focus-visible,
 .card:hover {
     box-shadow: var(--shadow-lg);
     transform: translateY(-2px);
+}
+
+/* Lightweight interaction feedback shared by forms, buttons, alerts, and async states. */
+@keyframes ui-shake {
+    0%, 100% { transform: translateX(0); }
+    30% { transform: translateX(-4px); }
+    70% { transform: translateX(4px); }
+}
+
+@keyframes ui-pop-in {
+    from { opacity: 0; transform: translateY(8px) scale(.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes ui-spin { to { transform: rotate(360deg); } }
+
+.btn:active,
+button:not(.alert-close):not(.hamburger-menu):active,
+input[type="submit"]:active,
+input[type="button"]:active {
+    transform: translateY(1px) scale(.98);
+}
+
+.form-group input:not(:placeholder-shown):invalid,
+.form-group select:invalid,
+.form-group textarea:not(:placeholder-shown):invalid {
+    border-color: var(--danger);
+    animation: ui-shake 220ms ease-out;
+}
+
+.form-group input:valid,
+.form-group select:valid,
+.form-group textarea:valid {
+    border-color: rgba(16, 185, 129, 0.55);
+}
+
+.alert {
+    animation: ui-pop-in 220ms cubic-bezier(.22,1,.36,1) both;
+}
+
+.loading-overlay.active .spinner {
+    animation: ui-spin .8s linear infinite;
+}
+
+.loading-overlay.active p {
+    animation: ui-pop-in 220ms ease both;
 }
 
 .card-sm {

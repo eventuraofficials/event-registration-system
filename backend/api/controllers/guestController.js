@@ -38,10 +38,22 @@ exports.uploadExcel = async (req, res) => {
 
     filePath = req.file.path;
 
+    const [eventRows] = await db.execute(
+      'SELECT id, event_name, event_date, event_time, venue FROM events WHERE id = ?',
+      [event_id]
+    );
+    if (eventRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Event not found'
+      });
+    }
+
     // Parse Excel file (now async with exceljs)
     const guests = await parseExcelFile(filePath);
 
     if (guests.length === 0) {
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
       return res.status(400).json({
         success: false,
         message: 'No valid guest data found in the file'
@@ -50,8 +62,10 @@ exports.uploadExcel = async (req, res) => {
 
     // Validate data
     const validation = validateGuestData(guests);
+    const isPreview = req.query.preview === 'true';
 
-    if (validation.errors.length > 0) {
+    if (validation.errors.length > 0 && !isPreview) {
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
       return res.status(400).json({
         success: false,
         message: 'Validation errors found',
@@ -61,21 +75,75 @@ exports.uploadExcel = async (req, res) => {
 
     // Check for duplicates
     const duplicates = checkDuplicates(validation.validGuests);
+    const duplicateRows = new Set(duplicates.map(duplicate => duplicate.row));
+    const importableGuests = validation.validGuests.filter((guest, index) => {
+      return !duplicateRows.has(index + 2);
+    });
 
     // Fetch event details once (needed for ticket emails)
-    const [eventRows] = await db.execute(
-      'SELECT event_name, event_date, event_time, venue FROM events WHERE id = ?',
-      [event_id]
-    );
-    const eventDetails = eventRows[0] || null;
+    const eventDetails = eventRows[0];
 
     // Import guests to database
     const imported = [];
     const failed = [];
     const emailQueue = []; // guests to notify after response
 
-    for (const guest of validation.validGuests) {
+    const existingEmails = new Set();
+    const [existingGuests] = await db.execute(
+      'SELECT email FROM guests WHERE event_id = ? AND email IS NOT NULL AND email != \'\'',
+      [event_id]
+    );
+    existingGuests.forEach(guest => existingEmails.add(guest.email.trim().toLowerCase()));
+
+    if (isPreview) {
+      const previewDuplicates = [...duplicates];
+      importableGuests.forEach((guest, index) => {
+        const normalizedEmail = guest.email ? guest.email.trim().toLowerCase() : '';
+        if (normalizedEmail && existingEmails.has(normalizedEmail)) {
+          previewDuplicates.push({
+            row: validation.validGuests.indexOf(guest) + 2,
+            name: guest.full_name,
+            email: guest.email,
+            duplicateOf: 'existing guest'
+          });
+        }
+      });
+
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      return res.json({
+        success: true,
+        preview: true,
+        message: 'File reviewed. Confirm the import to add valid guests.',
+        summary: {
+          totalRows: validation.totalRows,
+          valid: validation.validRows,
+          invalid: validation.invalidRows,
+          duplicatesFound: previewDuplicates.length,
+          importable: Math.max(0, validation.validRows - previewDuplicates.length)
+        },
+        validationErrors: validation.errors,
+        duplicates: previewDuplicates,
+        sample: importableGuests.slice(0, 10).map(guest => ({
+          name: guest.full_name,
+          email: guest.email,
+          company: guest.company_name
+        }))
+      });
+    }
+
+    for (const guest of importableGuests) {
       try {
+        const normalizedEmail = guest.email ? guest.email.trim().toLowerCase() : '';
+        if (normalizedEmail && existingEmails.has(normalizedEmail)) {
+          duplicates.push({
+            row: validation.validGuests.indexOf(guest) + 2,
+            name: guest.full_name,
+            email: guest.email,
+            duplicateOf: 'existing guest'
+          });
+          continue;
+        }
+
         const guestCode = generateGuestCode('PRE');
         const qrCode = await generateQRCode(guestCode, event_id);
 
@@ -102,6 +170,7 @@ exports.uploadExcel = async (req, res) => {
           name: guest.full_name,
           guestCode: guestCode
         });
+        if (normalizedEmail) existingEmails.add(normalizedEmail);
 
         if (guest.email) {
           emailQueue.push({ guestName: guest.full_name, guestEmail: guest.email, guestCode, qrCodeDataUrl: qrCode });
@@ -127,7 +196,8 @@ exports.uploadExcel = async (req, res) => {
         totalRows: validation.totalRows,
         imported: imported.length,
         failed: failed.length,
-        duplicatesFound: duplicates.length
+        duplicatesFound: duplicates.length,
+        skipped: duplicates.length
       },
       imported,
       failed,
@@ -516,11 +586,23 @@ exports.checkIn = async (req, res) => {
       });
     }
 
-    // Update guest as attended
-    await db.execute(
-      "UPDATE guests SET attended = 1, check_in_time = datetime('now'), checked_in_by = ? WHERE id = ?",
+    // Update only an unchecked guest so concurrent scanners cannot check in the same guest twice.
+    const [updateResult] = await db.execute(
+      "UPDATE guests SET attended = 1, check_in_time = datetime('now'), checked_in_by = ? WHERE id = ? AND attended = 0",
       [checkedInBy, guest.id]
     );
+
+    if (updateResult.affectedRows === 0) {
+      const [currentGuest] = await db.execute(
+        'SELECT id, full_name, attended, check_in_time FROM guests WHERE id = ?',
+        [guest.id]
+      );
+      return res.status(400).json({
+        success: false,
+        message: 'Guest has already checked in',
+        guest: currentGuest[0] || guest
+      });
+    }
 
     res.json({
       success: true,
@@ -559,8 +641,8 @@ exports.getGuestsByEvent = async (req, res) => {
     // Slim mode: lightweight, no qr_code, all records — for check-in search cache
     if (slim === 'true') {
       let query = `
-        SELECT g.id, g.guest_code, g.full_name, g.email, g.contact_number,
-               g.attended, g.check_in_time, g.guest_category
+         SELECT g.id, g.guest_code, g.full_name, g.email, g.contact_number,
+           g.company_name, g.attended, g.check_in_time, g.guest_category
         FROM guests g
         WHERE g.event_id = ?
       `;

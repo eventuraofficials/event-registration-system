@@ -128,8 +128,20 @@
             <!-- Overview Section -->
             <section id="overviewSection" class="dashboard-section active">
                 <div class="section-header">
-                    <h1>Dashboard Overview</h1>
-                    <p style="color: #718096; font-size: 0.95rem; margin: 5px 0 0 0;">Welcome back! Here's what's happening today</p>
+                    <div>
+                        <p class="eyebrow">Operations overview</p>
+                        <h1>Dashboard Overview</h1>
+                        <p class="section-description">A live snapshot of your events, guests, and attendance.</p>
+                    </div>
+                    <div class="dashboard-toolbar">
+                        <span id="dashboardLastUpdated" class="last-updated" aria-live="polite">Updating...</span>
+                        <button type="button" class="icon-button" onclick="refreshDashboard()" title="Refresh dashboard" aria-label="Refresh dashboard">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="showSection('events'); setTimeout(() => showCreateEventForm(), 100);">
+                            <i class="fas fa-plus"></i> New Event
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Stats Summary Cards -->
@@ -139,6 +151,7 @@
                         <div class="stat-content">
                             <div class="stat-value" id="totalEvents">0</div>
                             <div class="stat-label">Total Events</div>
+                            <div class="stat-detail" id="activeEventsDetail">0 open now</div>
                         </div>
                     </div>
                     <div class="stat-card green clickable" onclick="showSection('guests')" title="Click to view guests">
@@ -146,6 +159,7 @@
                         <div class="stat-content">
                             <div class="stat-value" id="totalGuests">0</div>
                             <div class="stat-label">Total Registered</div>
+                            <div class="stat-detail" id="guestSourceDetail">Across all events</div>
                         </div>
                     </div>
                     <div class="stat-card purple clickable" onclick="showSection('guests')" title="Click to view guests">
@@ -153,6 +167,7 @@
                         <div class="stat-content">
                             <div class="stat-value" id="totalAttended">0</div>
                             <div class="stat-label">Checked-In Today</div>
+                            <div class="stat-detail" id="noShowDetail">0 not yet checked in</div>
                         </div>
                     </div>
                     <div class="stat-card orange clickable" onclick="showSection('reports')" title="Click to view reports">
@@ -160,6 +175,45 @@
                         <div class="stat-content">
                             <div class="stat-value" id="attendanceRate">0%</div>
                             <div class="stat-label">Attendance Rate</div>
+                            <div class="stat-detail">Across all events</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-visuals">
+                    <div class="card attendance-card">
+                        <div class="panel-heading">
+                            <div>
+                                <p class="eyebrow">Performance</p>
+                                <h2>Attendance health</h2>
+                            </div>
+                            <span class="panel-meta">All events</span>
+                        </div>
+                        <div class="attendance-visual">
+                            <div id="attendanceRing" class="attendance-ring" role="img" aria-label="0 percent attendance">
+                                <div class="attendance-ring-inner">
+                                    <strong id="attendanceRingValue">0%</strong>
+                                    <span>attended</span>
+                                </div>
+                            </div>
+                            <div class="attendance-breakdown">
+                                <div><span class="legend-dot attended"></span><span>Checked in</span><strong id="attendanceCheckedIn">0</strong></div>
+                                <div><span class="legend-dot pending"></span><span>Not checked in</span><strong id="attendancePending">0</strong></div>
+                                <div class="attendance-note"><i class="fas fa-shield-alt"></i> Live from event activity</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card event-health-card">
+                        <div class="panel-heading">
+                            <div>
+                                <p class="eyebrow">Portfolio</p>
+                                <h2>Event health</h2>
+                            </div>
+                            <button type="button" class="text-button" onclick="showSection('events')">View all <i class="fas fa-arrow-right"></i></button>
+                        </div>
+                        <div id="eventHealthList" class="event-health-list" aria-live="polite">
+                            <div class="dashboard-empty compact"><i class="fas fa-chart-bar"></i><p>Loading event health...</p></div>
                         </div>
                     </div>
                 </div>
@@ -193,32 +247,32 @@
                         </div>
                         <div class="quick-actions-grid">
                             <!-- Create Event Card -->
-                            <div onclick="showSection('events'); setTimeout(() => showCreateEventForm(), 100);" class="quick-action-card">
+                            <button type="button" onclick="showSection('events'); setTimeout(() => showCreateEventForm(), 100);" class="quick-action-card">
                                 <div class="quick-action-icon indigo"><i class="fas fa-plus-circle"></i></div>
                                 <h3>Create Event</h3>
                                 <p>Start a new event</p>
-                            </div>
+                            </button>
 
                             <!-- Import Guests Card -->
-                            <div onclick="showSection('upload')" class="quick-action-card">
+                            <button type="button" onclick="showSection('upload')" class="quick-action-card">
                                 <div class="quick-action-icon green"><i class="fas fa-file-upload"></i></div>
                                 <h3>Import Guests</h3>
                                 <p>Upload guest list</p>
-                            </div>
+                            </button>
 
                             <!-- Download Reports Card -->
-                            <div onclick="showSection('reports')" class="quick-action-card">
+                            <button type="button" onclick="showSection('reports')" class="quick-action-card">
                                 <div class="quick-action-icon amber"><i class="fas fa-download"></i></div>
                                 <h3>Download Reports</h3>
                                 <p>Export attendance data</p>
-                            </div>
+                            </button>
 
                             <!-- QR Scanner Card -->
-                            <div onclick="window.open('/pages/checkin.html', '_blank')" class="quick-action-card">
+                            <button type="button" onclick="window.open('/pages/checkin.html', '_blank')" class="quick-action-card">
                                 <div class="quick-action-icon blue"><i class="fas fa-qrcode"></i></div>
                                 <h3>QR Scanner</h3>
                                 <p>Check-in guests</p>
-                            </div>
+                            </button>
                         </div>
                     </div>
 

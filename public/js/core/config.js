@@ -17,20 +17,31 @@ const API = {
 
 // Utility Functions
 const showLoading = () => {
-    document.getElementById('loadingOverlay').classList.add('active');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (!loadingOverlay) return;
+    loadingOverlay.classList.add('active');
+    loadingOverlay.setAttribute('aria-hidden', 'false');
 };
 
 const hideLoading = () => {
-    document.getElementById('loadingOverlay').classList.remove('active');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (!loadingOverlay) return;
+    loadingOverlay.classList.remove('active');
+    loadingOverlay.setAttribute('aria-hidden', 'true');
 };
 
 const showAlert = (message, type = 'success') => {
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type}`;
-    alertDiv.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-circle' : 'info-circle'}"></i>
-        <span>${message}</span>
-    `;
+    alertDiv.setAttribute('role', type === 'danger' ? 'alert' : 'status');
+    alertDiv.setAttribute('aria-live', type === 'danger' ? 'assertive' : 'polite');
+
+    const icon = document.createElement('i');
+    icon.className = `fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-circle' : 'info-circle'}`;
+    icon.setAttribute('aria-hidden', 'true');
+    const text = document.createElement('span');
+    text.textContent = message;
+    alertDiv.append(icon, text);
 
     // Find the main content area (works for both registration and admin pages)
     const mainContent = document.querySelector('.main-content') ||
