@@ -716,13 +716,15 @@ async function handleCreateEvent(e) {
         venue: document.getElementById('eventVenue').value || null,
         description: document.getElementById('eventDescription').value || null,
         max_capacity: maxCapacityValue ? parseInt(maxCapacityValue) : null,
-        client_name: document.getElementById('eventClientName')?.value?.trim() || null
-    };
-
-    showLoading();
-
-    try {
-        const data = await fetchAPI(`${API_BASE_URL}/events`, {
+          client_name: document.getElementById('eventClientName')?.value?.trim() || null,
+        font_style: document.getElementById('eventFontStyle')?.value || null,
+        font_size: document.getElementById('eventFontSize')?.value || null
+      };
+  
+      showLoading();
+  
+      try {
+          const data = await fetchAPI(`${API_BASE_URL}/events`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${authToken}`

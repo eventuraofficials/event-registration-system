@@ -33,7 +33,7 @@ Components.register('Footer', function({
 
     return `
         <footer class="footer">
-            <p id="${footerId}">© ${year} Event Registration System. All rights reserved.</p>
+                        <p id="${footerId}" data-footer-name>© ${year} Event Registration System. All rights reserved.</p>
             ${links ? `<div class="footer-links">${links}</div>` : ''}
         </footer>
     `;

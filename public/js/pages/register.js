@@ -3,10 +3,23 @@ let currentEvent = null;
 
 // Initialize page on load
 document.addEventListener('DOMContentLoaded', () => {
+    // Load site name immediately from API
+    fetch('/api/settings')
+        .then(r => r.json())
+        .then(data => {
+            const siteName = data.settings?.site_name;
+            if (siteName) {
+                document.querySelectorAll('[data-site-name]').forEach(el => {
+                    el.textContent = siteName;
+                });
+                document.title = siteName + ' – Registration';
+            }
+        })
+        .catch(() => {});
+
     loadEventFromURL();
     document.getElementById('guestForm').addEventListener('submit', handleRegistration);
 });
-
 // Load event from URL parameter
 async function loadEventFromURL() {
     try {
@@ -46,11 +59,31 @@ async function loadEventFromURL() {
         }
          
         // Override site name with per-event client branding, fallback to event name
-        const displayName = currentEvent.client_name || currentEvent.event_name;
+              const displayName = currentEvent.client_name || currentEvent.event_name;
         if (displayName) {
-    document.querySelectorAll('[data-site-name]').forEach(el => { el.textContent = displayName; });
-    document.title = displayName + ' – Registration';
-    } 
+            document.querySelectorAll('[data-site-name]').forEach(el => { el.textContent = displayName; });
+            document.title = displayName + ' – Registration';
+        }
+
+        // Apply event font settings
+        if (currentEvent.font_style) {
+            const fonts = {
+                inter: "'Inter', sans-serif",
+                poppins: "'Poppins', sans-serif",
+                roboto: "'Roboto', sans-serif",
+                playfair: "'Playfair Display', serif",
+                montserrat: "'Montserrat', sans-serif"
+            };
+            document.documentElement.style.fontFamily = fonts[currentEvent.font_style] || fonts.inter;
+        }
+        if (currentEvent.font_size) {
+            document.documentElement.style.fontSize = currentEvent.font_size;
+        }
+
+        // Apply client name to footer
+        document.querySelectorAll('[data-footer-name]').forEach(el => {
+            el.textContent = `© ${new Date().getFullYear()} ${displayName}. All rights reserved.`;
+        });
 
         document.getElementById('eventName').textContent = currentEvent.event_name;
         document.getElementById('eventDate').textContent = formatDate(currentEvent.event_date);
