@@ -717,8 +717,8 @@ async function handleCreateEvent(e) {
         description: document.getElementById('eventDescription').value || null,
         max_capacity: maxCapacityValue ? parseInt(maxCapacityValue) : null,
           client_name: document.getElementById('eventClientName')?.value?.trim() || null,
-        font_style: document.getElementById('eventFontStyle')?.value || null,
-        font_size: document.getElementById('eventFontSize')?.value || null
+                font_style: document.getElementById('eventFontStyle')?.value || 'inter',
+        font_size: document.getElementById('eventFontSize')?.value || '16px'
       };
   
       showLoading();
