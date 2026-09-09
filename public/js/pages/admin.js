@@ -32,7 +32,9 @@ function getAuthHeaders() {
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     // Check if already logged in
-    if (authToken) {
+    const tokenWasCleaned = typeof cleanupTokens === 'function' && cleanupTokens();
+    authToken = localStorage.getItem('admin_token');
+    if (authToken && typeof isTokenValid === 'function' && isTokenValid(authToken) && !tokenWasCleaned) {
         verifyTokenAndLoadDashboard();
     } else {
         showLoginScreen();
@@ -92,7 +94,13 @@ async function verifyTokenAndLoadDashboard() {
         }
     } catch (error) {
         console.error('Token verification failed:', error);
-        logout();
+        authToken = null;
+        currentAdmin = null;
+        currentUser = null;
+        localStorage.removeItem('admin_token');
+        if (typeof stopTokenRefresh === 'function') stopTokenRefresh();
+        hideLoading();
+        showLoginScreen();
     }
 }
 
@@ -163,6 +171,7 @@ async function logout() {
 
 // Show login screen
 function showLoginScreen() {
+    hideLoading();
     document.getElementById('loginScreen').classList.add('active');
     document.getElementById('dashboardScreen').classList.remove('active');
 }
