@@ -61,7 +61,7 @@
             </div>
             <div class="app-header-user">
                 <span class="app-header-user-name" id="adminNameHeader">Administrator</span>
-                <button onclick="logout()" class="btn btn-secondary admin-inline-001">
+                <button onclick="logout()" class="btn btn-secondary admin-inline-002">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </button>
@@ -96,30 +96,30 @@
                         <i class="fas fa-chart-bar"></i>
                         <span>Reports & Export</span>
                     </a>
-                    <a href="#" onclick="showSection('event-access'); closeMobileMenu();" class="sidebar-nav-link admin-inline-001" data-section="event-access" id="eventAccessNavLink">
+                    <a href="#" onclick="showSection('event-access'); closeMobileMenu();" class="sidebar-nav-link admin-inline-003" data-section="event-access" id="eventAccessNavLink">
                         <i class="fas fa-link"></i>
                         <span>Event Access / Endorsement</span>
                     </a>
 
-                    <a href="#" onclick="showSection('staff'); closeMobileMenu();" class="sidebar-nav-link admin-inline-001" data-section="staff" id="staffNavLink">
+                    <a href="#" onclick="showSection('staff'); closeMobileMenu();" class="sidebar-nav-link admin-inline-004" data-section="staff" id="staffNavLink">
                         <i class="fas fa-user-shield"></i>
                         <span>Staff Accounts</span>
                     </a>
 
                     <!-- External Tools -->
-                    <div class="admin-inline-001">
-                        <p class="admin-inline-001">
+                    <div class="admin-inline-005">
+                        <p class="admin-inline-006">
                             <i class="fas fa-tools"></i> Event Tools
                         </p>
                     </div>
 
-                    <a href="/pages/checkin.html" target="_blank" class="sidebar-nav-link admin-inline-001" title="Open QR scanner for guest check-in at event entrance (New Tab)">
+                    <a href="/pages/checkin.html" target="_blank" class="sidebar-nav-link" title="Open QR scanner for guest check-in at event entrance (New Tab)">
                         <i class="fas fa-qrcode"></i>
                         <span>QR Scanner</span>
-                        <i class="fas fa-external-link-alt admin-inline-001"></i>
+                        <i class="fas fa-external-link-alt admin-inline-007"></i>
                     </a>
 
-                    <div class="admin-inline-001"></div>
+                    <div class="admin-inline-005"></div>
                     <a href="#" onclick="showSection('settings'); closeMobileMenu();" class="sidebar-nav-link" data-section="settings">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
@@ -227,26 +227,26 @@
                 <div class="overview-grid">
 
                     <!-- Today's Events Section -->
-                    <div class="card admin-inline-001">
-                        <div class="card-header admin-inline-001">
-                            <h class="admin-inline-001"2>
-                                <i class="fas fa-calendar-day admin-inline-001"></i>
+                    <div class="card admin-inline-008">
+                        <div class="card-header admin-inline-009">
+                            <h class="admin-inline-010"2>
+                                <i class="fas fa-calendar-day admin-inline-011"></i>
                                 Today's Events
                             </h2>
                         </div>
                         <div id="todaysEventsList">
-                            <div class="admin-inline-001">
-                                <i class="fas fa-calendar-check admin-inline-001"></i>
-                                <p class="admin-inline-001">Loading today's events...</p>
+                            <div class="admin-inline-012">
+                                <i class="fas fa-calendar-check admin-inline-013"></i>
+                                <p class="admin-inline-014">Loading today's events...</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Quick Actions Section -->
-                    <div class="card admin-inline-001">
-                        <div class="card-header admin-inline-001">
-                            <h class="admin-inline-001"2>
-                                <i class="fas fa-bolt admin-inline-001"></i>
+                    <div class="card admin-inline-008">
+                        <div class="card-header admin-inline-009">
+                            <h class="admin-inline-010"2>
+                                <i class="fas fa-bolt admin-inline-011"></i>
                                 Quick Actions
                             </h2>
                         </div>
@@ -282,33 +282,33 @@
                     </div>
 
                     <!-- Recent Activity Feed -->
-                    <div class="card admin-inline-001">
-                        <div class="card-header admin-inline-001">
-                            <h class="admin-inline-001"2>
-                                <i class="fas fa-history admin-inline-001"></i>
+                    <div class="card admin-inline-008">
+                        <div class="card-header admin-inline-009">
+                            <h class="admin-inline-010"2>
+                                <i class="fas fa-history admin-inline-011"></i>
                                 Recent Activity
                             </h2>
                         </div>
                         <div id="recentActivityList">
-                            <div class="admin-inline-001">
-                                <i class="fas fa-clock admin-inline-001"></i>
-                                <p class="admin-inline-001">Loading recent activities...</p>
+                            <div class="admin-inline-012">
+                                <i class="fas fa-clock admin-inline-013"></i>
+                                <p class="admin-inline-014">Loading recent activities...</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Recent Events Section -->
-                    <div class="card admin-inline-001">
-                        <div class="card-header admin-inline-001">
-                            <h class="admin-inline-001"2>
-                                <i class="fas fa-list admin-inline-001"></i>
+                    <div class="card admin-inline-008">
+                        <div class="card-header admin-inline-009">
+                            <h class="admin-inline-010"2>
+                                <i class="fas fa-list admin-inline-011"></i>
                                 Recent Events
                             </h2>
                         </div>
                         <div id="recentEventsList">
-                            <div class="admin-inline-001">
-                                <i class="fas fa-calendar admin-inline-001"></i>
-                                <p class="admin-inline-001">Loading recent events...</p>
+                            <div class="admin-inline-012">
+                                <i class="fas fa-calendar admin-inline-013"></i>
+                                <p class="admin-inline-014">Loading recent events...</p>
                             </div>
                         </div>
                     </div>
@@ -354,8 +354,8 @@
                 </div>
 
                 <!-- Create Event Form (Hidden by default) -->
-                <div id="createEventForm" class="card admin-inline-001">
-                    <div class="card-header admin-inline-001">
+                <div id="createEventForm" class="card admin-inline-015">
+                    <div class="card-header admin-inline-016">
                         <h2><i class="fas fa-plus-circle"></i> Create New Event</h2>
                         <button type="button" onclick="hideCreateEventForm()" class="btn btn-secondary">
                             <i class="fas fa-times"></i> Cancel
@@ -382,17 +382,17 @@
 
                                 <div class="form-group">
                                     <label for="eventCodeInput">Event Code *</label>
-                                    <div class="admin-inline-001">
-                                        <input type="text" id="eventCodeInput" required class="admin-inline-001">
+                                    <div class="admin-inline-017">
+                                        <input type="text" id="eventCodeInput" required class="admin-inline-018">
                                         <button type="button" onclick="generateEventCode()" class="btn btn-outline" title="Auto-generate event code">
                                             <i class="fas fa-magic"></i> Auto
                                         </button>
                                     </div>
-                                    <small class="admin-inline-001">Auto-generated from event name or click the Auto button</small>
+                                    <small class="admin-inline-019">Auto-generated from event name or click the Auto button</small>
                                 </div>
                             </div>
 
-                            <div class="event-form-grid admin-inline-001">
+                            <div class="event-form-grid admin-inline-020">
                                 <div class="form-group">
                                     <label for="eventDate">Event Date *</label>
                                     <input type="date" id="eventDate" required>
@@ -407,7 +407,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group admin-inline-001">
+                            <div class="form-group admin-inline-020">
                                 <label for="eventDescription">Description</label>
                                 <textarea id="eventDescription" rows="4" placeholder="Add event details for guests on the registration page"></textarea>
                             </div>
@@ -450,11 +450,11 @@
                                 <div class="form-group">
                                     <label for="eventMaxCapacity">Maximum Capacity</label>
                                     <input type="number" id="eventMaxCapacity" min="1" placeholder="Leave empty for unlimited">
-                                    <small class="admin-inline-001">Optional: Set maximum number of guests allowed to register</small>
+                                    <small class="admin-inline-019">Optional: Set maximum number of guests allowed to register</small>
                                 </div>
                             </div>
 
-                            <div class="event-form-grid admin-inline-001">
+                            <div class="event-form-grid admin-inline-020">
                                 <div class="form-group">
                                     <label>Registration Fields</label>
                                     <div class="form-group-inline">
@@ -468,7 +468,7 @@
                                 </div>
                             </div>
 
-                            <div class="event-form-grid admin-inline-001">
+                            <div class="event-form-grid admin-inline-020">
                                 <div class="form-group">
                                     <label>Check-in Options</label>
                                     <div class="form-group-inline">
@@ -518,7 +518,7 @@
                                 </div>
                             </div>
 
-                            <div class="event-form-grid admin-inline-001">
+                            <div class="event-form-grid admin-inline-020">
                                 <div class="form-group">
                                     <label>Badge Options</label>
                                     <div class="form-group-inline">
@@ -528,7 +528,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group admin-inline-001">
+                            <div class="form-group admin-inline-020">
                                 <label>Event Logo / Banner <span class="label-optional">(optional)</span></label>
                                 <div class="logo-upload-area" id="logoUploadArea" onclick="document.getElementById('eventLogoInput').click()">
                                     <i class="fas fa-image"></i>
@@ -540,7 +540,7 @@
                                 <img id="eventLogoPreview" class="logo-preview" alt="Selected event logo preview">
                             </div>
 
-                            <div class="event-form-header admin-inline-001">
+                            <div class="event-form-header admin-inline-021">
                                 <h3><i class="fas fa-palette"></i> Registration Page Theme</h3>
                                 <p class="event-form-note">Customize the guest-facing page before publishing</p>
                             </div>
@@ -568,7 +568,7 @@
                                 </div>
                             </div>
 
-                            <div class="event-form-grid admin-inline-001">
+                            <div class="event-form-grid admin-inline-020">
                                 <div class="form-group">
                                     <label for="eventHeroDescription">Hero Description</label>
                                     <textarea id="eventHeroDescription" rows="3" placeholder="Short introduction shown in the hero"></textarea>
@@ -603,11 +603,11 @@
                                 </div>
                             </div>
 
-                            <div class="event-form-grid admin-inline-001">
+                            <div class="event-form-grid admin-inline-020">
                                 <div class="form-group">
                                     <label for="eventHeroImage">Hero Image URL</label>
                                     <input type="url" id="eventHeroImage" placeholder="https://.../hero.jpg">
-                                    <small class="admin-inline-001">Use a public image URL, or upload the event logo above as the hero image.</small>
+                                    <small class="admin-inline-019">Use a public image URL, or upload the event logo above as the hero image.</small>
                                 </div>
                                 <div class="form-group">
                                     <label for="eventPanelTitle">Hero Panel Title</label>
@@ -623,7 +623,7 @@
                                 </div>
                             </div>
 
-                            <div class="event-form-grid admin-inline-001">
+                            <div class="event-form-grid admin-inline-020">
                                 <div class="form-group">
                                     <label for="eventPrimaryColor">Primary Color</label>
                                     <input type="color" id="eventPrimaryColor" value="#0f766e">
@@ -668,11 +668,11 @@
                     </div>
                 </div>
 
-                <div id="guestsListCard" class="card admin-inline-001">
-                    <div class="card-header admin-inline-001">
-                        <div class="admin-inline-001">
-                            <h2>Guest List <span id="guestCountBadge" class="admin-inline-001"></span></h2>
-                            <div class="filter-group admin-inline-001">
+                <div id="guestsListCard" class="card admin-inline-015">
+                    <div class="card-header admin-inline-022">
+                        <div class="admin-inline-023">
+                            <h2>Guest List <span id="guestCountBadge" class="admin-inline-024"></span></h2>
+                            <div class="filter-group admin-inline-025">
                                 <button onclick="openAddGuestModal()" class="btn btn-primary" title="Add Guest Manually">
                                     <i class="fas fa-user-plus"></i> Add Guest
                                 </button>
@@ -696,7 +696,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="table-container admin-inline-001">
+                    <div class="table-container admin-inline-026">
                         <div>
                             <table class="data-table">
                                 <thead>
@@ -715,12 +715,12 @@
                             </table>
                             <div id="guestPagination"></div>
                         </div>
-                        <aside id="guestProfilePanel" class="admin-inline-001">
-                            <div class="admin-inline-001">
-                                <h class="admin-inline-001"3 id="guestProfileName">Guest Profile</h3>
+                        <aside id="guestProfilePanel" class="admin-inline-027">
+                            <div class="admin-inline-028">
+                                <h class="admin-inline-029"3 id="guestProfileName">Guest Profile</h3>
                                 <button type="button" class="btn btn-outline btn-sm" onclick="closeGuestProfile()">Close</button>
                             </div>
-                            <div id="guestProfileBody" class="admin-inline-001">
+                            <div id="guestProfileBody" class="admin-inline-030">
                                 Select a guest to view details.
                             </div>
                         </aside>
@@ -732,24 +732,24 @@
             <section id="uploadSection" class="dashboard-section">
                 <div class="section-header">
                     <h1><i class="fas fa-file-upload"></i> Import Guest List</h1>
-                    <p class="admin-inline-001">
+                    <p class="admin-inline-031">
                         Upload Excel/CSV file to add multiple guests at once
                     </p>
                 </div>
 
                 <div class="card">
-                    <div class="card-header admin-inline-001">
+                    <div class="card-header admin-inline-032">
                         <h2><i class="fas fa-cloud-upload-alt"></i> Upload Guest List File</h2>
-                        <p class="admin-inline-001">
+                        <p class="admin-inline-033">
                             <strong>Purpose:</strong> Quickly add many guests to your event by uploading an Excel or CSV file
                         </p>
                     </div>
-                    <div class="admin-inline-001">
-                        <div class="alert admin-inline-001">
-                            <p class="admin-inline-001">
+                    <div class="admin-inline-034">
+                        <div class="alert admin-inline-035">
+                            <p class="admin-inline-036">
                                 <i class="fas fa-info-circle"></i> <strong>How it works:</strong>
                             </p>
-                            <ul class="admin-inline-001">
+                            <ul class="admin-inline-037">
                                 <li>Download template below</li>
                                 <li>Fill in guest details (name, email, phone, etc.)</li>
                                 <li>Upload file here</li>
@@ -768,20 +768,20 @@
                         <i class="fas fa-cloud-upload-alt"></i>
                         <h3>Drag & Drop Excel File Here</h3>
                         <p>or click to browse</p>
-                        <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" class="admin-inline-001">
+                        <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" class="admin-inline-003">
                         <button onclick="document.getElementById('excelFileInput').click()" class="btn btn-primary">
                             <i class="fas fa-file-upload"></i> Select File
                         </button>
                     </div>
 
-                    <div id="uploadProgress" class="upload-progress admin-inline-001">
+                    <div id="uploadProgress" class="upload-progress admin-inline-015">
                         <div class="progress-bar">
                             <div class="progress-fill" id="progressFill"></div>
                         </div>
                         <p id="uploadStatus">Uploading...</p>
                     </div>
 
-                    <div id="uploadResults" class="admin-inline-001"></div>
+                    <div id="uploadResults" class="admin-inline-015"></div>
                 </div>
 
                 <div class="card">
@@ -804,24 +804,24 @@
             <section id="reportsSection" class="dashboard-section">
                 <div class="section-header">
                     <h1><i class="fas fa-chart-bar"></i> Reports & Export</h1>
-                    <p class="admin-inline-001">
+                    <p class="admin-inline-031">
                         Download attendance data and generate reports
                     </p>
                 </div>
 
                 <div class="card">
-                    <div class="card-header admin-inline-001">
+                    <div class="card-header admin-inline-032">
                         <h2><i class="fas fa-file-download"></i> Download Attendance Report</h2>
-                        <p class="admin-inline-001">
+                        <p class="admin-inline-033">
                             <strong>Purpose:</strong> Export guest list and attendance data to Excel/CSV format
                         </p>
                     </div>
-                    <div class="admin-inline-001">
-                        <div class="alert admin-inline-001">
-                            <p class="admin-inline-001">
+                    <div class="admin-inline-034">
+                        <div class="alert admin-inline-038">
+                            <p class="admin-inline-039">
                                 <i class="fas fa-info-circle"></i> <strong>What you'll get:</strong>
                             </p>
-                            <ul class="admin-inline-001">
+                            <ul class="admin-inline-040">
                                 <li>List of all registered guests</li>
                                 <li>Attendance status (attended/not attended)</li>
                                 <li>Check-in times</li>
@@ -844,36 +844,36 @@
                         </select>
                     </div>
 
-                    <div id="reportSummary" class="admin-inline-001">
-                        <div class="admin-inline-001">
-                            <div class="card admin-inline-001">
-                                <div class="admin-inline-001">Registered</div>
-                                <div id="reportTotalRegistered" class="admin-inline-001">0</div>
+                    <div id="reportSummary" class="admin-inline-041">
+                        <div class="admin-inline-042">
+                            <div class="card admin-inline-043">
+                                <div class="admin-inline-044">Registered</div>
+                                <div id="reportTotalRegistered" class="admin-inline-045">0</div>
                             </div>
-                            <div class="card admin-inline-001">
-                                <div class="admin-inline-001">Attended</div>
-                                <div id="reportTotalAttended" class="admin-inline-001">0</div>
+                            <div class="card admin-inline-046">
+                                <div class="admin-inline-044">Attended</div>
+                                <div id="reportTotalAttended" class="admin-inline-045">0</div>
                             </div>
-                            <div class="card admin-inline-001">
-                                <div class="admin-inline-001">Attendance</div>
-                                <div id="reportAttendanceRate" class="admin-inline-001">0%</div>
+                            <div class="card admin-inline-047">
+                                <div class="admin-inline-044">Attendance</div>
+                                <div id="reportAttendanceRate" class="admin-inline-045">0%</div>
                             </div>
-                            <div class="card admin-inline-001">
-                                <div class="admin-inline-001">No Shows</div>
-                                <div id="reportNoShows" class="admin-inline-001">0</div>
+                            <div class="card admin-inline-048">
+                                <div class="admin-inline-044">No Shows</div>
+                                <div id="reportNoShows" class="admin-inline-045">0</div>
                             </div>
-                            <div class="card admin-inline-001">
-                                <div class="admin-inline-001">Walk-ins</div>
-                                <div id="reportWalkIns" class="admin-inline-001">0</div>
+                            <div class="card admin-inline-049">
+                                <div class="admin-inline-044">Walk-ins</div>
+                                <div id="reportWalkIns" class="admin-inline-045">0</div>
                             </div>
-                            <div class="card admin-inline-001">
-                                <div class="admin-inline-001">Peak Check-in</div>
-                                <div id="reportPeakCheckin" class="admin-inline-001">N/A</div>
+                            <div class="card admin-inline-050">
+                                <div class="admin-inline-044">Peak Check-in</div>
+                                <div id="reportPeakCheckin" class="admin-inline-051">N/A</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="button-group admin-inline-001">
+                    <div class="button-group admin-inline-052">
                         <button onclick="exportToExcel()" class="btn btn-success">
                             <i class="fas fa-file-excel"></i> Export to Excel
                         </button>
@@ -902,7 +902,7 @@
                         <select id="accessEventSelect" class="form-control"><option value="">Select an event</option></select>
                     </div>
                     <div id="eventAccessEmpty" class="dashboard-empty">Select an event to build its access kit.</div>
-                    <div id="eventAccessKit" class="event-access-kit admin-inline-001">
+                    <div id="eventAccessKit" class="event-access-kit admin-inline-053">
                         <div class="event-access-heading"><div><p class="eyebrow">Event Access Kit</p><h2 id="accessKitEventName"></h2><p id="accessKitClientName"></p></div><span id="accessKitEventId" class="badge"></span></div>
                         <div class="event-access-grid">
                             <article class="event-access-card"><h3><i class="fas fa-user-plus"></i> Guest Registration</h3><label for="registrationAccessLink">Registration Link</label><div class="access-copy-row"><input id="registrationAccessLink" title="Registration link" readonly><button type="button" onclick="copyAccessValue('registrationAccessLink')" title="Copy registration link"><i class="fas fa-copy"></i> Copy Link</button></div><img id="registrationAccessQr" class="access-qr hidden" alt="Registration QR code"><button type="button" class="btn btn-secondary" onclick="generateRegistrationQr()"><i class="fas fa-qrcode"></i> Generate QR</button><button type="button" class="btn btn-secondary" onclick="downloadAccessQr('registrationAccessQr', 'registration-qr')"><i class="fas fa-download"></i> Download QR</button></article>
@@ -916,28 +916,28 @@
 
             <!-- Staff Management Section (super_admin only) -->
             <section id="staffSection" class="dashboard-section">
-                <div class="section-header admin-inline-001">
+                <div class="section-header admin-inline-054">
                     <div>
                         <h1>Staff Accounts</h1>
-                        <p class="admin-inline-001">Manage admin and staff users</p>
+                        <p class="admin-inline-055">Manage admin and staff users</p>
                     </div>
                     <button class="btn btn-primary" onclick="openCreateStaffModal()">
                         <i class="fas fa-user-plus"></i> Add Staff
                     </button>
                 </div>
-                <div class="card admin-inline-001">
-                    <table class="admin-inline-001">
+                <div class="card admin-inline-056">
+                    <table class="admin-inline-057">
                         <thead>
-                            <tr class="admin-inline-001">
-                                <th class="admin-inline-001">Name</th>
-                                <th class="admin-inline-001">Username</th>
-                                <th class="admin-inline-001">Email</th>
-                                <th class="admin-inline-001">Role</th>
-                                <th class="admin-inline-001">Actions</th>
+                            <tr class="admin-inline-058">
+                                <th class="admin-inline-059">Name</th>
+                                <th class="admin-inline-059">Username</th>
+                                <th class="admin-inline-059">Email</th>
+                                <th class="admin-inline-059">Role</th>
+                                <th class="admin-inline-059">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="staffTableBody">
-                            <tr><td colspan="5" class="admin-inline-001">Loading...</td></tr>
+                            <tr><td colspan="5" class="admin-inline-060">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -945,67 +945,67 @@
 
             <!-- Settings Section -->
             <section id="settingsSection" class="dashboard-section">
-                <div class="section-header admin-inline-001">
+                <div class="section-header admin-inline-061">
                     <h1>Settings</h1>
-                    <p class="admin-inline-001">Manage your account and preferences</p>
+                    <p class="admin-inline-055">Manage your account and preferences</p>
                 </div>
                 <div class="settings-grid">
 
                     <!-- Change Password -->
-                    <div class="card admin-inline-001">
-                        <h class="admin-inline-001"3><i class="fas fa-lock admin-inline-001"></i>Change Password</h3>
-                        <div class="form-group admin-inline-001">
+                    <div class="card admin-inline-061">
+                        <h class="admin-inline-062"3><i class="fas fa-lock admin-inline-063"></i>Change Password</h3>
+                        <div class="form-group admin-inline-064">
                             <label class="form-label">Current Password</label>
                             <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password">
                         </div>
-                        <div class="form-group admin-inline-001">
+                        <div class="form-group admin-inline-064">
                             <label class="form-label">New Password</label>
                             <input type="password" id="newPassword" class="form-control" placeholder="Min. 8 characters">
                         </div>
-                        <div class="form-group admin-inline-001">
+                        <div class="form-group admin-inline-065">
                             <label class="form-label">Confirm New Password</label>
                             <input type="password" id="confirmPassword" class="form-control" placeholder="Repeat new password">
                         </div>
-                        <button class="btn btn-primary admin-inline-001" onclick="changePassword()">
+                        <button class="btn btn-primary admin-inline-066" onclick="changePassword()">
                             <i class="fas fa-save"></i> Update Password
                         </button>
                     </div>
 
                     <!-- Edit Profile -->
-                    <div class="card admin-inline-001">
-                        <h class="admin-inline-001"3><i class="fas fa-user admin-inline-001"></i>Edit Profile</h3>
-                        <div class="form-group admin-inline-001">
+                    <div class="card admin-inline-067">
+                        <h class="admin-inline-062"3><i class="fas fa-user admin-inline-063"></i>Edit Profile</h3>
+                        <div class="form-group admin-inline-064">
                             <label class="form-label">Full Name</label>
                             <input type="text" id="profileFullName" class="form-control" placeholder="Your full name">
                         </div>
-                        <div class="form-group admin-inline-001">
+                        <div class="form-group admin-inline-065">
                             <label class="form-label">Email Address</label>
                             <input type="email" id="profileEmail" class="form-control" placeholder="your@email.com">
                         </div>
-                        <button class="btn btn-primary admin-inline-001" onclick="updateProfile()">
+                        <button class="btn btn-primary admin-inline-066" onclick="updateProfile()">
                             <i class="fas fa-save"></i> Save Changes
                         </button>
                     </div>
 
                     <!-- Email Test (super_admin only) -->
-                    <div class="card admin-inline-001" id="emailTestCard">
-                        <h class="admin-inline-001"3><i class="fas fa-envelope admin-inline-001"></i>Email / SMTP</h3>
-                        <p class="admin-inline-001">Verify that the email server is reachable and credentials are correct.</p>
-                        <div id="emailTestResult" class="admin-inline-001"></div>
-                        <button class="btn btn-primary admin-inline-001" onclick="testEmailConnection()" id="emailTestBtn">
+                    <div class="card admin-inline-068" id="emailTestCard">
+                        <h class="admin-inline-069"3><i class="fas fa-envelope admin-inline-063"></i>Email / SMTP</h3>
+                        <p class="admin-inline-070">Verify that the email server is reachable and credentials are correct.</p>
+                        <div id="emailTestResult" class="admin-inline-071"></div>
+                        <button class="btn btn-primary admin-inline-066" onclick="testEmailConnection()" id="emailTestBtn">
                             <i class="fas fa-plug"></i> Test SMTP Connection
                         </button>
                     </div>
 
-                    <div class="card admin-inline-001" id="clientBrandingCard">
-                        <h class="admin-inline-001"3><i class="fas fa-palette admin-inline-001"></i>Client White-Label Branding</h3>
-                        <p class="admin-inline-001">These defaults apply to the selected client’s events unless an event overrides them.</p>
-                        <div class="form-group admin-inline-001"><label class="form-label" for="brandingClientSelect">Client</label><select id="brandingClientSelect" class="form-control"></select></div>
-                        <div class="form-group admin-inline-001"><label class="form-label" for="clientBrandName">Brand name</label><input id="clientBrandName" class="form-control"></div>
-                        <div class="form-group admin-inline-001"><label class="form-label" for="clientBrandLogo">Logo URL</label><input id="clientBrandLogo" class="form-control" placeholder="/uploads/event-logos/... or https://..."></div>
-                        <div class="event-form-grid admin-inline-001"><div><label class="form-label" for="clientPrimaryColor">Primary color</label><input id="clientPrimaryColor" type="color" value="#0f766e"></div><div><label class="form-label" for="clientSecondaryColor">Secondary color</label><input id="clientSecondaryColor" type="color" value="#0f172a"></div><div><label class="form-label" for="clientBackgroundColor">Background</label><input id="clientBackgroundColor" type="color" value="#f6faf9"></div></div>
-                        <div class="form-group admin-inline-001"><label class="form-label" for="clientRegistrationContent">Registration page content</label><textarea id="clientRegistrationContent" class="form-control" rows="3"></textarea></div>
-                        <button class="btn btn-primary admin-inline-001" onclick="saveClientBranding()"><i class="fas fa-save"></i> Save Client Branding</button>
+                    <div class="card admin-inline-064" id="clientBrandingCard">
+                        <h class="admin-inline-069"3><i class="fas fa-palette admin-inline-063"></i>Client White-Label Branding</h3>
+                        <p class="admin-inline-070">These defaults apply to the selected client’s events unless an event overrides them.</p>
+                        <div class="form-group admin-inline-065"><label class="form-label" for="brandingClientSelect">Client</label><select id="brandingClientSelect" class="form-control"></select></div>
+                        <div class="form-group admin-inline-064"><label class="form-label" for="clientBrandName">Brand name</label><input id="clientBrandName" class="form-control"></div>
+                        <div class="form-group admin-inline-064"><label class="form-label" for="clientBrandLogo">Logo URL</label><input id="clientBrandLogo" class="form-control" placeholder="/uploads/event-logos/... or https://..."></div>
+                        <div class="event-form-grid admin-inline-072"><div><label class="form-label" for="clientPrimaryColor">Primary color</label><input id="clientPrimaryColor" type="color" value="#0f766e"></div><div><label class="form-label" for="clientSecondaryColor">Secondary color</label><input id="clientSecondaryColor" type="color" value="#0f172a"></div><div><label class="form-label" for="clientBackgroundColor">Background</label><input id="clientBackgroundColor" type="color" value="#f6faf9"></div></div>
+                        <div class="form-group admin-inline-064"><label class="form-label" for="clientRegistrationContent">Registration page content</label><textarea id="clientRegistrationContent" class="form-control" rows="3"></textarea></div>
+                        <button class="btn btn-primary admin-inline-066" onclick="saveClientBranding()"><i class="fas fa-save"></i> Save Client Branding</button>
                     </div>
 
                 </div>
@@ -1016,29 +1016,29 @@
         </div> <!-- End app-layout -->
 
     <!-- Add Guest Modal -->
-    <div id="addGuestModal" class="admin-inline-001">
+    <div id="addGuestModal" class="admin-inline-053">
         <div class="admin-modal-box">
-            <div class="admin-inline-001">
-                <h class="admin-inline-001"3><i class="fas fa-user-plus admin-inline-001"></i>Add Guest Manually</h3>
-                <button onclick="closeAddGuestModal()" class="admin-inline-001">&times;</button>
+            <div class="admin-inline-064">
+                <h class="admin-inline-029"3><i class="fas fa-user-plus admin-inline-073"></i>Add Guest Manually</h3>
+                <button onclick="closeAddGuestModal()" class="admin-inline-074">&times;</button>
             </div>
-            <div class="form-group admin-inline-001">
+            <div class="form-group admin-inline-075">
                 <label class="form-label">Full Name *</label>
                 <input type="text" id="newGuestName" class="form-control" placeholder="Guest full name">
             </div>
-            <div class="form-group admin-inline-001">
+            <div class="form-group admin-inline-064">
                 <label class="form-label">Email</label>
                 <input type="email" id="newGuestEmail" class="form-control" placeholder="guest@email.com">
             </div>
-            <div class="form-group admin-inline-001">
+            <div class="form-group admin-inline-064">
                 <label class="form-label">Contact Number</label>
                 <input type="text" id="newGuestContact" class="form-control" placeholder="09xxxxxxxxx">
             </div>
-            <div class="form-group admin-inline-001">
+            <div class="form-group admin-inline-064">
                 <label class="form-label">Company / Organization</label>
                 <input type="text" id="newGuestCompany" class="form-control" placeholder="Optional">
             </div>
-            <div class="form-group admin-inline-001">
+            <div class="form-group admin-inline-064">
                 <label class="form-label">Category</label>
                 <label for="newGuestCategory" class="visually-hidden">Guest category</label>
                 <select id="newGuestCategory" class="form-control">
@@ -1049,38 +1049,38 @@
                     <option value="Media">Media</option>
                 </select>
             </div>
-            <div class="admin-inline-001">
-                <button onclick="closeAddGuestModal()" class="btn admin-inline-001">Cancel</button>
-                <button onclick="addGuestManually()" class="btn btn-primary admin-inline-001"><i class="fas fa-user-plus"></i> Add Guest</button>
+            <div class="admin-inline-076">
+                <button onclick="closeAddGuestModal()" class="btn admin-inline-077">Cancel</button>
+                <button onclick="addGuestManually()" class="btn btn-primary admin-inline-078"><i class="fas fa-user-plus"></i> Add Guest</button>
             </div>
         </div>
     </div>
 
     <!-- Edit Guest Modal -->
-    <div id="editGuestModal" class="admin-inline-001">
+    <div id="editGuestModal" class="admin-inline-072">
         <div class="admin-modal-box">
-            <div class="admin-inline-001">
-                <h class="admin-inline-001"3>Edit Guest</h3>
-                <button onclick="closeEditGuestModal()" class="admin-inline-001">&times;</button>
+            <div class="admin-inline-053">
+                <h class="admin-inline-029"3>Edit Guest</h3>
+                <button onclick="closeEditGuestModal()" class="admin-inline-074">&times;</button>
             </div>
             <input type="hidden" id="editGuestId">
-            <div class="form-group admin-inline-001">
+            <div class="form-group admin-inline-075">
                 <label class="form-label">Full Name *</label>
                 <input type="text" id="editGuestName" class="form-control" placeholder="Guest full name">
             </div>
-            <div class="form-group admin-inline-001">
+            <div class="form-group admin-inline-064">
                 <label class="form-label">Email</label>
                 <input type="email" id="editGuestEmail" class="form-control" placeholder="guest@email.com">
             </div>
-            <div class="form-group admin-inline-001">
+            <div class="form-group admin-inline-064">
                 <label class="form-label">Contact Number</label>
                 <input type="text" id="editGuestContact" class="form-control" placeholder="09xxxxxxxxx">
             </div>
-            <div class="form-group admin-inline-001">
+            <div class="form-group admin-inline-064">
                 <label class="form-label">Company</label>
                 <input type="text" id="editGuestCompany" class="form-control" placeholder="Company or organization">
             </div>
-            <div class="form-group admin-inline-001">
+            <div class="form-group admin-inline-064">
                 <label class="form-label">Category</label>
                 <label for="editGuestCategory" class="visually-hidden">Guest category</label>
                 <select id="editGuestCategory" class="form-control">
@@ -1091,37 +1091,37 @@
                     <option value="Media">Media</option>
                 </select>
             </div>
-            <div class="admin-inline-001">
-                <button onclick="closeEditGuestModal()" class="btn admin-inline-001">Cancel</button>
-                <button onclick="saveGuestEdit()" class="btn btn-primary admin-inline-001">Save Changes</button>
+            <div class="admin-inline-076">
+                <button onclick="closeEditGuestModal()" class="btn admin-inline-077">Cancel</button>
+                <button onclick="saveGuestEdit()" class="btn btn-primary admin-inline-078">Save Changes</button>
             </div>
         </div>
     </div>
 
     <!-- Create Staff Modal -->
-    <div id="createStaffModal" class="admin-inline-001">
+    <div id="createStaffModal" class="admin-inline-072">
         <div class="admin-modal-box">
-            <div class="admin-inline-001">
-                <h class="admin-inline-001"3>Add Staff Account</h3>
-                <button onclick="closeCreateStaffModal()" class="admin-inline-001">&times;</button>
+            <div class="admin-inline-053">
+                <h class="admin-inline-029"3>Add Staff Account</h3>
+                <button onclick="closeCreateStaffModal()" class="admin-inline-074">&times;</button>
             </div>
-            <div class="form-group admin-inline-001">
+            <div class="form-group admin-inline-075">
                 <label class="form-label">Full Name</label>
                 <input type="text" id="newStaffName" class="form-control" placeholder="Staff full name">
             </div>
-            <div class="form-group admin-inline-001">
+            <div class="form-group admin-inline-076">
                 <label class="form-label">Username</label>
                 <input type="text" id="newStaffUsername" class="form-control" placeholder="login username">
             </div>
-            <div class="form-group admin-inline-001">
+            <div class="form-group">
                 <label class="form-label">Email</label>
                 <input type="email" id="newStaffEmail" class="form-control" placeholder="staff@email.com">
             </div>
-            <div class="form-group admin-inline-001">
+            <div class="form-group">
                 <label class="form-label">Password</label>
                 <input type="password" id="newStaffPassword" class="form-control" placeholder="Min. 8 characters">
             </div>
-            <div class="form-group admin-inline-001">
+            <div class="form-group">
                 <label class="form-label">Role</label>
                 <label for="newStaffRole" class="visually-hidden">Staff role</label>
                 <select id="newStaffRole" class="form-control">
@@ -1129,9 +1129,9 @@
                     <option value="super_admin">Super Admin</option>
                 </select>
             </div>
-            <div class="admin-inline-001">
-                <button onclick="closeCreateStaffModal()" class="btn admin-inline-001">Cancel</button>
-                <button onclick="createStaffAccount()" class="btn btn-primary admin-inline-001">Create Account</button>
+            <div class="">
+                <button onclick="closeCreateStaffModal()" class="btn admin-inline-077">Cancel</button>
+                <button onclick="createStaffAccount()" class="btn btn-primary admin-inline-078">Create Account</button>
             </div>
         </div>
     </div>
