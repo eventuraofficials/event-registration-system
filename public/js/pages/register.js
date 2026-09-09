@@ -11,6 +11,8 @@ function safeImageUrl(value) {
 function applyEventBranding() {
     const defaults = {
         brand_name: currentEvent.client_name || currentEvent.event_name || 'Event Registration',
+        tagline: '',
+        footer_text: 'All rights reserved.',
         hero_kicker: 'A New Era Begins',
         hero_title: `${currentEvent.client_name || currentEvent.event_name || 'YOUR EVENT'} EVENT`.toUpperCase(),
         hero_subtitle: 'WELCOME TO WHAT\'S NEXT',
@@ -48,6 +50,10 @@ function applyEventBranding() {
     };
 
     setText('heroBrandName', branding.brand_name || defaults.brand_name);
+    document.querySelectorAll('[data-site-tagline]').forEach((element) => {
+        element.textContent = branding.tagline || '';
+        element.style.display = branding.tagline ? '' : 'none';
+    });
     setText('heroKicker', branding.hero_kicker || defaults.hero_kicker);
     setText('heroTitle', branding.hero_title || defaults.hero_title);
     setText('heroSubtitle', branding.hero_subtitle || defaults.hero_subtitle);
@@ -70,6 +76,13 @@ function applyEventBranding() {
     const supportingVisual = document.getElementById('supportingVisual');
     if (supportingImage && supportingVisual) {
         supportingVisual.style.backgroundImage = `linear-gradient(140deg, ${colors.secondary}59, ${colors.primary}14), url(${JSON.stringify(supportingImage)})`;
+    }
+
+    if (typeof window.updateEventFooter === 'function') {
+        window.updateEventFooter({
+            name: branding.brand_name || defaults.brand_name,
+            text: branding.footer_text || defaults.footer_text
+        });
     }
 }
 

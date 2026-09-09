@@ -1,5 +1,9 @@
 Components.register('Footer', function({ year = new Date().getFullYear(), links = '' }) {
     const id = 'ft-' + Math.random().toString(36).slice(2);
+    window.updateEventFooter = function({ name, text } = {}) {
+        const el = document.getElementById(id);
+        if (el && (name || text)) el.textContent = String.fromCharCode(169) + ' ' + year + ' ' + (name || 'Event Registration System') + '. ' + (text || 'All rights reserved.');
+    };
     fetch('/api/settings').then(r => r.json()).then(data => {
         const s = data.settings || {};
         const name = s.site_name || 'Event Registration System';

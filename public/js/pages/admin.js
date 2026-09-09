@@ -943,6 +943,8 @@ async function handleCreateEvent(e) {
         },
         branding: {
             brand_name: document.getElementById('eventBrandName')?.value?.trim() || document.getElementById('eventClientName')?.value?.trim() || '',
+            tagline: document.getElementById('eventBrandTagline')?.value?.trim() || '',
+            footer_text: document.getElementById('eventFooterText')?.value?.trim() || '',
             hero_kicker: document.getElementById('eventHeroKicker')?.value?.trim() || '',
             hero_title: document.getElementById('eventHeroTitle')?.value?.trim() || '',
             hero_subtitle: document.getElementById('eventHeroSubtitle')?.value?.trim() || '',

@@ -266,7 +266,7 @@ exports.getEventByCode = async (req, res) => {
     const [events] = await db.execute(
       `SELECT
         id, event_name, event_code, event_date,
-        event_time, venue, description, registration_open, registration_form_config, event_logo, max_capacity, client_name
+        event_time, venue, description, registration_open, registration_form_config, event_logo, max_capacity, client_name, font_style, font_size
       FROM events
       WHERE event_code = ?`,
       [event_code]

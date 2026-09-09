@@ -76,6 +76,8 @@ function normalizeBranding(branding = {}) {
 
   return {
     brand_name: cleanText(branding.brand_name, 'Event Registration', 100),
+    tagline: cleanText(branding.tagline, '', 150),
+    footer_text: cleanText(branding.footer_text, 'All rights reserved.', 200),
     hero_kicker: cleanText(branding.hero_kicker, 'A New Era Begins', 80),
     hero_title: cleanText(branding.hero_title, 'YOUR EVENT', 100),
     hero_subtitle: cleanText(branding.hero_subtitle, 'WELCOME TO WHAT\'S NEXT', 120),
