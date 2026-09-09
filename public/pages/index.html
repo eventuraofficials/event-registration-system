@@ -32,22 +32,22 @@
         }
 
         .main-content {
-            max-width: 1280px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 24px 0 52px;
+            padding: 24px 0 48px;
         }
 
         .premium-shell {
             width: min(100%, 1200px);
             margin: 0 auto;
-            padding: 0 20px 12px;
+            padding: 0 24px 12px;
         }
 
         .premium-event-hero {
             position: relative;
-            min-height: 500px;
-            padding: 30px 38px 34px;
-            margin-bottom: 34px;
+            min-height: 420px;
+            padding: 24px 32px 28px;
+            margin-bottom: 24px;
             border: 1px solid rgba(148, 163, 184, 0.2);
             border-radius: 28px;
             background:
@@ -128,8 +128,8 @@
             grid-template-columns: minmax(0, 1.3fr) minmax(250px, 0.7fr);
             gap: 26px;
             align-items: end;
-            min-height: 380px;
-            padding-top: 26px;
+            min-height: 310px;
+            padding-top: 18px;
         }
 
         .hero-copy {
@@ -288,9 +288,9 @@
         .premium-grid {
             display: grid;
             grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-            gap: 26px;
+            gap: 24px;
             align-items: start;
-            margin-top: 12px;
+            margin-top: 8px;
         }
 
         .editorial-panel {
@@ -923,9 +923,9 @@
         .form-note i { color: var(--success); }
 
         .main-content {
-            max-width: 980px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 36px 0 52px;
+            padding: 24px 0 48px;
         }
 
         .content-wrapper {
@@ -1031,6 +1031,50 @@
             .form-row { grid-template-columns: 1fr; gap: 0; }
             .qr-ticket-strip { padding: 18px 20px; }
             .qr-ticket-body { padding: 20px; }
+        }
+
+        /* Editorial refinement: the hero is the anchor; supporting content stays open. */
+        .premium-grid { gap: 40px; margin-top: 28px; }
+        .editorial-panel,
+        .event-info-card,
+        .form-card {
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+        .editorial-panel { padding: 8px 0 0; }
+        .event-info-card { border-top: 0; }
+        .event-info-body { padding: 8px 0 18px; }
+        .event-meta-grid {
+            padding: 16px 0;
+            border-top: 1px solid var(--brand-line);
+            border-bottom: 1px solid var(--brand-line);
+            border-radius: 0;
+            background: transparent;
+        }
+        .event-description { padding: 18px 0 0; border-top: 0; }
+        .form-card { padding: 8px 0 20px; }
+        .form-card-header { padding-bottom: 16px; }
+        .form-card-icon { width: 36px; height: 36px; border-radius: 9px; }
+        .form-note { justify-content: flex-start; }
+        .boh-page .app-layout-simple { padding-top: 0; }
+        .boh-page .content-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0;
+        }
+        @media (max-width: 900px) {
+            .premium-grid { gap: 28px; margin-top: 20px; }
+        }
+        @media (max-width: 640px) {
+            .premium-grid { gap: 24px; margin-top: 16px; }
+            .premium-event-hero { min-height: 0; }
+            .premium-hero-content { min-height: 0; gap: 32px; }
+            .editorial-panel,
+            .event-info-body,
+            .form-card { padding-left: 0; padding-right: 0; }
         }
     </style>
 </head>
