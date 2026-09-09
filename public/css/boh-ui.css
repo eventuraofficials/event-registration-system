@@ -26,8 +26,51 @@
 
 .boh-page button,
 .boh-page .btn {
+    min-height: 44px;
     border-radius: 9px;
     font-weight: 800;
+    touch-action: manipulation;
+}
+
+.boh-page input,
+.boh-page select,
+.boh-page textarea { min-height: 44px; }
+
+.boh-page .app-content .content-wrapper {
+    width: 100%;
+    max-width: 1200px;
+    padding: 24px;
+}
+
+.boh-page .table-container,
+.boh-page .table-wrap { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+@media (max-width: 1024px) {
+    .boh-page .app-content .content-wrapper { padding: 20px; }
+    .boh-page .event-access-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 768px) {
+    .boh-page .app-content .content-wrapper { padding: 16px 12px; }
+    .boh-page .section-header,
+    .boh-page .event-access-heading { gap: 16px; }
+    .boh-page .dashboard-toolbar,
+    .boh-page .access-copy-row { width: 100%; flex-wrap: wrap; }
+    .boh-page .dashboard-toolbar > *,
+    .boh-page .access-copy-row > select,
+    .boh-page .access-copy-row > input { flex: 1 1 100%; }
+    .boh-page .dashboard-toolbar .btn,
+    .boh-page .access-copy-row button { width: 100%; }
+    .boh-page .event-access-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+    .boh-page .app-header { min-height: 56px; }
+    .boh-page .app-header-logo { font-size: .92rem; }
+    .boh-page .app-header-logo span { max-width: 230px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .boh-page .topbar-inner,
+    .boh-page .portal-header-inner { width: min(100% - 24px, 1180px); }
+    .boh-page .event-access-card { padding: 16px; }
 }
 
 .boh-page .card,
