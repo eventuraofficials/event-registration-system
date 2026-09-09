@@ -6,6 +6,7 @@
     <title>Event Portal</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="stylesheet" href="../css/theme/modern-theme.css">
+    <link rel="stylesheet" href="../css/boh-ui.css">
     <style>
         :root { --portal-primary: #0f766e; --portal-secondary: #102a2c; --portal-accent: #ea6b57; --portal-bg: #f4f7f6; --portal-line: #dfe7e4; --portal-muted: #607477; --portal-soft: color-mix(in srgb, var(--portal-primary) 9%, #fff); }
         * { box-sizing: border-box; }
@@ -39,7 +40,7 @@
         @media (max-width: 760px) { .portal-header-inner { align-items: flex-start; padding: 14px 0; flex-direction: column; } .portal-user { width: 100%; justify-content: space-between; } .portal-main { width: min(100% - 24px, 1180px); padding-top: 24px; } .event-hero { align-items: flex-start; flex-direction: column; min-height: 300px; padding: 28px 24px; } .stats-grid, .portal-grid { grid-template-columns: 1fr; } .panel { padding: 18px; } }
     </style>
 </head>
-<body>
+<body class="boh-page">
 <header class="portal-header"><div class="portal-header-inner"><div class="portal-brand"><img id="portalLogo" class="portal-logo hidden" alt="Client logo"><span id="portalBrandName">Event Portal</span></div><div class="portal-user"><span id="portalUserName"></span><button id="logoutButton" class="secondary" type="button">Sign out</button></div></div></header>
 <section id="portalLogin" class="portal-main"><div class="panel portal-login-card"><h1 class="portal-login-title">Event Portal Sign In</h1><p>Sign in to view this assigned event.</p><form id="portalLoginForm"><label for="portalUsername">Username or email</label><input id="portalUsername" required autocomplete="username"><label for="portalPassword">Password</label><input id="portalPassword" type="password" required autocomplete="current-password"><button type="submit">Sign in</button><p id="portalLoginError" class="notice hidden"></p></form></div></section>
 <main id="portalContent" class="portal-main hidden">

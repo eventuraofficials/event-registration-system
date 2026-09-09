@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Facilitator Check-In</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="../css/boh-ui.css">
     <style>
         :root { --primary: #0f766e; --ink: #102a2c; --muted: #607477; --line: #dce6e3; --bg: #f3f7f6; --danger: #b42318; --success: #166534; --success-bg: #eaf8f0; }
         * { box-sizing: border-box; } body { margin: 0; color: var(--ink); background: radial-gradient(circle at 12% 0%, #d9f3e8 0, transparent 27rem), var(--bg); font-family: "Trebuchet MS", ui-sans-serif, sans-serif; }
@@ -21,7 +22,7 @@
         @media (max-width: 700px) { .topbar-inner, .main { width: min(100% - 24px, 980px); } .stats { grid-template-columns: repeat(2, 1fr); } .actions { grid-template-columns: 1fr 1fr; } .actions button:first-child { grid-column: 1 / -1; } .guest { align-items: flex-start; flex-direction: column; } .guest button { width: 100%; } }
     </style>
 </head>
-<body>
+<body class="boh-page">
 <header class="topbar"><div class="topbar-inner"><div class="brand"><img id="clientLogo" class="brand-logo hidden" alt="Client logo"><span id="brandName">Facilitator Portal</span></div><button id="signOut" class="secondary" type="button">Sign out</button></div></header>
 <section id="loginGate" class="main portal-login panel"><h1>Facilitator Access</h1><p>Use the event-specific access link provided by the event administrator.</p></section>
 <main id="facilitatorApp" class="main hidden">
