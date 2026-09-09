@@ -147,7 +147,9 @@ async function checkinLogin() {
     }
 }
 
-function checkinLogout() {
+async function checkinLogout() {
+    const token = localStorage.getItem('admin_token');
+    if (token) await fetch(`${API_BASE_URL}/admin/logout`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } }).catch(() => {});
     localStorage.removeItem('admin_token');
     currentUser = null;
     resetScanner();
@@ -180,7 +182,9 @@ function loadEventsAfterAuth() {
 // Load available events for dropdown
 async function loadAvailableEventsForCheckIn() {
     try {
-        const response = await fetch(`${API_BASE_URL}/events/checkin-available`);
+        const response = await fetch(`${API_BASE_URL}/events/checkin-available`, {
+            headers: getCheckInAuthHeaders()
+        });
         const data = await response.json();
         const select = document.getElementById('eventSelectDropdown');
 

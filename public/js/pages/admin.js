@@ -10,6 +10,7 @@ let pendingImportFile = null;
 let pendingImportEventId = null;
 let dashboardRefreshTimer = null;
 let recentActivityExpanded = false;
+let currentAccessKit = null;
 
 // Helper function to get fresh auth token
 function getAuthToken() {
@@ -59,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('reportEventSelect')?.addEventListener('change', loadReportSummary);
+    document.getElementById('accessEventSelect')?.addEventListener('change', loadEventAccessKit);
 
     setupDashboardShortcuts();
     window.addEventListener('hashchange', () => {
@@ -142,7 +144,11 @@ async function handleLogin(e) {
 }
 
 // Logout
-function logout() {
+async function logout() {
+    const token = getAuthToken();
+    if (token) {
+        await fetch(`${API_BASE_URL}/admin/logout`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } }).catch(() => {});
+    }
     authToken = null;
     currentAdmin = null;
     localStorage.removeItem('admin_token');
@@ -191,19 +197,18 @@ function showDashboard() {
     if (staffNavLink) {
         staffNavLink.style.display = currentAdmin.role === 'super_admin' ? 'flex' : 'none';
     }
+    const eventAccessNavLink = document.getElementById('eventAccessNavLink');
+    if (eventAccessNavLink) {
+        eventAccessNavLink.style.display = ['super_admin', 'admin'].includes(currentAdmin.role) ? 'flex' : 'none';
+    }
 
     // Show super_admin-only settings cards
     const isSuperAdmin = currentAdmin.role === 'super_admin';
-    const brandingCard = document.getElementById('siteBrandingCard');
-    if (brandingCard) brandingCard.style.display = isSuperAdmin ? 'block' : 'none';
     const emailTestCard = document.getElementById('emailTestCard');
     if (emailTestCard) emailTestCard.style.display = isSuperAdmin ? 'block' : 'none';
 
     // Store as currentUser for settings
     currentUser = currentAdmin;
-
-    // Load site branding and apply to header
-    loadSiteBranding();
 
     const initialSection = window.location.hash.replace('#', '');
     if (initialSection && document.getElementById(`${initialSection}Section`)) {
@@ -420,7 +425,7 @@ function renderEventsTable() {
                 <button onclick="viewEvent(${event.id})" class="action-btn view" title="View">
                     <i class="fas fa-eye"></i>
                 </button>
-                <button onclick="shareEvent('${event.event_code}')" class="action-btn success" title="Share Event" style="background: #06d6a0;">
+                <button onclick="shareEvent(${SecurityUtils.escapeJsArgument(event.event_code)})" class="action-btn success" title="Share Event" style="background: #06d6a0;">
                     <i class="fas fa-share-alt"></i>
                 </button>
                 <button onclick="toggleRegistration(${event.id})" class="action-btn edit" title="Toggle Registration">
@@ -429,7 +434,7 @@ function renderEventsTable() {
                 <button onclick="cloneEvent(${event.id})" class="action-btn" title="Clone Event" style="color:#6366f1; background:#ede9fe;">
                     <i class="fas fa-copy"></i>
                 </button>
-                <button onclick="deleteEvent(${event.id}, '${event.event_name}')" class="action-btn delete" title="Delete Event">
+                <button onclick="deleteEvent(${event.id}, ${SecurityUtils.escapeJsArgument(event.event_name)})" class="action-btn delete" title="Delete Event">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
@@ -658,7 +663,7 @@ function formatTimeAgo(date) {
 
 // Populate event select dropdowns
 function populateEventSelects() {
-    const selects = ['guestEventSelect', 'uploadEventSelect', 'reportEventSelect'];
+    const selects = ['guestEventSelect', 'uploadEventSelect', 'reportEventSelect', 'accessEventSelect'];
 
     selects.forEach(selectId => {
         const select = document.getElementById(selectId);
@@ -666,9 +671,130 @@ function populateEventSelects() {
 
         select.innerHTML = '<option value="">-- Select Event --</option>' +
             allEvents.map(event =>
-                `<option value="${event.id}">${event.event_name} (${event.event_code})</option>`
+                `<option value="${event.id}">${SecurityUtils.escapeHtml(event.event_name)} (${SecurityUtils.escapeHtml(event.event_code)})</option>`
             ).join('');
     });
+}
+
+async function loadEventAccessKit() {
+    const eventId = document.getElementById('accessEventSelect')?.value;
+    const empty = document.getElementById('eventAccessEmpty');
+    const kit = document.getElementById('eventAccessKit');
+    if (!eventId) {
+        if (empty) empty.style.display = 'block';
+        if (kit) kit.style.display = 'none';
+        return;
+    }
+    try {
+        const data = await fetchAPI(`${API_BASE_URL}/event-access/events/${eventId}`, { headers: getAuthHeaders() });
+        currentAccessKit = data.kit;
+        document.getElementById('accessKitEventName').textContent = data.kit.event.name;
+        document.getElementById('accessKitClientName').textContent = data.kit.client_name || 'Client';
+        document.getElementById('accessKitEventId').textContent = `Event ID: ${data.kit.event.id}`;
+        document.getElementById('registrationAccessLink').value = data.kit.registration.url;
+        document.getElementById('registrationAccessQr').src = data.kit.registration.qr;
+        document.getElementById('registrationAccessQr').classList.add('hidden');
+        document.getElementById('clientAccessLink').value = data.kit.client_qc.url;
+        document.getElementById('clientAccessQr').src = data.kit.client_qc.qr;
+        document.getElementById('clientAccessQr').classList.add('hidden');
+        const facilitatorSelect = document.getElementById('facilitatorAccessUser');
+        facilitatorSelect.innerHTML = '<option value="">Select assigned facilitator</option>' + (data.kit.assigned_facilitators || []).map(user => `<option value="${user.id}">${SecurityUtils.escapeHtml(user.full_name || user.username)} (${SecurityUtils.escapeHtml(user.email || '')})</option>`).join('');
+        const assignmentSelect = document.getElementById('eventAssignmentUser');
+        assignmentSelect.innerHTML = '<option value="">Select user</option>' + (data.kit.assignable_users || []).map(user => `<option value="${user.id}">${SecurityUtils.escapeHtml(user.full_name || user.username)} (${SecurityUtils.escapeHtml(user.email || '')})</option>`).join('');
+        renderFacilitatorAccessList(data.kit.facilitators || []);
+        empty.style.display = 'none';
+        kit.style.display = 'block';
+    } catch (error) {
+        showAlert(error.message || 'Unable to load event access kit', 'danger');
+    }
+}
+
+async function assignEventUser() {
+    const eventId = document.getElementById('accessEventSelect').value;
+    const userId = document.getElementById('eventAssignmentUser').value;
+    const role = document.getElementById('eventAssignmentRole').value;
+    if (!eventId || !userId) return showAlert('Select a user first', 'warning');
+    try {
+        await fetchAPI(`${API_BASE_URL}/tenants/events/${eventId}/users`, { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ user_id: Number(userId), role }) });
+        showAlert('User assigned to event', 'success');
+        await loadEventAccessKit();
+    } catch (error) { showAlert(error.message || 'Unable to assign user', 'danger'); }
+}
+
+function renderFacilitatorAccessList(facilitators) {
+    const container = document.getElementById('facilitatorAccessList');
+    if (!facilitators.length) {
+        container.innerHTML = '<p class="access-help">No facilitator access has been generated for this event.</p>';
+        return;
+    }
+    container.innerHTML = facilitators.map(item => `<div class="facilitator-access-item"><div><strong>${SecurityUtils.escapeHtml(item.full_name || item.username)}</strong><small>${SecurityUtils.escapeHtml(item.email || '')} · ${SecurityUtils.escapeHtml(item.status)}</small></div><div class="access-copy-row">${item.access_url ? `<input value="${SecurityUtils.escapeHtml(item.access_url)}" readonly data-access-input="${item.id}"><button type="button" onclick="copyAccessValueBySelector('[data-access-input=\\"${item.id}\\"]')" title="Copy facilitator link"><i class="fas fa-copy"></i></button>` : ''}<button type="button" onclick="showFacilitatorQr(${item.id})" title="Show facilitator QR"><i class="fas fa-qrcode"></i></button><button type="button" onclick="regenerateFacilitatorAccess(${item.id})" title="Regenerate access"><i class="fas fa-sync"></i></button>${item.status === 'active' ? `<button type="button" onclick="setFacilitatorAccessStatus(${item.id}, 'inactive')" title="Deactivate access"><i class="fas fa-pause"></i></button>` : item.status === 'inactive' ? `<button type="button" onclick="setFacilitatorAccessStatus(${item.id}, 'active')" title="Activate access"><i class="fas fa-play"></i></button>` : ''}<button type="button" class="danger" onclick="setFacilitatorAccessStatus(${item.id}, 'revoked')" title="Revoke access"><i class="fas fa-ban"></i></button></div><img id="facilitatorQr-${item.id}" class="access-qr hidden" alt="Facilitator QR"></div>`).join('');
+}
+
+async function generateFacilitatorAccess() {
+    const eventId = document.getElementById('accessEventSelect').value;
+    const userId = document.getElementById('facilitatorAccessUser').value;
+    if (!eventId || !userId) return showAlert('Select an assigned facilitator first', 'warning');
+    try {
+        await fetchAPI(`${API_BASE_URL}/event-access/events/${eventId}/facilitators`, { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ user_id: Number(userId) }) });
+        showAlert('Facilitator access generated', 'success');
+        await loadEventAccessKit();
+    } catch (error) { showAlert(error.message || 'Unable to generate facilitator access', 'danger'); }
+}
+
+async function setFacilitatorAccessStatus(accessId, status) {
+    try {
+        await fetchAPI(`${API_BASE_URL}/event-access/facilitators/${accessId}/status`, { method: 'PATCH', headers: getAuthHeaders(), body: JSON.stringify({ status }) });
+        showAlert(`Facilitator access ${status}`, 'success');
+        await loadEventAccessKit();
+    } catch (error) { showAlert(error.message || 'Unable to update facilitator access', 'danger'); }
+}
+
+async function regenerateFacilitatorAccess(accessId) {
+    if (!confirm('Regenerate this facilitator link? The previous link will stop working.')) return;
+    try {
+        await fetchAPI(`${API_BASE_URL}/event-access/facilitators/${accessId}/regenerate`, { method: 'POST', headers: getAuthHeaders(), body: '{}' });
+        showAlert('Facilitator access regenerated; the previous link is revoked', 'success');
+        await loadEventAccessKit();
+    } catch (error) { showAlert(error.message || 'Unable to regenerate facilitator access', 'danger'); }
+}
+
+function showFacilitatorQr(accessId) {
+    const item = currentAccessKit?.facilitators?.find(entry => Number(entry.id) === Number(accessId));
+    const image = document.getElementById(`facilitatorQr-${accessId}`);
+    if (!item || !image || !item.access_qr) return;
+    image.src = item.access_qr;
+    image.classList.toggle('hidden');
+}
+
+function generateRegistrationQr() {
+    const image = document.getElementById('registrationAccessQr');
+    if (image) image.classList.remove('hidden');
+}
+
+function showClientAccessQr() {
+    const image = document.getElementById('clientAccessQr');
+    if (image) image.classList.remove('hidden');
+}
+
+async function copyAccessValue(inputId) {
+    const input = document.getElementById(inputId);
+    if (input) await navigator.clipboard.writeText(input.value);
+    showAlert('Link copied', 'success');
+}
+
+async function copyAccessValueBySelector(selector) {
+    const input = document.querySelector(selector);
+    if (input) await navigator.clipboard.writeText(input.value);
+    showAlert('Link copied', 'success');
+}
+
+function downloadAccessQr(imageId, filename) {
+    const image = document.getElementById(imageId);
+    if (!image?.src) return;
+    const link = document.createElement('a');
+    link.href = image.src;
+    link.download = `${filename}.png`;
+    link.click();
 }
 
 async function loadReportSummary() {
@@ -754,7 +880,7 @@ function filterEvents(searchTerm) {
                 <button onclick="viewEvent(${event.id})" class="action-btn view" title="View">
                     <i class="fas fa-eye"></i>
                 </button>
-                <button onclick="shareEvent('${event.event_code}')" class="action-btn success" title="Share Event" style="background: #06d6a0;">
+                <button onclick="shareEvent(${SecurityUtils.escapeJsArgument(event.event_code)})" class="action-btn success" title="Share Event" style="background: #06d6a0;">
                     <i class="fas fa-share-alt"></i>
                 </button>
                 <button onclick="toggleRegistration(${event.id})" class="action-btn edit" title="Toggle Registration">
@@ -763,7 +889,7 @@ function filterEvents(searchTerm) {
                 <button onclick="cloneEvent(${event.id})" class="action-btn" title="Clone Event" style="color:#6366f1; background:#ede9fe;">
                     <i class="fas fa-copy"></i>
                 </button>
-                <button onclick="deleteEvent(${event.id}, '${event.event_name}')" class="action-btn delete" title="Delete Event">
+                <button onclick="deleteEvent(${event.id}, ${SecurityUtils.escapeJsArgument(event.event_name)})" class="action-btn delete" title="Delete Event">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
@@ -795,7 +921,7 @@ function showSection(sectionName, updateUrl = true) {
 
     // Load data for sections that need it
     if (sectionName === 'staff') loadStaff();
-    if (sectionName === 'settings') { loadSettingsProfile(); loadSiteBranding(); }
+    if (sectionName === 'settings') { loadSettingsProfile(); }
 }
 
 // Show create event form
@@ -898,7 +1024,7 @@ async function uploadEventLogo(eventId, fileInput) {
     try {
         await fetch(`${API_BASE_URL}/events/${eventId}/logo`, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${authToken}` },
+            headers: { 'Authorization': `Bearer ${authToken}`, 'X-CSRF-Token': await getCsrfToken() },
             body: fd
         });
     } catch (err) {
@@ -945,6 +1071,9 @@ async function handleCreateEvent(e) {
             brand_name: document.getElementById('eventBrandName')?.value?.trim() || document.getElementById('eventClientName')?.value?.trim() || '',
             tagline: document.getElementById('eventBrandTagline')?.value?.trim() || '',
             footer_text: document.getElementById('eventFooterText')?.value?.trim() || '',
+            registration_page_content: document.getElementById('eventRegistrationContent')?.value?.trim() || '',
+            confirmation_title: document.getElementById('eventConfirmationTitle')?.value?.trim() || '',
+            confirmation_content: document.getElementById('eventConfirmationContent')?.value?.trim() || '',
             hero_kicker: document.getElementById('eventHeroKicker')?.value?.trim() || '',
             hero_title: document.getElementById('eventHeroTitle')?.value?.trim() || '',
             hero_subtitle: document.getElementById('eventHeroSubtitle')?.value?.trim() || '',
@@ -1121,7 +1250,7 @@ function showEventQRModal(event) {
                     </button>
                 </div>
                 <div>
-                    <button onclick="downloadEventQR('${event.event_name}', '${event.event_qr_code}')" class="btn btn-primary">
+                    <button onclick="downloadEventQR(${SecurityUtils.escapeJsArgument(event.event_name)}, ${SecurityUtils.escapeJsArgument(event.event_qr_code)})" class="btn btn-primary">
                         <i class="fas fa-download"></i> Download QR
                     </button>
                     <button onclick="window.print()" class="btn btn-secondary">
@@ -2100,7 +2229,7 @@ async function confirmGuestImport() {
     try {
         const response = await fetch(`${API_BASE_URL}/guests/upload-excel`, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${getAuthToken()}` },
+            headers: { 'Authorization': `Bearer ${getAuthToken()}`, 'X-CSRF-Token': await getCsrfToken() },
             body: formData
         });
         const data = await response.json();
@@ -2389,11 +2518,72 @@ async function updateProfile() {
     }
 }
 
-function loadSettingsProfile() {
+async function loadSettingsProfile() {
     const nameEl = document.getElementById('profileFullName');
     const emailEl = document.getElementById('profileEmail');
     if (nameEl && currentUser) nameEl.value = currentUser.full_name || '';
     if (emailEl && currentUser) emailEl.value = currentUser.email || '';
+    await loadClientBrandingControls();
+}
+
+async function loadClientBrandingControls() {
+    const select = document.getElementById('brandingClientSelect');
+    if (!select || !currentAdmin) return;
+    try {
+        let clients = [];
+        if (currentAdmin.role === 'super_admin') {
+            const data = await fetchAPI(`${API_BASE_URL}/clients`, { headers: getAuthHeaders() });
+            clients = data.clients || [];
+        } else if (currentAdmin.client_id) {
+            clients = [{ id: currentAdmin.client_id, name: 'Assigned Client' }];
+        }
+        select.innerHTML = clients.map(client => `<option value="${client.id}">${SecurityUtils.escapeHtml(client.name)}</option>`).join('');
+        select.disabled = clients.length <= 1;
+        select.onchange = loadSelectedClientBranding;
+        await loadSelectedClientBranding();
+    } catch (error) {
+        showAlert(error.message || 'Unable to load client branding', 'danger');
+    }
+}
+
+async function loadSelectedClientBranding() {
+    const clientId = document.getElementById('brandingClientSelect')?.value;
+    if (!clientId) return;
+    try {
+        const data = await fetchAPI(`${API_BASE_URL}/clients/${clientId}/branding`, { headers: getAuthHeaders() });
+        const branding = data.branding || {};
+        document.getElementById('clientBrandName').value = branding.brand_name || '';
+        document.getElementById('clientBrandLogo').value = branding.logo_url || '';
+        document.getElementById('clientPrimaryColor').value = branding.primary_color || branding.colors?.primary || '#0f766e';
+        document.getElementById('clientSecondaryColor').value = branding.secondary_color || branding.colors?.secondary || '#0f172a';
+        document.getElementById('clientBackgroundColor').value = branding.background_color || '#f6faf9';
+        document.getElementById('clientRegistrationContent').value = branding.registration_page_content || '';
+    } catch (error) {
+        showAlert(error.message || 'Unable to load client branding', 'danger');
+    }
+}
+
+async function saveClientBranding() {
+    const clientId = document.getElementById('brandingClientSelect')?.value;
+    if (!clientId) return showAlert('Select a client first', 'warning');
+    const branding = {
+        brand_name: document.getElementById('clientBrandName').value.trim(),
+        logo_url: document.getElementById('clientBrandLogo').value.trim(),
+        primary_color: document.getElementById('clientPrimaryColor').value,
+        secondary_color: document.getElementById('clientSecondaryColor').value,
+        background_color: document.getElementById('clientBackgroundColor').value,
+        registration_page_content: document.getElementById('clientRegistrationContent').value.trim()
+    };
+    try {
+        await fetchAPI(`${API_BASE_URL}/clients/${clientId}/branding`, {
+            method: 'PUT',
+            headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ branding })
+        });
+        showAlert('Client branding saved', 'success');
+    } catch (error) {
+        showAlert(error.message || 'Unable to save client branding', 'danger');
+    }
 }
 
 // ===================== EDIT GUEST =====================
@@ -2463,7 +2653,7 @@ async function loadStaff() {
                 </td>
                 <td style="padding:12px 16px;">
                     ${u.id !== currentUser.id ? `
-                    <button onclick="deleteStaff(${u.id}, '${SecurityUtils.escapeHtml(u.username)}')" class="action-btn delete" title="Delete">
+                    <button onclick="deleteStaff(${u.id}, ${SecurityUtils.escapeJsArgument(u.username)})" class="action-btn delete" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>` : '<span style="font-size:0.8rem; color:#94a3b8;">You</span>'}
                 </td>

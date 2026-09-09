@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const database = require('../db/config/database');
 
 /**
  * Database Backup Utility
@@ -35,8 +36,8 @@ async function createBackup() {
       throw new Error('Database file not found');
     }
 
-    // Copy database file
-    await fs.promises.copyFile(DB_PATH, backupPath);
+    // Use SQLite's online backup API so WAL pages are included consistently.
+    await database.db.backup(backupPath);
 
     // Get file size
     const stats = fs.statSync(backupPath);

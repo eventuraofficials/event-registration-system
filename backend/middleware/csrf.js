@@ -51,6 +51,10 @@ function setCSRFToken(req, res, next) {
  * Apply this to POST, PUT, PATCH, DELETE routes
  */
 function validateCSRFToken(req, res, next) {
+  // Bearer-token requests are not authenticated by browser cookies and are
+  // therefore outside the classic CSRF threat model.
+  if (req.headers.authorization) return next();
+
   // Skip for GET, HEAD, OPTIONS
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
     return next();

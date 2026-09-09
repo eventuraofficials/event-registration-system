@@ -95,6 +95,7 @@
             border-radius: 12px;
             background: rgba(255,255,255,0.12);
             border: 1px solid rgba(255,255,255,0.18);
+            -webkit-backdrop-filter: blur(8px);
             backdrop-filter: blur(8px);
         }
 
@@ -193,6 +194,7 @@
             border: 1px solid rgba(255,255,255,0.14);
             border-radius: 16px;
             background: rgba(15, 23, 42, 0.2);
+            -webkit-backdrop-filter: blur(8px);
             backdrop-filter: blur(8px);
         }
 
@@ -226,6 +228,7 @@
             border-radius: 22px;
             background: rgba(15, 23, 42, 0.38);
             box-shadow: 0 16px 44px rgba(15, 23, 42, 0.3);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
         }
 
@@ -614,6 +617,8 @@
         }
 
         .qr-aux a:hover { text-decoration: underline; }
+        .is-hidden { display: none !important; }
+        .qr-icon { margin-right: 8px; }
 
         .form-note {
             margin-top: 14px;
@@ -689,6 +694,7 @@
             position: sticky;
             top: 0;
             z-index: 30;
+            -webkit-backdrop-filter: blur(12px);
             backdrop-filter: blur(12px);
             background: rgba(255, 255, 255, 0.82);
             border-bottom: 1px solid rgba(148, 163, 184, 0.25);
@@ -1128,7 +1134,7 @@
                         <div class="form-stack">
                             <div id="eventInfo" class="card event-info-card" aria-busy="true">
                                 <div id="loadingEvent" class="event-info-body" role="status" aria-live="polite"></div>
-                                <div id="eventDetails" style="display: none;">
+                                <div id="eventDetails" class="is-hidden">
                                     <img id="eventLogo" class="event-logo-banner" alt="Event Logo">
                                     <div class="event-info-body">
                                         <div class="event-badge-row">
@@ -1166,7 +1172,7 @@
                                 </div>
                             </div>
 
-                            <div id="registrationClosed" class="card" style="display: none;">
+                            <div id="registrationClosed" class="card is-hidden">
                                 <div class="reg-closed-body">
                                     <i class="fas fa-lock reg-closed-icon"></i>
                                     <h3 class="reg-closed-title">Registration Closed</h3>
@@ -1174,7 +1180,7 @@
                                 </div>
                             </div>
 
-                            <div id="registrationFormCard" class="card form-card" style="display: none;">
+                            <div id="registrationFormCard" class="card form-card is-hidden">
                                 <div class="form-card-header">
                                     <div class="form-card-icon">
                                         <i class="fas fa-clipboard-list"></i>
@@ -1227,7 +1233,7 @@
                                     <div class="qr-aux" aria-label="QR registration alternative">
                                         <div class="divider-line">or</div>
                                         <div>
-                                            <i class="fas fa-qrcode" style="margin-right: 8px;"></i>
+                                            <i class="fas fa-qrcode qr-icon"></i>
                                             <span>Scan QR Code to Register</span>
                                         </div>
                                     </div>
@@ -1253,7 +1259,7 @@
                             <i class="fas fa-check-circle"></i>
                         </div>
                         <h1 id="qrSuccessTitle" class="qr-success-title" tabindex="-1">Registration Successful!</h1>
-                        <p class="qr-success-subtitle">Your digital entry ticket is ready</p>
+                        <p id="qrSuccessSubtitle" class="qr-success-subtitle">Your digital entry ticket is ready</p>
                     </div>
 
                     <!-- QR Ticket Card — Boarding pass style -->
@@ -1361,7 +1367,7 @@
     <script>
         Components.mount('#footerContainer', 'Footer', {
             year: new Date().getFullYear(),
-            text: 'Event Registration System. All rights reserved.'
+            text: 'BOH+ Event Operations and Solution. Everything behind the Experience.'
         });
         document.getElementById('loadingEvent').innerHTML = Components.render('LoadingSpinner', {
             text: 'Loading event information...',

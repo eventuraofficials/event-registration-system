@@ -3,6 +3,7 @@
 const API_BASE_URL = window.location.protocol === 'file:'
     ? 'http://localhost:5000/api'
     : `${window.location.origin}/api`;
+const OWNER_BRAND_NAME = 'BOH+ Event Operations and Solution';
 
 // API Endpoints
 const API = {
@@ -167,23 +168,13 @@ const stopTokenRefresh = () => {
 // Apply site branding to any page that loads config.js
 const applySiteBranding = async () => {
     try {
-        const data = await fetch(`${API_BASE_URL}/settings`).then(r => r.json());
-        if (!data.success) return;
-        const { site_name, site_tagline } = data.settings;
-        if (!site_name) return;
-        // Update browser tab title
-        document.title = site_name;
+        const siteName = OWNER_BRAND_NAME;
+        document.title = siteName;
         // Update any element with [data-site-name] attribute
         document.querySelectorAll('[data-site-name]').forEach(el => {
-            el.textContent = site_name;
+            el.textContent = siteName;
         });
-        // Update any element with [data-site-tagline] attribute
-        if (site_tagline) {
-            document.querySelectorAll('[data-site-tagline]').forEach(el => {
-                el.textContent = site_tagline;
-                el.style.display = '';
-            });
-        }
+        document.querySelectorAll('[data-site-tagline]').forEach(el => { el.style.display = 'none'; });
     } catch (e) { /* non-fatal */ }
 };
 

@@ -22,6 +22,10 @@ function escapeHtml(unsafe) {
     .replace(/\//g, '&#x2F;');
 }
 
+function escapeJsArgument(value) {
+  return escapeHtml(JSON.stringify(String(value ?? '')));
+}
+
 /**
  * Validates and sanitizes integer input
  * @param {any} value - Value to validate as integer
@@ -174,6 +178,7 @@ function validateUrl(url) {
 // Export functions for use in other files
 window.SecurityUtils = {
   escapeHtml,
+  escapeJsArgument,
   validateInteger,
   validateEmail,
   validateString,

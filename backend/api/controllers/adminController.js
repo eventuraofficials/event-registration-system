@@ -88,7 +88,10 @@ exports.login = async (req, res) => {
         id: user.id,
         username: user.username,
         email: user.email,
-        role: user.role
+        role: user.role,
+        client_id: user.client_id || null,
+        active: user.active !== 0,
+        auth_version: user.auth_version || 1
       },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
@@ -126,7 +129,7 @@ exports.login = async (req, res) => {
 exports.getProfile = async (req, res) => {
   try {
     const [users] = await db.execute(
-      'SELECT id, username, email, full_name, role, created_at FROM admin_users WHERE id = ?',
+      'SELECT id, username, email, full_name, role, client_id, active, created_at FROM admin_users WHERE id = ?',
       [req.user.id]
     );
 
@@ -156,8 +159,12 @@ exports.getProfile = async (req, res) => {
  */
 exports.refreshToken = async (req, res) => {
   try {
-    // User is already authenticated via middleware (req.user exists)
-    const user = req.user;
+    const [users] = await db.execute(
+      'SELECT id, username, email, full_name, role, client_id, active, auth_version FROM admin_users WHERE id = ?',
+      [req.user.id]
+    );
+    const user = users[0];
+    if (!user) return res.status(401).json({ success: false, message: 'User account is no longer available' });
 
     // Generate new JWT token
     const token = jwt.sign(
@@ -165,7 +172,10 @@ exports.refreshToken = async (req, res) => {
         id: user.id,
         username: user.username,
         email: user.email,
-        role: user.role
+        role: user.role,
+        client_id: user.client_id || null,
+        active: user.active !== 0,
+        auth_version: user.auth_version || 1
       },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
@@ -189,6 +199,16 @@ exports.refreshToken = async (req, res) => {
       success: false,
       message: 'Server error during token refresh'
     });
+  }
+};
+
+exports.logout = async (req, res) => {
+  try {
+    await db.execute('UPDATE admin_users SET auth_version = auth_version + 1 WHERE id = ?', [req.user.id]);
+    res.json({ success: true, message: 'Logged out successfully' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({ success: false, message: 'Unable to revoke session' });
   }
 };
 
@@ -305,7 +325,7 @@ exports.changePassword = async (req, res) => {
     if (!isValid) return res.status(401).json({ success: false, message: 'Current password is incorrect' });
 
     const hashed = await bcrypt.hash(new_password, 10);
-    await db.execute('UPDATE admin_users SET password = ? WHERE id = ?', [hashed, req.user.id]);
+    await db.execute('UPDATE admin_users SET password = ?, auth_version = auth_version + 1 WHERE id = ?', [hashed, req.user.id]);
 
     res.json({ success: true, message: 'Password changed successfully' });
   } catch (error) {
@@ -396,17 +416,30 @@ exports.getActivityLogs = async (req, res) => {
   try {
     const limit = Math.min(parseInt(req.query.limit) || 20, 100);
     const offset = Math.max(parseInt(req.query.offset) || 0, 0);
+    const isMasterAdmin = req.user.role === 'super_admin';
+    const scopeClause = isMasterAdmin
+      ? ''
+      : `WHERE EXISTS (SELECT 1 FROM client_user_assignments cu WHERE cu.client_id = e.client_id AND cu.user_id = ?)
+          OR EXISTS (SELECT 1 FROM event_user_assignments eu WHERE eu.event_id = al.event_id AND eu.user_id = ?)
+          OR (al.event_id IS NULL AND al.user_id = ?)`;
+    const scopeParams = isMasterAdmin ? [] : [req.user.id, req.user.id, req.user.id];
     const [logs] = await db.execute(
       `SELECT al.id, al.action, al.description, al.ip_address, al.created_at,
               au.username, e.event_name
        FROM activity_logs al
        LEFT JOIN admin_users au ON al.user_id = au.id
        LEFT JOIN events e ON al.event_id = e.id
+       ${scopeClause}
        ORDER BY al.created_at DESC
        LIMIT ? OFFSET ?`,
-      [limit, offset]
+      [...scopeParams, limit, offset]
     );
-    const [[{ total }]] = await db.execute('SELECT COUNT(*) as total FROM activity_logs');
+    const [[{ total }]] = await db.execute(
+      `SELECT COUNT(*) as total FROM activity_logs al
+       LEFT JOIN events e ON al.event_id = e.id
+       ${scopeClause}`,
+      scopeParams
+    );
     res.json({ success: true, logs, total, offset, limit });
   } catch (error) {
     console.error('Get activity logs error:', error);

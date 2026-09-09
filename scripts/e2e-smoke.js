@@ -2,7 +2,11 @@ const assert = require('node:assert/strict');
 
 const baseUrl = process.env.SMOKE_BASE_URL || 'http://localhost:5000';
 const adminUsername = process.env.SMOKE_ADMIN_USERNAME || 'admin';
-const adminPassword = process.env.SMOKE_ADMIN_PASSWORD || 'admin123';
+const adminPassword = process.env.SMOKE_ADMIN_PASSWORD || process.env.ADMIN_INITIAL_PASSWORD;
+
+if (!adminPassword) {
+  throw new Error('Set SMOKE_ADMIN_PASSWORD or ADMIN_INITIAL_PASSWORD before running the E2E smoke test');
+}
 
 async function request(path, options = {}) {
   const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;

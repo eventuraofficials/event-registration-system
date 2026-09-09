@@ -184,19 +184,22 @@ exports.uploadExcel = async (req, res) => {
 
         const [result] = await db.execute(
           `INSERT INTO guests (
-            event_id, guest_code, qr_code, full_name, email,
-            contact_number, home_address, company_name,
-            registration_type, registration_source
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pre_registered', 'excel_upload')`,
+            event_id, guest_code, qr_code, unique_guest_qr_identifier, full_name, email,
+            contact_number, home_address, address, company_name, company,
+            registration_status, attendance_status, registration_type, registration_source
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED', 'NOT_ATTENDED', 'pre_registered', 'excel_upload')`,
           [
             event_id,
             guestCode,
             qrCode,
+            guestCode,
             guest.full_name,
             guest.email || null,
             guest.contact_number || null,
             guest.home_address || null,
+            guest.home_address || null,
             guest.company_name || null
+            ,guest.company_name || null
           ]
         );
 
@@ -297,18 +300,19 @@ exports.selfRegister = async (req, res) => {
   home_address = sanitizeInput(home_address);
   company_name = sanitizeInput(company_name);
   guest_category = sanitizeInput(guest_category);
+    email = email.toLowerCase();
 
     // Validate required fields
-    if (!event_id || !full_name || !email || !contact_number) {
+    if (!event_id || !full_name) {
       return res.status(400).json({
         success: false,
-        message: 'Event ID, full name, email, and contact number are required'
+        message: 'Event ID and full name are required'
       });
     }
 
     // Validate email format
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
+    if (email && !emailRegex.test(email)) {
       return res.status(400).json({
         success: false,
         message: 'Please provide a valid email address'
@@ -325,7 +329,7 @@ exports.selfRegister = async (req, res) => {
 
     // Validate phone format (basic)
     const phoneRegex = /^[+]?[0-9\s\-()]{7,20}$/;
-    if (!phoneRegex.test(contact_number)) {
+    if (contact_number && !phoneRegex.test(contact_number)) {
       return res.status(400).json({
         success: false,
         message: 'Please provide a valid contact number'
@@ -334,7 +338,7 @@ exports.selfRegister = async (req, res) => {
 
     // Check if event exists and is open for registration
     const [events] = await db.execute(
-      'SELECT id, event_name, event_date, event_time, venue, registration_open, max_capacity FROM events WHERE id = ?',
+      "SELECT id, event_name, event_date, event_time, venue, status, registration_open, max_capacity, registration_form_config FROM events WHERE id = ?",
       [event_id]
     );
 
@@ -345,11 +349,28 @@ exports.selfRegister = async (req, res) => {
       });
     }
 
-    if (!events[0].registration_open) {
+    if (events[0].status !== 'active' || !events[0].registration_open) {
       return res.status(400).json({
         success: false,
         message: 'Registration is currently closed for this event'
       });
+    }
+
+    let formConfig = {};
+    try { formConfig = JSON.parse(events[0].registration_form_config || '{}'); } catch (e) { /* use defaults */ }
+    const configuredFields = formConfig.fields || {};
+    const requiredValues = {
+      full_name,
+      email,
+      contact_number,
+      home_address,
+      company_name,
+      guest_category
+    };
+    for (const [field, config] of Object.entries(configuredFields)) {
+      if (config?.enabled && config.required && !requiredValues[field]) {
+        return res.status(400).json({ success: false, message: `${config.label || field} is required` });
+      }
     }
 
     // Generate guest code and QR code before transaction (async work done outside)
@@ -364,7 +385,7 @@ exports.selfRegister = async (req, res) => {
     // Prevents race conditions when many guests register simultaneously
     const doRegister = db.db.transaction(() => {
       // Re-check capacity inside transaction (no other insert can slip between check and insert)
-      if (events[0].max_capacity) {
+      if (Number.isInteger(events[0].max_capacity) && events[0].max_capacity > 0) {
         const countRow = db.db.prepare('SELECT COUNT(*) as total FROM guests WHERE event_id = ?').get(event_id);
         if (countRow.total >= events[0].max_capacity) {
           return { error: 'full' };
@@ -372,18 +393,18 @@ exports.selfRegister = async (req, res) => {
       }
 
       // Check duplicate email inside transaction
-      const dup = db.db.prepare('SELECT id FROM guests WHERE event_id = ? AND email = ?').get(event_id, email);
+      const dup = db.db.prepare('SELECT id FROM guests WHERE event_id = ? AND lower(email) = ?').get(event_id, email);
       if (dup) {
         return { error: 'duplicate' };
       }
 
       const row = db.db.prepare(`
         INSERT INTO guests (
-          event_id, guest_code, qr_code, full_name, email,
-          contact_number, home_address, company_name, guest_category,
-          registration_type, registration_source
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'self_registered', 'online_form')
-      `).run(event_id, guestCode, qrCode, full_name, email, contact_number, home_address || null, company_name || null, category);
+          event_id, guest_code, qr_code, unique_guest_qr_identifier, full_name, email,
+          contact_number, home_address, address, company_name, company, guest_category,
+          registration_status, attendance_status, registration_type, registration_source
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED', 'NOT_ATTENDED', 'self_registered', 'online_form')
+      `).run(event_id, guestCode, qrCode, guestCode, full_name, email, contact_number, home_address || null, home_address || null, company_name || null, company_name || null, category);
 
       return { insertId: row.lastInsertRowid };
     });
@@ -400,7 +421,7 @@ exports.selfRegister = async (req, res) => {
     if (txResult.error === 'duplicate') {
       const [existingGuests] = await db.execute(
         `SELECT id, guest_code, qr_code, full_name, email, company_name, guest_category, event_id
-         FROM guests WHERE event_id = ? AND email = ? LIMIT 1`,
+         FROM guests WHERE event_id = ? AND lower(email) = ? LIMIT 1`,
         [event_id, email]
       );
 
@@ -521,12 +542,12 @@ exports.addGuestManual = async (req, res) => {
       }
       const row = db.db.prepare(`
         INSERT INTO guests (
-          event_id, guest_code, qr_code, full_name, email,
-          contact_number, home_address, company_name, guest_category,
-          registration_type, registration_source
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pre_registered', 'manual')
-      `).run(event_id, guestCode, qrCode, full_name, email || null, contact_number || null,
-             home_address || null, company_name || null, category);
+          event_id, guest_code, qr_code, unique_guest_qr_identifier, full_name, email,
+          contact_number, home_address, address, company_name, company, guest_category,
+          registration_status, attendance_status, registration_type, registration_source
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED', 'NOT_ATTENDED', 'pre_registered', 'manual')
+      `).run(event_id, guestCode, qrCode, guestCode, full_name, email || null, contact_number || null,
+             home_address || null, home_address || null, company_name || null, company_name || null, category);
       return { insertId: row.lastInsertRowid };
     });
 
@@ -676,7 +697,7 @@ exports.checkIn = async (req, res) => {
 
     // Update only an unchecked guest so concurrent scanners cannot check in the same guest twice.
     const [updateResult] = await db.execute(
-      "UPDATE guests SET attended = 1, check_in_time = datetime('now'), checked_in_by = ? WHERE id = ? AND attended = 0",
+      "UPDATE guests SET attended = 1, attendance_status = 'ATTENDED', check_in_time = datetime('now'), checked_in_by = ? WHERE id = ? AND attended = 0",
       [checkedInBy, guest.id]
     );
 
@@ -1040,10 +1061,10 @@ exports.updateGuest = async (req, res) => {
     const [result] = await db.execute(
       `UPDATE guests SET
         full_name = ?, email = ?, contact_number = ?,
-        home_address = ?, company_name = ?, guest_category = ?
+        home_address = ?, address = ?, company_name = ?, company = ?, guest_category = ?
       WHERE id = ?`,
       [full_name, email || null, contact_number || null,
-       home_address || null, company_name || null, category, id]
+       home_address || null, home_address || null, company_name || null, company_name || null, category, id]
     );
 
     if (result.affectedRows === 0) {

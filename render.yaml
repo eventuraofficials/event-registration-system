@@ -32,8 +32,13 @@ services:
         value: false
       - key: LOG_LEVEL
         value: info
+      - key: APP_URL
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
     disk:
       name: data
       mountPath: /opt/render/project/src/data
       sizeGB: 1
+    # Uploads and backups should be moved to object storage for durable production use.
     autoDeploy: true

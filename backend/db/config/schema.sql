@@ -1,118 +1,144 @@
--- Event Registration System Database Schema
--- Run this SQL file to create all necessary tables
+-- SQLite schema for Event Registration System.
+-- Runtime startup applies this shape and then runs additive migrations.
 
-CREATE DATABASE IF NOT EXISTS event_registration_db;
-USE event_registration_db;
+PRAGMA foreign_keys = ON;
 
--- Admin Users Table
 CREATE TABLE IF NOT EXISTS admin_users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(100) UNIQUE NOT NULL,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  password VARCHAR(255) NOT NULL,
-  full_name VARCHAR(255),
-  role ENUM('super_admin', 'admin', 'staff') DEFAULT 'staff',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX idx_email (email),
-  INDEX idx_username (username)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  full_name TEXT,
+  role TEXT NOT NULL DEFAULT 'staff' CHECK (role IN ('super_admin', 'admin', 'staff')),
+  client_id INTEGER,
+  active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0, 1)),
+  auth_version INTEGER NOT NULL DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
--- Events Table
+CREATE TABLE IF NOT EXISTS clients (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  status TEXT NOT NULL DEFAULT 'active',
+  branding_config TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS events (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  event_name VARCHAR(255) NOT NULL,
-  event_code VARCHAR(50) UNIQUE NOT NULL,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  client_id INTEGER NOT NULL,
+  event_name TEXT NOT NULL,
+  event_code TEXT UNIQUE NOT NULL,
+  event_qr_code TEXT,
   event_date DATE NOT NULL,
   event_time TIME,
-  venue VARCHAR(255),
+  venue TEXT,
   description TEXT,
-  registration_open BOOLEAN DEFAULT TRUE,
-  created_by INT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (created_by) REFERENCES admin_users(id) ON DELETE SET NULL,
-  INDEX idx_event_code (event_code),
-  INDEX idx_event_date (event_date)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  max_capacity INTEGER,
+  registration_open INTEGER NOT NULL DEFAULT 1 CHECK (registration_open IN (0, 1)),
+  registration_form_config TEXT,
+  event_logo TEXT,
+  client_name TEXT,
+  font_style TEXT,
+  font_size TEXT,
+  created_by INTEGER,
+  event_slug TEXT,
+  status TEXT NOT NULL DEFAULT 'active',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE RESTRICT,
+  FOREIGN KEY (created_by) REFERENCES admin_users(id) ON DELETE SET NULL
+);
 
--- Guests Table (Main Registration Data)
-CREATE TABLE IF NOT EXISTS guests (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  event_id INT NOT NULL,
-  guest_code VARCHAR(100) UNIQUE NOT NULL,
-  qr_code VARCHAR(255) UNIQUE NOT NULL,
+CREATE TABLE IF NOT EXISTS client_user_assignments (
+  client_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  role TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (client_id, user_id),
+  FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES admin_users(id) ON DELETE CASCADE
+);
 
-  -- Personal Information
-  full_name VARCHAR(255) NOT NULL,
-  email VARCHAR(255),
-  contact_number VARCHAR(50),
-  home_address TEXT,
-  company_name VARCHAR(255),
-
-  -- Registration Details
-  registration_type ENUM('pre_registered', 'self_registered') DEFAULT 'self_registered',
-  registration_source ENUM('excel_upload', 'online_form', 'manual') DEFAULT 'online_form',
-
-  -- Attendance Status
-  attended BOOLEAN DEFAULT FALSE,
-  check_in_time TIMESTAMP NULL,
-  checked_in_by INT NULL,
-
-  -- Metadata
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
+CREATE TABLE IF NOT EXISTS event_user_assignments (
+  event_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  role TEXT NOT NULL,
+  permissions_json TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (event_id, user_id),
   FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
-  FOREIGN KEY (checked_in_by) REFERENCES admin_users(id) ON DELETE SET NULL,
+  FOREIGN KEY (user_id) REFERENCES admin_users(id) ON DELETE CASCADE
+);
 
-  INDEX idx_guest_code (guest_code),
-  INDEX idx_qr_code (qr_code),
-  INDEX idx_email (email),
-  INDEX idx_full_name (full_name),
-  INDEX idx_company (company_name),
-  INDEX idx_attended (attended),
-  INDEX idx_event_id (event_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS facilitator_access_tokens (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  event_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  token_hash TEXT UNIQUE NOT NULL,
+  token_ciphertext TEXT,
+  expires_at DATETIME NOT NULL,
+  status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'inactive', 'revoked')),
+  revoked_at DATETIME,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES admin_users(id) ON DELETE CASCADE
+);
 
--- Activity Logs Table (Audit Trail)
+CREATE TABLE IF NOT EXISTS guests (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  event_id INTEGER NOT NULL,
+  guest_code TEXT UNIQUE NOT NULL,
+  qr_code TEXT UNIQUE NOT NULL,
+  full_name TEXT NOT NULL,
+  email TEXT,
+  contact_number TEXT,
+  home_address TEXT,
+  address TEXT,
+  company_name TEXT,
+  company TEXT,
+  guest_category TEXT DEFAULT 'Regular',
+  registration_type TEXT NOT NULL DEFAULT 'self_registered' CHECK (registration_type IN ('pre_registered', 'self_registered')),
+  registration_source TEXT NOT NULL DEFAULT 'online_form' CHECK (registration_source IN ('excel_upload', 'online_form', 'manual')),
+  registration_status TEXT NOT NULL DEFAULT 'CONFIRMED',
+  attendance_status TEXT NOT NULL DEFAULT 'NOT_ATTENDED',
+  unique_guest_qr_identifier TEXT UNIQUE,
+  attended INTEGER NOT NULL DEFAULT 0 CHECK (attended IN (0, 1)),
+  check_in_time DATETIME,
+  check_in_gate TEXT,
+  checked_in_by INTEGER,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+  FOREIGN KEY (checked_in_by) REFERENCES admin_users(id) ON DELETE SET NULL
+);
+
 CREATE TABLE IF NOT EXISTS activity_logs (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT,
-  event_id INT,
-  guest_id INT,
-  action VARCHAR(100) NOT NULL,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER,
+  event_id INTEGER,
+  guest_id INTEGER,
+  action TEXT NOT NULL,
   description TEXT,
-  ip_address VARCHAR(45),
+  ip_address TEXT,
   user_agent TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES admin_users(id) ON DELETE SET NULL,
   FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
-  FOREIGN KEY (guest_id) REFERENCES guests(id) ON DELETE CASCADE,
-
-  INDEX idx_action (action),
-  INDEX idx_created_at (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Insert default admin user (password: admin123)
-INSERT INTO admin_users (username, email, password, full_name, role)
-VALUES (
-  'admin',
-  'admin@event.com',
-  '$2a$10$rZQ8qF6hJZYJZqJ5ZQJZQeJZQJZQJZQJZQJZQJZQJZQJZQJZQJZQO',
-  'System Administrator',
-  'super_admin'
+  FOREIGN KEY (guest_id) REFERENCES guests(id) ON DELETE CASCADE
 );
 
--- Insert sample event
-INSERT INTO events (event_name, event_code, event_date, event_time, venue, description, created_by)
-VALUES (
-  'Sample Conference 2025',
-  'CONF2025',
-  '2025-12-01',
-  '09:00:00',
-  'Grand Convention Center',
-  'Annual Technology Conference',
-  1
+CREATE TABLE IF NOT EXISTS site_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS idx_event_code ON events(event_code);
+CREATE INDEX IF NOT EXISTS idx_guest_event ON guests(event_id);
+CREATE INDEX IF NOT EXISTS idx_guest_email ON guests(email);
+CREATE INDEX IF NOT EXISTS idx_guest_attended ON guests(attended);
+CREATE INDEX IF NOT EXISTS idx_activity_created ON activity_logs(created_at);

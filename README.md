@@ -70,11 +70,8 @@ npm run test:e2e
 
 Server starts at `http://localhost:5000`
 
-### Default Admin Login
-- **Username**: `admin`
-- **Password**: `admin123`
-
-> Change this password immediately after first login via Settings → Change Password.
+### Initial Admin Login
+Set `ADMIN_INITIAL_PASSWORD` (at least 12 characters) before the first startup. Customize the account with `ADMIN_INITIAL_USERNAME` and `ADMIN_INITIAL_EMAIL` if needed.
 
 ---
 
@@ -85,7 +82,7 @@ Server starts at `http://localhost:5000`
 3. Connect your repo
 4. Set:
    - **Build Command**: `npm install`
-   - **Start Command**: `npm start`
+   - **Start Command**: `npm run production`
 5. Add Environment Variables:
 
 | Variable | Value |
@@ -251,7 +248,7 @@ Open `/pages/checkin.html` on a tablet/phone:
 | `NODE_ENV` | Yes | `production` or `development` |
 | `PORT` | Yes | Server port (`10000` for Render) |
 | `JWT_SECRET` | Yes | Random string, min 32 chars |
-| `APP_URL` | Yes | Full app URL (used for QR code links) |
+| `APP_URL` | Yes in production | Full app URL (used for QR code links) |
 | `CORS_ORIGIN` | Yes | Allowed CORS origin |
 | `KEEP_ALIVE` | No | `true` — self-ping every 14min to prevent Render spin-down |
 | `EMAIL_ENABLED` | No | `true` to enable email notifications |

@@ -1,5 +1,22 @@
 const db = require('../../db/config/database');
 const { normalizeEventSetup, buildRegistrationFormConfig } = require('../../utils/eventSetup');
+const { normalizedRole, ROLE, canAccessClient } = require('../../middleware/authorization');
+const { resolveEventBranding, parseBranding } = require('../../utils/branding');
+
+function authorizedEventScope(req) {
+  const role = normalizedRole(req.user);
+  if (role === ROLE.MASTER_ADMIN) return { clause: '', params: [] };
+  if (role === ROLE.CLIENT_ADMIN) {
+    return {
+      clause: 'WHERE EXISTS (SELECT 1 FROM client_user_assignments cu WHERE cu.client_id = e.client_id AND cu.user_id = ?)',
+      params: [req.user.id]
+    };
+  }
+  return {
+    clause: 'WHERE EXISTS (SELECT 1 FROM event_user_assignments eu WHERE eu.event_id = e.id AND eu.user_id = ?)',
+    params: [req.user.id]
+  };
+}
 
 async function logActivity(userId, eventId, action, description, req) {
   try {
@@ -46,8 +63,9 @@ exports.getAvailableEvents = async (req, res) => {
         venue,
         registration_open,
         event_logo
-      FROM events
-      WHERE registration_open = 1
+      FROM events e
+      JOIN clients c ON c.id = e.client_id
+      WHERE e.registration_open = 1 AND e.status = 'active' AND c.status = 'active'
       ORDER BY event_date ASC`
     );
 
@@ -71,6 +89,22 @@ exports.getAvailableEvents = async (req, res) => {
 exports.createEvent = async (req, res) => {
   try {
 let { event_name, event_code, event_date, event_time, venue, description, max_capacity, registration_open, client_name, font_style, font_size } = req.body;
+    const clientId = req.user.role === 'super_admin'
+      ? Number(req.body.client_id)
+      : Number(req.body.client_id || req.user.client_id);
+    if (!Number.isInteger(clientId) || clientId < 1) {
+      return res.status(403).json({ success: false, message: 'A valid authorized client is required' });
+    }
+    if (!(await canAccessClient(req.user, clientId))) {
+      return res.status(403).json({ success: false, message: 'You are not authorized to create events for this client' });
+    }
+    const [clients] = await db.execute(
+      "SELECT id FROM clients WHERE id = ? AND status = 'active'",
+      [clientId]
+    );
+    if (clients.length === 0) {
+      return res.status(403).json({ success: false, message: 'Client is not available for event creation' });
+    }
     const normalizedSetup = normalizeEventSetup(req.body);
     const registrationConfig = buildRegistrationFormConfig(normalizedSetup);
     const registrationConfigString = JSON.stringify(registrationConfig);
@@ -81,6 +115,16 @@ let { event_name, event_code, event_date, event_time, venue, description, max_ca
     venue = sanitizeString(venue, 255);
     description = sanitizeString(description, 1000);
     client_name = client_name ? sanitizeString(client_name, 150) : null;
+
+    const parsedCapacity = max_capacity === '' || max_capacity === null || max_capacity === undefined
+      ? null
+      : Number(max_capacity);
+    if (parsedCapacity !== null && (!Number.isInteger(parsedCapacity) || parsedCapacity < 1)) {
+      return res.status(400).json({ success: false, message: 'Maximum capacity must be a positive whole number' });
+    }
+    const registrationIsOpen = registration_open === undefined
+      ? 1
+      : (registration_open === true || registration_open === 1 || registration_open === '1' || registration_open === 'true' ? 1 : 0);
 
     // Validate event_code format (alphanumeric, dash, underscore only)
     if (!/^[a-zA-Z0-9_-]+$/.test(event_code)) {
@@ -138,10 +182,11 @@ let { event_name, event_code, event_date, event_time, venue, description, max_ca
     // Insert event
     const [result] = await db.execute(
       `INSERT INTO events (
-        event_name, event_code, event_qr_code, event_date, event_time,
+        client_id, event_name, event_code, event_qr_code, event_date, event_time,
         venue, description, max_capacity, registration_open, registration_form_config, client_name, font_style, font_size, created_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
+        clientId,
         event_name,
         event_code,
         eventQRCode,
@@ -149,8 +194,8 @@ let { event_name, event_code, event_date, event_time, venue, description, max_ca
         event_time || null,
         venue || null,
         description || null,
-        max_capacity || null,
-        registration_open !== undefined ? (registration_open ? 1 : 0) : 1,
+        parsedCapacity,
+        registrationIsOpen,
         registrationConfigString,
         client_name || null,
         font_style || null,
@@ -190,6 +235,7 @@ let { event_name, event_code, event_date, event_time, venue, description, max_ca
  */
 exports.getAllEvents = async (req, res) => {
   try {
+    const scope = authorizedEventScope(req);
     const [events] = await db.execute(
       `SELECT
         e.*,
@@ -199,8 +245,10 @@ exports.getAllEvents = async (req, res) => {
       FROM events e
       LEFT JOIN admin_users a ON e.created_by = a.id
       LEFT JOIN guests g ON e.id = g.event_id
+      ${scope.clause}
       GROUP BY e.id
-      ORDER BY e.event_date DESC`
+      ORDER BY e.event_date DESC`,
+      scope.params
     );
 
     res.json({
@@ -265,10 +313,11 @@ exports.getEventByCode = async (req, res) => {
 
     const [events] = await db.execute(
       `SELECT
-        id, event_name, event_code, event_date,
-        event_time, venue, description, registration_open, registration_form_config, event_logo, max_capacity, client_name, font_style, font_size
-      FROM events
-      WHERE event_code = ?`,
+        e.id, e.event_name, e.event_code, e.event_date,
+        e.event_time, e.venue, e.description, e.registration_open, e.registration_form_config, e.event_logo, e.max_capacity, e.client_name, e.font_style, e.font_size,
+        c.name AS client_name_record, c.branding_config
+      FROM events e JOIN clients c ON c.id = e.client_id
+      WHERE e.event_code = ? AND e.status = 'active' AND c.status = 'active'`,
       [event_code]
     );
 
@@ -281,6 +330,14 @@ exports.getEventByCode = async (req, res) => {
 
     // Parse form config if it exists
     const event = events[0];
+    const parsedRegistrationConfig = event.registration_form_config ? parseBranding(event.registration_form_config) : {};
+    event.branding = resolveEventBranding({
+      clientBranding: event.branding_config,
+      eventBranding: parsedRegistrationConfig.branding,
+      clientName: event.client_name || event.client_name_record,
+      eventName: event.event_name,
+      eventLogo: event.event_logo
+    });
 
     // Include registered guest count for capacity display
     if (event.max_capacity) {
@@ -497,6 +554,10 @@ exports.toggleRegistration = async (req, res) => {
  */
 exports.getAllEventsForCheckIn = async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Authentication required' });
+    }
+    const scope = authorizedEventScope(req);
     const [events] = await db.execute(
       `SELECT
         id,
@@ -507,8 +568,10 @@ exports.getAllEventsForCheckIn = async (req, res) => {
         venue,
         registration_open,
         event_logo
-      FROM events
-      ORDER BY event_date DESC`
+      FROM events e
+      ${scope.clause}
+      ORDER BY e.event_date DESC`,
+      scope.params
     );
 
     res.json({
@@ -609,6 +672,23 @@ exports.uploadEventLogo = async (req, res) => {
     });
   } catch (error) {
     console.error('Upload event logo error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+exports.updateEventBranding = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [events] = await db.execute('SELECT registration_form_config FROM events WHERE id = ?', [id]);
+    if (!events[0]) return res.status(404).json({ success: false, message: 'Event not found' });
+    let config = {};
+    try { config = JSON.parse(events[0].registration_form_config || '{}'); } catch {}
+    const branding = buildRegistrationFormConfig({ branding: req.body.branding || req.body }).branding;
+    config.branding = branding;
+    await db.execute('UPDATE events SET registration_form_config = ? WHERE id = ?', [JSON.stringify(config), id]);
+    res.json({ success: true, branding });
+  } catch (error) {
+    console.error('Update event branding error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };

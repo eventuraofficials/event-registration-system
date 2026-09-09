@@ -120,6 +120,17 @@ app.get('/', (req, res) => {
   res.redirect('/pages/landing.html');
 });
 
+app.get('/event/:eventIdentifier', (req, res) => {
+  const identifier = String(req.params.eventIdentifier || '');
+  if (!/^[a-zA-Z0-9_-]{3,120}$/.test(identifier)) return res.status(404).send('Event portal not found');
+  res.redirect(`/pages/event-portal.html?event=${encodeURIComponent(identifier)}`);
+});
+
+app.get('/facilitator/:accessToken', (req, res) => {
+  if (!/^[A-Za-z0-9_-]{40,100}$/.test(req.params.accessToken || '')) return res.status(404).send('Facilitator portal not found');
+  res.redirect(`/pages/facilitator.html?access=${encodeURIComponent(req.params.accessToken)}`);
+});
+
 // Static files - Serve public folder with no-cache for JS files
 // Use process.cwd() for deployment compatibility
 const publicPath = path.join(process.cwd(), 'public');
@@ -144,10 +155,13 @@ const adminRoutes = require('./api/routes/adminRoutes');
 const eventRoutes = require('./api/routes/eventRoutes');
 const guestRoutes = require('./api/routes/guestRoutes');
 const settingsRoutes = require('./api/routes/settingsRoutes');
+const tenantRoutes = require('./api/routes/tenantRoutes');
+const eventPortalRoutes = require('./api/routes/eventPortalRoutes');
+const facilitatorRoutes = require('./api/routes/facilitatorRoutes');
+const eventAccessRoutes = require('./api/routes/eventAccessRoutes');
 const { authenticateToken, authorizeRole } = require('./middleware/auth');
 
 // Public endpoint rate limiting (applied before route handlers)
-app.use('/api/events/available', publicLimiter);
 app.use('/api/events/checkin-available', publicLimiter);
 app.use('/api/events/public', publicLimiter);
 app.use('/api/guests/verify', publicLimiter);
@@ -159,6 +173,10 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/guests', guestRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/clients', tenantRoutes);
+app.use('/api/event-portals', eventPortalRoutes);
+app.use('/api/facilitator-portals', facilitatorRoutes);
+app.use('/api/event-access', eventAccessRoutes);
 app.get('/api/csrf-token', sendCSRFToken);
 
 // Export loginLimiter for use in routes

@@ -4,6 +4,7 @@ const guestController = require('../controllers/guestController');
 const { authenticateToken } = require('../../middleware/auth');
 const { upload } = require('../../middleware/upload');
 const { validateCSRFToken } = require('../../middleware/csrf');
+const { authorizeEventAccess, authorizeGuestAccess, authorizeEventRole, ROLE } = require('../../middleware/authorization');
 
 const uploadGuestFile = (req, res, next) => {
   upload.single('file')(req, res, (error) => {
@@ -21,23 +22,25 @@ const uploadGuestFile = (req, res, next) => {
 
 // Public routes
 router.post('/register', validateCSRFToken, guestController.selfRegister);
-router.get('/verify', authenticateToken, guestController.getGuestByQR);
-router.post('/checkin', authenticateToken, guestController.checkIn);
+router.get('/verify', authenticateToken, authorizeEventAccess({ source: 'query', field: 'event_id' }), guestController.getGuestByQR);
+router.post('/checkin', authenticateToken, validateCSRFToken, authorizeEventAccess({ source: 'body', field: 'event_id' }), guestController.checkIn);
 
 // Protected routes
-router.post('/add', authenticateToken, guestController.addGuestManual);
+router.post('/add', authenticateToken, validateCSRFToken, authorizeEventAccess({ source: 'body', field: 'event_id' }), guestController.addGuestManual);
 
 router.post('/upload-excel',
   authenticateToken,
+  validateCSRFToken,
+  authorizeEventAccess({ source: 'body', field: 'event_id' }),
   uploadGuestFile,
   guestController.uploadExcel
 );
 
-router.get('/event/:event_id', authenticateToken, guestController.getGuestsByEvent);
-router.get('/event/:event_id/stats', authenticateToken, guestController.getEventStats);
-router.get('/event/:eventId/export', authenticateToken, guestController.exportGuestList);
-router.post('/:id/resend-ticket', authenticateToken, guestController.resendTicket);
-router.put('/:id', authenticateToken, guestController.updateGuest);
-router.delete('/:id', authenticateToken, guestController.deleteGuest);
+router.get('/event/:event_id', authenticateToken, authorizeEventAccess({ field: 'event_id' }), guestController.getGuestsByEvent);
+router.get('/event/:event_id/stats', authenticateToken, authorizeEventAccess({ field: 'event_id' }), guestController.getEventStats);
+router.get('/event/:eventId/export', authenticateToken, authorizeEventAccess({ field: 'eventId' }), guestController.exportGuestList);
+router.post('/:id/resend-ticket', authenticateToken, validateCSRFToken, authorizeGuestAccess(), authorizeEventRole(ROLE.MASTER_ADMIN, ROLE.CLIENT_ADMIN, ROLE.QC), guestController.resendTicket);
+router.put('/:id', authenticateToken, validateCSRFToken, authorizeGuestAccess(), authorizeEventRole(ROLE.MASTER_ADMIN, ROLE.CLIENT_ADMIN, ROLE.QC), guestController.updateGuest);
+router.delete('/:id', authenticateToken, validateCSRFToken, authorizeGuestAccess(), authorizeEventRole(ROLE.MASTER_ADMIN, ROLE.CLIENT_ADMIN, ROLE.QC), guestController.deleteGuest);
 
 module.exports = router;

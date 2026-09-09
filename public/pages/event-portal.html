@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Event Portal</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="../css/theme/modern-theme.css">
+    <style>
+        :root { --portal-primary: #0f766e; --portal-secondary: #102a2c; --portal-accent: #ea6b57; --portal-bg: #f4f7f6; --portal-line: #dfe7e4; --portal-muted: #607477; --portal-soft: color-mix(in srgb, var(--portal-primary) 9%, #fff); }
+        * { box-sizing: border-box; }
+        body { margin: 0; color: var(--portal-secondary); background: radial-gradient(circle at 85% 0%, color-mix(in srgb, var(--portal-primary) 13%, transparent), transparent 28rem), var(--portal-bg); font-family: "Trebuchet MS", ui-sans-serif, sans-serif; }
+        .portal-header { color: #fff; background: var(--portal-secondary); box-shadow: 0 3px 18px #102a2c1f; }
+        .portal-header-inner, .portal-main { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+        .portal-header-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 76px; }
+        .portal-brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: .01em; }
+        .portal-logo { width: 44px; height: 44px; padding: 4px; object-fit: contain; border-radius: 12px; background: #fff; }
+        .portal-user { display: flex; align-items: center; gap: 14px; color: #c5d8d5; font-size: .82rem; }
+        button { min-height: 42px; padding: 0 16px; border: 0; border-radius: 8px; color: #fff; background: var(--portal-primary); font: inherit; font-weight: 700; cursor: pointer; transition: transform .18s ease, filter .18s ease; } button:hover { filter: brightness(1.08); transform: translateY(-1px); }
+        button.secondary { color: var(--portal-secondary); background: #fff; }
+        .portal-main { padding: 38px 0 64px; }
+        .event-hero { position: relative; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; min-height: 280px; padding: 38px; color: #fff; border-radius: 20px; background: linear-gradient(118deg, color-mix(in srgb, var(--portal-secondary) 96%, transparent), color-mix(in srgb, var(--portal-primary) 76%, transparent)); box-shadow: 0 18px 45px #102a2c26; overflow: hidden; }
+        .event-hero::after { position: absolute; right: -80px; bottom: -130px; width: 360px; height: 360px; border: 1px solid #ffffff30; border-radius: 50%; content: ""; box-shadow: 0 0 0 34px #ffffff0b, 0 0 0 68px #ffffff08; }
+        .event-hero > * { position: relative; z-index: 1; }
+        .eyebrow { margin: 0 0 14px; color: #a7eed8; font-size: .7rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+        h1, h2, p { margin-top: 0; } h1 { max-width: 760px; margin-bottom: 14px; font-size: clamp(2.3rem, 5vw, 5rem); line-height: .95; letter-spacing: -.055em; } .event-meta { margin: 0; color: #d7e8e5; font-size: .95rem; }
+        .event-logo-large { max-width: 190px; max-height: 112px; padding: 12px; object-fit: contain; border-radius: 14px; background: #fff; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 24px 0; }
+        .stat, .panel { border: 1px solid var(--portal-line); border-radius: 12px; background: #fff; box-shadow: 0 8px 25px #102a2c0a; }
+        .stat { padding: 22px; } .stat strong { display: block; color: var(--portal-primary); font-size: 2.25rem; letter-spacing: -.04em; } .stat span { color: var(--portal-muted); font-size: .78rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; }
+        .portal-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; }
+        .panel { padding: 24px; } .panel h2 { margin-bottom: 18px; font-size: 1.1rem; letter-spacing: -.02em; }
+        .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; } input, select { min-height: 42px; padding: 0 12px; color: var(--portal-secondary); border: 1px solid var(--portal-line); border-radius: 8px; background: #fbfdfc; font: inherit; } input:focus, select:focus { outline: 3px solid var(--portal-primary); border-color: var(--portal-primary); } input { flex: 1 1 220px; }
+        .table-wrap { overflow-x: auto; } table { width: 100%; border-collapse: collapse; font-size: .84rem; } th, td { padding: 13px 8px; border-bottom: 1px solid var(--portal-line); text-align: left; white-space: nowrap; } th { color: var(--portal-muted); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
+        .assignment { padding: 12px 0; border-bottom: 1px solid var(--portal-line); } .assignment:last-child { border-bottom: 0; } .assignment strong, .assignment span { display: block; } .assignment span { color: var(--portal-muted); font-size: .78rem; }
+        .notice { padding: 14px 16px; border-radius: 8px; color: #7c2d12; background: #ffedd5; } .hidden { display: none !important; }
+        .portal-login-card { max-width: 440px; margin: 48px auto; } .portal-login-card form { display: grid; gap: 9px; } .portal-login-card label { margin-top: 7px; color: var(--portal-muted); font-size: .8rem; font-weight: 700; } .portal-login-title { font-size: 2rem; }
+        .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+        @media (max-width: 760px) { .portal-header-inner { align-items: flex-start; padding: 14px 0; flex-direction: column; } .portal-user { width: 100%; justify-content: space-between; } .portal-main { width: min(100% - 24px, 1180px); padding-top: 24px; } .event-hero { align-items: flex-start; flex-direction: column; min-height: 300px; padding: 28px 24px; } .stats-grid, .portal-grid { grid-template-columns: 1fr; } .panel { padding: 18px; } }
+    </style>
+</head>
+<body>
+<header class="portal-header"><div class="portal-header-inner"><div class="portal-brand"><img id="portalLogo" class="portal-logo hidden" alt="Client logo"><span id="portalBrandName">Event Portal</span></div><div class="portal-user"><span id="portalUserName"></span><button id="logoutButton" class="secondary" type="button">Sign out</button></div></div></header>
+<section id="portalLogin" class="portal-main"><div class="panel portal-login-card"><h1 class="portal-login-title">Event Portal Sign In</h1><p>Sign in to view this assigned event.</p><form id="portalLoginForm"><label for="portalUsername">Username or email</label><input id="portalUsername" required autocomplete="username"><label for="portalPassword">Password</label><input id="portalPassword" type="password" required autocomplete="current-password"><button type="submit">Sign in</button><p id="portalLoginError" class="notice hidden"></p></form></div></section>
+<main id="portalContent" class="portal-main hidden">
+    <div id="portalNotice" class="notice hidden"></div>
+    <section class="event-hero"><div><p id="clientLabel" class="eyebrow">Client Event Portal</p><h1 id="eventName">Loading event...</h1><p id="eventMeta" class="event-meta"></p></div><img id="eventLogo" class="event-logo-large hidden" alt="Event logo"></section>
+    <section class="stats-grid" aria-label="Event summary"><div class="stat"><strong id="registeredCount">0</strong><span>Registered guests</span></div><div class="stat"><strong id="attendedCount">0</strong><span>Attended</span></div><div class="stat"><strong id="remainingCount">0</strong><span>Not attended</span></div></section>
+    <div class="portal-grid"><section id="guestPanel" class="panel"><h2>Registered Guests</h2><div class="toolbar"><input id="guestSearch" type="search" placeholder="Search guests" aria-label="Search guests"><label class="visually-hidden" for="guestStatus">Guest attendance status</label><select id="guestStatus"><option value="">All statuses</option><option value="attended">Attended</option><option value="not_attended">Not attended</option></select></div><div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Status</th><th>Action</th></tr></thead><tbody id="guestRows"><tr><td colspan="5">Loading...</td></tr></tbody></table></div></section><aside><section id="assignmentPanel" class="panel hidden"><h2>Event Team</h2><div id="facilitatorList"></div><div id="qcList"></div></section><section id="reportPanel" class="panel"><h2>Reports</h2><p id="reportSummary">Loading report...</p><button id="refreshButton" type="button">Refresh data</button></section></aside></div>
+</main>
+<script src="../js/core/config.js"></script><script src="../js/pages/event-portal.js"></script>
+</body>
+</html>

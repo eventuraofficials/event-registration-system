@@ -1,4 +1,4 @@
-# =€ Event Registration System - Production Deployment Guide
+# =ï¿½ Event Registration System - Production Deployment Guide
 
 ## Para sa Real World Website Deployment
 
@@ -6,7 +6,7 @@ Kompleto at step-by-step guide para i-deploy ang Event Registration System sa **
 
 ---
 
-## =Ë Table of Contents
+## =ï¿½ Table of Contents
 
 1. [Pre-Deployment Checklist](#pre-deployment-checklist)
 2. [Option 1: Deploy sa Render.com (Recommended - FREE)](#option-1-rendercom)
@@ -26,11 +26,11 @@ Bago mag-deploy, siguraduhing:
 - [x]  Database properly configured
 - [x]  Environment variables ready
 - [ ] = GitHub account (para sa deployment)
-- [ ] =³ Email account (optional, para sa QR code sending)
+- [ ] =ï¿½ Email account (optional, para sa QR code sending)
 
 ---
 
-## <¯ Option 1: Render.com (RECOMMENDED)
+## <ï¿½ Option 1: Render.com (RECOMMENDED)
 
 ### Why Render?
 -  **100% FREE** tier available
@@ -82,7 +82,7 @@ Fill in the following:
 
 #### 5. Add Environment Variables
 
-Click **"Advanced"** ’ **"Add Environment Variable"**
+Click **"Advanced"** ï¿½ **"Add Environment Variable"**
 
 **Required Variables:**
 
@@ -138,13 +138,13 @@ curl https://your-app-name.onrender.com/api/health
 
 After deployment, access your app:
 
-- **Registration**: `https://your-app-name.onrender.com/index.html`
-- **Admin Panel**: `https://your-app-name.onrender.com/admin.html`
-- **Check-In Scanner**: `https://your-app-name.onrender.com/checkin.html`
+- **Registration**: `https://your-app-name.onrender.com/pages/index.html?event=EVENTCODE`
+- **Admin Panel**: `https://your-app-name.onrender.com/pages/admin.html`
+- **Check-In Scanner**: `https://your-app-name.onrender.com/pages/checkin.html`
 
 ---
 
-## =‚ Option 2: Railway.app (Alternative)
+## =ï¿½ Option 2: Railway.app (Alternative)
 
 ### Why Railway?
 -  $5 free trial credit
@@ -184,6 +184,9 @@ git push origin main
 ```bash
 NODE_ENV=production
 PORT=10000
+ADMIN_INITIAL_PASSWORD=your_secure_password_at_least_12_characters
+ADMIN_INITIAL_USERNAME=admin
+ADMIN_INITIAL_EMAIL=admin@example.com
 
 # Generate secure JWT secret
 JWT_SECRET=your_generated_secret_here_at_least_32_characters
@@ -208,9 +211,9 @@ Visit: `https://your-app.up.railway.app/api/health`
 
 ### 1. Create Admin Account
 
-1. Visit: `https://your-app.onrender.com/admin.html`
-2. Register first admin account
-3. The first user will automatically be Super Admin
+1. Set `ADMIN_INITIAL_PASSWORD`, `ADMIN_INITIAL_USERNAME`, and `ADMIN_INITIAL_EMAIL` in the deployment environment.
+2. Start the service with `npm run production`.
+3. Login at `https://your-app.onrender.com/pages/admin.html` using the configured initial admin account.
 
 ### 2. Create First Event
 
@@ -242,7 +245,7 @@ Para magamit ang email sending:
 1. Go to [Google Account Security](https://myaccount.google.com/security)
 2. Enable **2-Step Verification**
 3. Create **App Password**:
-   - Go to Security ’ 2-Step Verification ’ App passwords
+   - Go to Security ï¿½ 2-Step Verification ï¿½ App passwords
    - Select "Mail" and "Other (Custom name)"
    - Name it "Event Registration"
    - Copy the generated password
@@ -265,7 +268,7 @@ EMAIL_PASSWORD=your_app_password_here
 1. Buy domain from [Namecheap](https://namecheap.com) or [Google Domains](https://domains.google)
 2. In Render dashboard:
    - Go to your service
-   - Click **"Settings"** ’ **"Custom Domain"**
+   - Click **"Settings"** ï¿½ **"Custom Domain"**
    - Add your domain (e.g., `events.yourdomain.com`)
 3. Add DNS records in your domain provider:
    - **Type**: CNAME
@@ -316,7 +319,7 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 
 ---
 
-## =Ê Monitoring Your Production App
+## =ï¿½ Monitoring Your Production App
 
 ### Check Application Health
 
@@ -341,7 +344,7 @@ curl https://your-app.onrender.com/api/health
 
 ---
 
-## <‰ Success Checklist
+## <ï¿½ Success Checklist
 
 After deployment, verify:
 
@@ -357,7 +360,7 @@ After deployment, verify:
 
 ---
 
-## =¡ Performance Tips
+## =ï¿½ Performance Tips
 
 ### 1. Optimize Images
 - Use compressed images for backgrounds
@@ -375,17 +378,17 @@ After deployment, verify:
 
 ---
 
-## =€ Next Steps
+## =ï¿½ Next Steps
 
 1.  Deploy to production
-2. =ñ Share registration link with attendees
-3. <« Print QR codes if needed
-4. =Ê Monitor registrations in admin panel
+2. =ï¿½ Share registration link with attendees
+3. <ï¿½ Print QR codes if needed
+4. =ï¿½ Monitor registrations in admin panel
 5.  Use check-in scanner during event
 
 ---
 
-## <˜ Need Help?
+## <ï¿½ Need Help?
 
 - **Render Documentation**: https://render.com/docs
 - **Railway Documentation**: https://docs.railway.app
@@ -393,7 +396,7 @@ After deployment, verify:
 
 ---
 
-## <Š Congratulations!
+## <ï¿½ Congratulations!
 
 Your Event Registration System is now **LIVE** and accessible worldwide! <
 

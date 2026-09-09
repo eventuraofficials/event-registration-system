@@ -9,17 +9,18 @@ function safeImageUrl(value) {
 }
 
 function applyEventBranding() {
+    const resolvedBranding = currentEvent.branding || {};
     const defaults = {
-        brand_name: currentEvent.client_name || currentEvent.event_name || 'Event Registration',
+        brand_name: resolvedBranding.brand_name || currentEvent.client_name || currentEvent.event_name || 'Event Registration',
         tagline: '',
         footer_text: 'All rights reserved.',
         hero_kicker: 'A New Era Begins',
         hero_title: `${currentEvent.client_name || currentEvent.event_name || 'YOUR EVENT'} EVENT`.toUpperCase(),
         hero_subtitle: 'WELCOME TO WHAT\'S NEXT',
-        hero_description: currentEvent.description || 'Join us for an unforgettable event experience.',
-        hero_image: currentEvent.event_logo ? `/uploads/event-logos/${currentEvent.event_logo}` : '',
+        hero_description: resolvedBranding.hero_description || currentEvent.description || 'Join us for an unforgettable event experience.',
+        hero_image: resolvedBranding.logo_url || (currentEvent.event_logo ? `/uploads/event-logos/${currentEvent.event_logo}` : ''),
         supporting_image: '',
-        colors: { primary: '#0f766e', secondary: '#0f172a', accent: '#ea6b57' },
+        colors: { primary: resolvedBranding.primary_color || '#0f766e', secondary: resolvedBranding.secondary_color || '#0f172a', accent: resolvedBranding.accent_color || '#ea6b57' },
         panel: {
             badge: 'Exclusive Access',
             title: 'Your Next Chapter',
@@ -32,7 +33,7 @@ function applyEventBranding() {
             lead: 'Connect, discover, and experience what is next.'
         }
     };
-    const branding = currentEvent.registration_form_config?.branding || {};
+    const branding = resolvedBranding;
     const panel = { ...defaults.panel, ...(branding.panel || {}) };
     const supporting = { ...defaults.supporting, ...(branding.supporting || {}) };
     const colors = { ...defaults.colors, ...(branding.colors || {}) };
@@ -43,6 +44,8 @@ function applyEventBranding() {
     document.documentElement.style.setProperty('--brand-teal', colors.primary);
     document.documentElement.style.setProperty('--brand-navy', colors.secondary);
     document.documentElement.style.setProperty('--brand-coral', colors.accent);
+    document.documentElement.style.setProperty('--brand-surface', resolvedBranding.background_color || '#f6faf9');
+    document.body.style.backgroundColor = resolvedBranding.background_color || '#f6faf9';
 
     const setText = (id, value) => {
         const element = document.getElementById(id);
@@ -65,6 +68,9 @@ function applyEventBranding() {
     setText('heroPanelStatValue', panel.stat_value);
     setText('supportingTitle', supporting.title);
     setText('supportingLead', supporting.lead);
+    setText('qrSuccessTitle', branding.confirmation_title || 'Registration Successful!');
+    setText('qrSuccessSubtitle', branding.confirmation_content || 'Your digital entry ticket is ready');
+    setText('eventDescription', branding.registration_page_content || currentEvent.description || '');
 
     const heroImage = safeImageUrl(branding.hero_image || defaults.hero_image);
     const hero = document.querySelector('.premium-event-hero');
@@ -159,8 +165,8 @@ async function loadEventFromURL() {
         applyEventBranding();
 
         // Display event information
-        document.getElementById('loadingEvent').style.display = 'none';
-        document.getElementById('eventDetails').style.display = 'block';
+        document.getElementById('loadingEvent').classList.add('is-hidden');
+        document.getElementById('eventDetails').classList.remove('is-hidden');
         document.getElementById('eventInfo').setAttribute('aria-busy', 'false');
 
         // Show event logo if available
@@ -171,7 +177,7 @@ async function loadEventFromURL() {
         }
          
         // Override site name with per-event client branding, fallback to event name
-              const displayName = currentEvent.client_name || currentEvent.event_name;
+            const displayName = currentEvent.branding?.brand_name || currentEvent.client_name || currentEvent.event_name;
         if (displayName) {
             document.querySelectorAll('[data-site-name]').forEach(el => { el.textContent = displayName; });
             document.title = displayName + ' – Registration';
@@ -201,7 +207,7 @@ async function loadEventFromURL() {
         document.getElementById('eventDate').textContent = formatDate(currentEvent.event_date);
         document.getElementById('eventTime').textContent = formatTime(currentEvent.event_time);
         document.getElementById('eventVenue').textContent = currentEvent.venue || 'TBA';
-        document.getElementById('eventDescription').textContent = currentEvent.description || '';
+        document.getElementById('eventDescription').textContent = currentEvent.branding?.registration_page_content || currentEvent.description || '';
         document.getElementById('heroEventDate').textContent = formatDate(currentEvent.event_date);
         document.getElementById('heroEventTime').textContent = formatTime(currentEvent.event_time);
         document.getElementById('heroEventVenue').textContent = currentEvent.venue || 'TBA';
@@ -209,7 +215,7 @@ async function loadEventFromURL() {
 
         // Check if registration is open
         if (!currentEvent.registration_open) {
-            document.getElementById('registrationClosed').style.display = 'block';
+            document.getElementById('registrationClosed').classList.remove('is-hidden');
             return;
         }
 
@@ -225,7 +231,7 @@ async function loadEventFromURL() {
                 document.getElementById('registrationClosed').querySelector('h3').textContent = 'Event Full';
                 document.getElementById('registrationClosed').querySelector('p').textContent =
                     'This event has reached its maximum capacity. Please contact the organizer.';
-                document.getElementById('registrationClosed').style.display = 'block';
+                document.getElementById('registrationClosed').classList.remove('is-hidden');
                 return;
             } else if (remaining <= 10) {
                 capacityBadge.className = 'capacity-badge low';
@@ -242,7 +248,7 @@ async function loadEventFromURL() {
         buildRegistrationForm();
 
         // Show registration form
-        document.getElementById('registrationFormCard').style.display = 'block';
+        document.getElementById('registrationFormCard').classList.remove('is-hidden');
         restoreRegistrationDraft();
 
     } catch (error) {
@@ -414,18 +420,29 @@ async function handleRegistration(e) {
     }
 
     // Get form data
+    const valueFor = (id) => document.getElementById(id)?.value.trim() || '';
     const formData = {
         event_id: currentEvent.id,
-        full_name: document.getElementById('fullName').value.trim(),
-        email: document.getElementById('email').value.trim(),
-        contact_number: document.getElementById('contactNumber').value.trim(),
-        home_address: document.getElementById('homeAddress')?.value.trim() || '',
-        company_name: document.getElementById('companyName')?.value.trim() || '',
+        full_name: valueFor('fullName'),
+        email: valueFor('email').toLowerCase(),
+        contact_number: valueFor('contactNumber'),
+        home_address: valueFor('homeAddress'),
+        company_name: valueFor('companyName'),
         guest_category: document.getElementById('guestCategory')?.value || 'Regular'
     };
 
+    document.querySelectorAll('#guestForm [id^="custom_field_"]').forEach((input) => {
+        formData[input.id] = input.value.trim();
+    });
+
     // Validate required fields
-    if (!formData.full_name || !formData.email || !formData.contact_number) {
+    const requiredFields = currentEvent.registration_form_config?.fields || {};
+    const missingRequired = Object.entries(requiredFields).some(([field, config]) => {
+        if (!config.enabled || !config.required) return false;
+        const fieldMap = { full_name: 'fullName', contact_number: 'contactNumber', home_address: 'homeAddress', company_name: 'companyName', guest_category: 'guestCategory' };
+        return !(field === 'email' ? formData.email : formData[field] || valueFor(fieldMap[field]));
+    });
+    if (missingRequired) {
         showAlert('Please fill in all required fields', 'danger');
         return;
     }
@@ -495,8 +512,8 @@ function displayQRCode(guest) {
 
     // Show event logo on ticket if available
     const ticketLogo = document.getElementById('qrTicketLogo');
-    if (ticketLogo && currentEvent.event_logo) {
-        ticketLogo.src = `/uploads/event-logos/${currentEvent.event_logo}`;
+    if (ticketLogo && (currentEvent.branding?.logo_url || currentEvent.event_logo)) {
+        ticketLogo.src = currentEvent.branding?.logo_url || `/uploads/event-logos/${currentEvent.event_logo}`;
         ticketLogo.style.display = 'block';
     }
 

@@ -11,4 +11,4 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["node", "backend/server.js"]
+CMD ["npm", "run", "production"]

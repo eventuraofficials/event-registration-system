@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Admin Dashboard - Event Registration System</title>
+    <title>Admin Dashboard - BOH+ Event Operations and Solution</title>
     <meta name="description" content="Admin dashboard for event management and guest tracking">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="stylesheet" href="../css/style.css">
@@ -49,18 +49,18 @@
     <div id="dashboardScreen" class="dashboard-screen">
         <!-- White Sticky Header -->
         <header class="app-header">
-            <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="admin-inline-001">
 <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
                         <i class="fas fa-bars"></i>
                 </button>
                 <a href="#" class="app-header-logo">
                     <i class="fas fa-calendar-check"></i>
-                    <span id="siteNameHeader">Event Admin</span>
+                    <span id="siteNameHeader">BOH+ Event Operations and Solution</span>
                 </a>
             </div>
             <div class="app-header-user">
                 <span class="app-header-user-name" id="adminNameHeader">Administrator</span>
-                <button onclick="logout()" class="btn btn-secondary" style="display: flex; align-items: center; gap: 8px;">
+                <button onclick="logout()" class="btn btn-secondary admin-inline-001">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </button>
@@ -95,26 +95,30 @@
                         <i class="fas fa-chart-bar"></i>
                         <span>Reports & Export</span>
                     </a>
+                    <a href="#" onclick="showSection('event-access'); closeMobileMenu();" class="sidebar-nav-link admin-inline-001" data-section="event-access" id="eventAccessNavLink">
+                        <i class="fas fa-link"></i>
+                        <span>Event Access / Endorsement</span>
+                    </a>
 
-                    <a href="#" onclick="showSection('staff'); closeMobileMenu();" class="sidebar-nav-link" data-section="staff" id="staffNavLink" style="display:none;">
+                    <a href="#" onclick="showSection('staff'); closeMobileMenu();" class="sidebar-nav-link admin-inline-001" data-section="staff" id="staffNavLink">
                         <i class="fas fa-user-shield"></i>
                         <span>Staff Accounts</span>
                     </a>
 
                     <!-- External Tools -->
-                    <div style="border-top: 1px solid var(--border-color); margin: 15px 0; padding-top: 15px;">
-                        <p style="padding: 5px 16px 10px; font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
+                    <div class="admin-inline-001">
+                        <p class="admin-inline-001">
                             <i class="fas fa-tools"></i> Event Tools
                         </p>
                     </div>
 
-                    <a href="/pages/checkin.html" target="_blank" class="sidebar-nav-link" style="background: var(--gray-50);" title="Open QR scanner for guest check-in at event entrance (New Tab)">
+                    <a href="/pages/checkin.html" target="_blank" class="sidebar-nav-link admin-inline-001" title="Open QR scanner for guest check-in at event entrance (New Tab)">
                         <i class="fas fa-qrcode"></i>
                         <span>QR Scanner</span>
-                        <i class="fas fa-external-link-alt" style="margin-left: auto; font-size: 0.7rem; opacity: 0.6;"></i>
+                        <i class="fas fa-external-link-alt admin-inline-001"></i>
                     </a>
 
-                    <div style="border-top: 1px solid var(--border-color); margin: 15px 0; padding-top: 15px;"></div>
+                    <div class="admin-inline-001"></div>
                     <a href="#" onclick="showSection('settings'); closeMobileMenu();" class="sidebar-nav-link" data-section="settings">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
@@ -222,26 +226,26 @@
                 <div class="overview-grid">
 
                     <!-- Today's Events Section -->
-                    <div class="card" style="height: fit-content;">
-                        <div class="card-header" style="margin-bottom: 20px;">
-                            <h2 style="display: flex; align-items: center; gap: 10px; margin: 0;">
-                                <i class="fas fa-calendar-day" style="color: var(--primary-color);"></i>
+                    <div class="card admin-inline-001">
+                        <div class="card-header admin-inline-001">
+                            <h class="admin-inline-001"2>
+                                <i class="fas fa-calendar-day admin-inline-001"></i>
                                 Today's Events
                             </h2>
                         </div>
                         <div id="todaysEventsList">
-                            <div style="text-align: center; padding: 40px 20px; color: #a0aec0;">
-                                <i class="fas fa-calendar-check" style="font-size: 3rem; opacity: 0.3; margin-bottom: 15px;"></i>
-                                <p style="margin: 0; font-size: 0.95rem;">Loading today's events...</p>
+                            <div class="admin-inline-001">
+                                <i class="fas fa-calendar-check admin-inline-001"></i>
+                                <p class="admin-inline-001">Loading today's events...</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Quick Actions Section -->
-                    <div class="card" style="height: fit-content;">
-                        <div class="card-header" style="margin-bottom: 20px;">
-                            <h2 style="display: flex; align-items: center; gap: 10px; margin: 0;">
-                                <i class="fas fa-bolt" style="color: var(--primary-color);"></i>
+                    <div class="card admin-inline-001">
+                        <div class="card-header admin-inline-001">
+                            <h class="admin-inline-001"2>
+                                <i class="fas fa-bolt admin-inline-001"></i>
                                 Quick Actions
                             </h2>
                         </div>
@@ -277,33 +281,33 @@
                     </div>
 
                     <!-- Recent Activity Feed -->
-                    <div class="card" style="height: fit-content;">
-                        <div class="card-header" style="margin-bottom: 20px;">
-                            <h2 style="display: flex; align-items: center; gap: 10px; margin: 0;">
-                                <i class="fas fa-history" style="color: var(--primary-color);"></i>
+                    <div class="card admin-inline-001">
+                        <div class="card-header admin-inline-001">
+                            <h class="admin-inline-001"2>
+                                <i class="fas fa-history admin-inline-001"></i>
                                 Recent Activity
                             </h2>
                         </div>
                         <div id="recentActivityList">
-                            <div style="text-align: center; padding: 40px 20px; color: #a0aec0;">
-                                <i class="fas fa-clock" style="font-size: 3rem; opacity: 0.3; margin-bottom: 15px;"></i>
-                                <p style="margin: 0; font-size: 0.95rem;">Loading recent activities...</p>
+                            <div class="admin-inline-001">
+                                <i class="fas fa-clock admin-inline-001"></i>
+                                <p class="admin-inline-001">Loading recent activities...</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Recent Events Section -->
-                    <div class="card" style="height: fit-content;">
-                        <div class="card-header" style="margin-bottom: 20px;">
-                            <h2 style="display: flex; align-items: center; gap: 10px; margin: 0;">
-                                <i class="fas fa-list" style="color: var(--primary-color);"></i>
+                    <div class="card admin-inline-001">
+                        <div class="card-header admin-inline-001">
+                            <h class="admin-inline-001"2>
+                                <i class="fas fa-list admin-inline-001"></i>
                                 Recent Events
                             </h2>
                         </div>
                         <div id="recentEventsList">
-                            <div style="text-align: center; padding: 40px 20px; color: #a0aec0;">
-                                <i class="fas fa-calendar" style="font-size: 3rem; opacity: 0.3; margin-bottom: 15px;"></i>
-                                <p style="margin: 0; font-size: 0.95rem;">Loading recent events...</p>
+                            <div class="admin-inline-001">
+                                <i class="fas fa-calendar admin-inline-001"></i>
+                                <p class="admin-inline-001">Loading recent events...</p>
                             </div>
                         </div>
                     </div>
@@ -349,8 +353,8 @@
                 </div>
 
                 <!-- Create Event Form (Hidden by default) -->
-                <div id="createEventForm" class="card" style="display: none;">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div id="createEventForm" class="card admin-inline-001">
+                    <div class="card-header admin-inline-001">
                         <h2><i class="fas fa-plus-circle"></i> Create New Event</h2>
                         <button type="button" onclick="hideCreateEventForm()" class="btn btn-secondary">
                             <i class="fas fa-times"></i> Cancel
@@ -377,17 +381,17 @@
 
                                 <div class="form-group">
                                     <label for="eventCodeInput">Event Code *</label>
-                                    <div style="display: flex; gap: 10px; align-items: center;">
-                                        <input type="text" id="eventCodeInput" required style="flex: 1;">
+                                    <div class="admin-inline-001">
+                                        <input type="text" id="eventCodeInput" required class="admin-inline-001">
                                         <button type="button" onclick="generateEventCode()" class="btn btn-outline" title="Auto-generate event code">
                                             <i class="fas fa-magic"></i> Auto
                                         </button>
                                     </div>
-                                    <small style="color: #666; font-size: 0.85rem; display: block; margin-top: 6px;">Auto-generated from event name or click the Auto button</small>
+                                    <small class="admin-inline-001">Auto-generated from event name or click the Auto button</small>
                                 </div>
                             </div>
 
-                            <div class="event-form-grid" style="margin-top: 16px;">
+                            <div class="event-form-grid admin-inline-001">
                                 <div class="form-group">
                                     <label for="eventDate">Event Date *</label>
                                     <input type="date" id="eventDate" required>
@@ -402,7 +406,7 @@
                                 </div>
                             </div>
 
-                            <div class="form-group" style="margin-top: 16px;">
+                            <div class="form-group admin-inline-001">
                                 <label for="eventDescription">Description</label>
                                 <textarea id="eventDescription" rows="4" placeholder="Add event details for guests on the registration page"></textarea>
                             </div>
@@ -445,11 +449,11 @@
                                 <div class="form-group">
                                     <label for="eventMaxCapacity">Maximum Capacity</label>
                                     <input type="number" id="eventMaxCapacity" min="1" placeholder="Leave empty for unlimited">
-                                    <small style="color: #666; font-size: 0.85rem; display: block; margin-top: 6px;">Optional: Set maximum number of guests allowed to register</small>
+                                    <small class="admin-inline-001">Optional: Set maximum number of guests allowed to register</small>
                                 </div>
                             </div>
 
-                            <div class="event-form-grid" style="margin-top: 16px;">
+                            <div class="event-form-grid admin-inline-001">
                                 <div class="form-group">
                                     <label>Registration Fields</label>
                                     <div class="form-group-inline">
@@ -463,7 +467,7 @@
                                 </div>
                             </div>
 
-                            <div class="event-form-grid" style="margin-top: 16px;">
+                            <div class="event-form-grid admin-inline-001">
                                 <div class="form-group">
                                     <label>Check-in Options</label>
                                     <div class="form-group-inline">
@@ -513,7 +517,7 @@
                                 </div>
                             </div>
 
-                            <div class="event-form-grid" style="margin-top: 16px;">
+                            <div class="event-form-grid admin-inline-001">
                                 <div class="form-group">
                                     <label>Badge Options</label>
                                     <div class="form-group-inline">
@@ -523,18 +527,19 @@
                                 </div>
                             </div>
 
-                            <div class="form-group" style="margin-top: 16px;">
+                            <div class="form-group admin-inline-001">
                                 <label>Event Logo / Banner <span class="label-optional">(optional)</span></label>
                                 <div class="logo-upload-area" id="logoUploadArea" onclick="document.getElementById('eventLogoInput').click()">
                                     <i class="fas fa-image"></i>
                                     <p>Click to upload logo or banner</p>
                                     <small>JPG, PNG, GIF, WebP — max 2 MB</small>
                                 </div>
+                                <label for="eventLogoInput" class="visually-hidden">Event logo or banner</label>
                                 <input type="file" id="eventLogoInput" accept="image/*" class="visually-hidden" onchange="previewLogo(this, 'eventLogoPreview', 'logoUploadArea')">
-                                <img id="eventLogoPreview" class="logo-preview">
+                                <img id="eventLogoPreview" class="logo-preview" alt="Selected event logo preview">
                             </div>
 
-                            <div class="event-form-header" style="margin-top: 24px;">
+                            <div class="event-form-header admin-inline-001">
                                 <h3><i class="fas fa-palette"></i> Registration Page Theme</h3>
                                 <p class="event-form-note">Customize the guest-facing page before publishing</p>
                             </div>
@@ -562,7 +567,7 @@
                                 </div>
                             </div>
 
-                            <div class="event-form-grid" style="margin-top: 16px;">
+                            <div class="event-form-grid admin-inline-001">
                                 <div class="form-group">
                                     <label for="eventHeroDescription">Hero Description</label>
                                     <textarea id="eventHeroDescription" rows="3" placeholder="Short introduction shown in the hero"></textarea>
@@ -580,16 +585,28 @@
                                     <input type="text" id="eventFooterText" placeholder="All rights reserved.">
                                 </div>
                                 <div class="form-group">
+                                    <label for="eventRegistrationContent">Registration Page Content</label>
+                                    <textarea id="eventRegistrationContent" rows="3" placeholder="Welcome message shown above the registration form"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventConfirmationTitle">Confirmation Title</label>
+                                    <input type="text" id="eventConfirmationTitle" placeholder="Registration Successful!">
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventConfirmationContent">Confirmation Content</label>
+                                    <textarea id="eventConfirmationContent" rows="3" placeholder="Your digital entry ticket is ready"></textarea>
+                                </div>
+                                <div class="form-group">
                                     <label for="eventSupportingImage">Supporting Image URL</label>
                                     <input type="url" id="eventSupportingImage" placeholder="https://.../image.jpg">
                                 </div>
                             </div>
 
-                            <div class="event-form-grid" style="margin-top: 16px;">
+                            <div class="event-form-grid admin-inline-001">
                                 <div class="form-group">
                                     <label for="eventHeroImage">Hero Image URL</label>
                                     <input type="url" id="eventHeroImage" placeholder="https://.../hero.jpg">
-                                    <small style="color: #666; font-size: 0.85rem; display: block; margin-top: 6px;">Use a public image URL, or upload the event logo above as the hero image.</small>
+                                    <small class="admin-inline-001">Use a public image URL, or upload the event logo above as the hero image.</small>
                                 </div>
                                 <div class="form-group">
                                     <label for="eventPanelTitle">Hero Panel Title</label>
@@ -605,7 +622,7 @@
                                 </div>
                             </div>
 
-                            <div class="event-form-grid" style="margin-top: 16px;">
+                            <div class="event-form-grid admin-inline-001">
                                 <div class="form-group">
                                     <label for="eventPrimaryColor">Primary Color</label>
                                     <input type="color" id="eventPrimaryColor" value="#0f766e">
@@ -650,17 +667,18 @@
                     </div>
                 </div>
 
-                <div id="guestsListCard" class="card" style="display: none;">
-                    <div class="card-header" style="display:block;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;">
-                            <h2>Guest List <span id="guestCountBadge" style="font-size:0.8rem; font-weight:400; color:#718096;"></span></h2>
-                            <div class="filter-group" style="flex-wrap:wrap;">
+                <div id="guestsListCard" class="card admin-inline-001">
+                    <div class="card-header admin-inline-001">
+                        <div class="admin-inline-001">
+                            <h2>Guest List <span id="guestCountBadge" class="admin-inline-001"></span></h2>
+                            <div class="filter-group admin-inline-001">
                                 <button onclick="openAddGuestModal()" class="btn btn-primary" title="Add Guest Manually">
                                     <i class="fas fa-user-plus"></i> Add Guest
                                 </button>
                                 <button onclick="exportGuestList()" class="btn btn-success" title="Export to Excel">
                                     <i class="fas fa-file-excel"></i> Export
                                 </button>
+                                <label for="guestStatusFilter" class="visually-hidden">Guest status filter</label>
                                 <select id="guestStatusFilter" onchange="loadGuestsForEvent()">
                                     <option value="">All</option>
                                     <option value="registered">Registered</option>
@@ -677,7 +695,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="table-container" style="display:grid; grid-template-columns: 1.7fr 0.7fr; gap:20px; align-items:start;">
+                    <div class="table-container admin-inline-001">
                         <div>
                             <table class="data-table">
                                 <thead>
@@ -696,12 +714,12 @@
                             </table>
                             <div id="guestPagination"></div>
                         </div>
-                        <aside id="guestProfilePanel" style="display:none; border:1px solid #e2e8f0; border-radius:12px; background:#f8fafc; padding:16px; min-height:240px; position:sticky; top:20px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                                <h3 id="guestProfileName" style="margin:0; font-size:1.1rem;">Guest Profile</h3>
+                        <aside id="guestProfilePanel" class="admin-inline-001">
+                            <div class="admin-inline-001">
+                                <h class="admin-inline-001"3 id="guestProfileName">Guest Profile</h3>
                                 <button type="button" class="btn btn-outline btn-sm" onclick="closeGuestProfile()">Close</button>
                             </div>
-                            <div id="guestProfileBody" style="color:#475569; line-height:1.7; font-size:0.92rem;">
+                            <div id="guestProfileBody" class="admin-inline-001">
                                 Select a guest to view details.
                             </div>
                         </aside>
@@ -713,24 +731,24 @@
             <section id="uploadSection" class="dashboard-section">
                 <div class="section-header">
                     <h1><i class="fas fa-file-upload"></i> Import Guest List</h1>
-                    <p style="font-size: 0.9rem; color: #666; margin-top: 10px;">
+                    <p class="admin-inline-001">
                         Upload Excel/CSV file to add multiple guests at once
                     </p>
                 </div>
 
                 <div class="card">
-                    <div class="card-header" style="background: #f8f9fa; padding: 20px; border-bottom: 2px solid #e9ecef;">
+                    <div class="card-header admin-inline-001">
                         <h2><i class="fas fa-cloud-upload-alt"></i> Upload Guest List File</h2>
-                        <p style="margin: 10px 0 0; color: #666;">
+                        <p class="admin-inline-001">
                             <strong>Purpose:</strong> Quickly add many guests to your event by uploading an Excel or CSV file
                         </p>
                     </div>
-                    <div style="padding: 20px;">
-                        <div class="alert" style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 20px;">
-                            <p style="margin: 0; color: #856404;">
+                    <div class="admin-inline-001">
+                        <div class="alert admin-inline-001">
+                            <p class="admin-inline-001">
                                 <i class="fas fa-info-circle"></i> <strong>How it works:</strong>
                             </p>
-                            <ul style="margin: 10px 0 0; padding-left: 20px; color: #856404;">
+                            <ul class="admin-inline-001">
                                 <li>Download template below</li>
                                 <li>Fill in guest details (name, email, phone, etc.)</li>
                                 <li>Upload file here</li>
@@ -749,20 +767,20 @@
                         <i class="fas fa-cloud-upload-alt"></i>
                         <h3>Drag & Drop Excel File Here</h3>
                         <p>or click to browse</p>
-                        <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" style="display:none;">
+                        <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" class="admin-inline-001">
                         <button onclick="document.getElementById('excelFileInput').click()" class="btn btn-primary">
                             <i class="fas fa-file-upload"></i> Select File
                         </button>
                     </div>
 
-                    <div id="uploadProgress" class="upload-progress" style="display: none;">
+                    <div id="uploadProgress" class="upload-progress admin-inline-001">
                         <div class="progress-bar">
                             <div class="progress-fill" id="progressFill"></div>
                         </div>
                         <p id="uploadStatus">Uploading...</p>
                     </div>
 
-                    <div id="uploadResults" style="display: none;"></div>
+                    <div id="uploadResults" class="admin-inline-001"></div>
                 </div>
 
                 <div class="card">
@@ -785,24 +803,24 @@
             <section id="reportsSection" class="dashboard-section">
                 <div class="section-header">
                     <h1><i class="fas fa-chart-bar"></i> Reports & Export</h1>
-                    <p style="font-size: 0.9rem; color: #666; margin-top: 10px;">
+                    <p class="admin-inline-001">
                         Download attendance data and generate reports
                     </p>
                 </div>
 
                 <div class="card">
-                    <div class="card-header" style="background: #f8f9fa; padding: 20px; border-bottom: 2px solid #e9ecef;">
+                    <div class="card-header admin-inline-001">
                         <h2><i class="fas fa-file-download"></i> Download Attendance Report</h2>
-                        <p style="margin: 10px 0 0; color: #666;">
+                        <p class="admin-inline-001">
                             <strong>Purpose:</strong> Export guest list and attendance data to Excel/CSV format
                         </p>
                     </div>
-                    <div style="padding: 20px;">
-                        <div class="alert" style="background: #d1ecf1; border-left: 4px solid #0c5460; padding: 15px; margin-bottom: 20px;">
-                            <p style="margin: 0; color: #0c5460;">
+                    <div class="admin-inline-001">
+                        <div class="alert admin-inline-001">
+                            <p class="admin-inline-001">
                                 <i class="fas fa-info-circle"></i> <strong>What you'll get:</strong>
                             </p>
-                            <ul style="margin: 10px 0 0; padding-left: 20px; color: #0c5460;">
+                            <ul class="admin-inline-001">
                                 <li>List of all registered guests</li>
                                 <li>Attendance status (attended/not attended)</li>
                                 <li>Check-in times</li>
@@ -825,36 +843,36 @@
                         </select>
                     </div>
 
-                    <div id="reportSummary" style="display: none; margin-top: 20px;">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;">
-                            <div class="card" style="padding: 16px; border-left: 4px solid #4f46e5;">
-                                <div style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;">Registered</div>
-                                <div id="reportTotalRegistered" style="font-size: 1.8rem; font-weight: 700; color: #0f172a; margin-top: 8px;">0</div>
+                    <div id="reportSummary" class="admin-inline-001">
+                        <div class="admin-inline-001">
+                            <div class="card admin-inline-001">
+                                <div class="admin-inline-001">Registered</div>
+                                <div id="reportTotalRegistered" class="admin-inline-001">0</div>
                             </div>
-                            <div class="card" style="padding: 16px; border-left: 4px solid #10b981;">
-                                <div style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;">Attended</div>
-                                <div id="reportTotalAttended" style="font-size: 1.8rem; font-weight: 700; color: #0f172a; margin-top: 8px;">0</div>
+                            <div class="card admin-inline-001">
+                                <div class="admin-inline-001">Attended</div>
+                                <div id="reportTotalAttended" class="admin-inline-001">0</div>
                             </div>
-                            <div class="card" style="padding: 16px; border-left: 4px solid #f59e0b;">
-                                <div style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;">Attendance</div>
-                                <div id="reportAttendanceRate" style="font-size: 1.8rem; font-weight: 700; color: #0f172a; margin-top: 8px;">0%</div>
+                            <div class="card admin-inline-001">
+                                <div class="admin-inline-001">Attendance</div>
+                                <div id="reportAttendanceRate" class="admin-inline-001">0%</div>
                             </div>
-                            <div class="card" style="padding: 16px; border-left: 4px solid #ef4444;">
-                                <div style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;">No Shows</div>
-                                <div id="reportNoShows" style="font-size: 1.8rem; font-weight: 700; color: #0f172a; margin-top: 8px;">0</div>
+                            <div class="card admin-inline-001">
+                                <div class="admin-inline-001">No Shows</div>
+                                <div id="reportNoShows" class="admin-inline-001">0</div>
                             </div>
-                            <div class="card" style="padding: 16px; border-left: 4px solid #06b6d4;">
-                                <div style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;">Walk-ins</div>
-                                <div id="reportWalkIns" style="font-size: 1.8rem; font-weight: 700; color: #0f172a; margin-top: 8px;">0</div>
+                            <div class="card admin-inline-001">
+                                <div class="admin-inline-001">Walk-ins</div>
+                                <div id="reportWalkIns" class="admin-inline-001">0</div>
                             </div>
-                            <div class="card" style="padding: 16px; border-left: 4px solid #8b5cf6;">
-                                <div style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;">Peak Check-in</div>
-                                <div id="reportPeakCheckin" style="font-size: 1rem; font-weight: 700; color: #0f172a; margin-top: 8px;">N/A</div>
+                            <div class="card admin-inline-001">
+                                <div class="admin-inline-001">Peak Check-in</div>
+                                <div id="reportPeakCheckin" class="admin-inline-001">N/A</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="button-group" style="margin-top: 20px;">
+                    <div class="button-group admin-inline-001">
                         <button onclick="exportToExcel()" class="btn btn-success">
                             <i class="fas fa-file-excel"></i> Export to Excel
                         </button>
@@ -868,30 +886,57 @@
                 </div>
             </section>
 
+            <!-- Event Access / Endorsement Section -->
+            <section id="event-accessSection" class="dashboard-section">
+                <div class="section-header">
+                    <div>
+                        <p class="eyebrow">Controlled distribution</p>
+                        <h1>Event Access / Endorsement</h1>
+                        <p class="section-description">Generate event-specific links for registration, client/QC access, and facilitators.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="form-group">
+                        <label for="accessEventSelect">Client / Event</label>
+                        <select id="accessEventSelect" class="form-control"><option value="">Select an event</option></select>
+                    </div>
+                    <div id="eventAccessEmpty" class="dashboard-empty">Select an event to build its access kit.</div>
+                    <div id="eventAccessKit" class="event-access-kit admin-inline-001">
+                        <div class="event-access-heading"><div><p class="eyebrow">Event Access Kit</p><h2 id="accessKitEventName"></h2><p id="accessKitClientName"></p></div><span id="accessKitEventId" class="badge"></span></div>
+                        <div class="event-access-grid">
+                            <article class="event-access-card"><h3><i class="fas fa-user-plus"></i> Guest Registration</h3><label for="registrationAccessLink">Registration Link</label><div class="access-copy-row"><input id="registrationAccessLink" title="Registration link" readonly><button type="button" onclick="copyAccessValue('registrationAccessLink')" title="Copy registration link"><i class="fas fa-copy"></i> Copy Link</button></div><img id="registrationAccessQr" class="access-qr hidden" alt="Registration QR code"><button type="button" class="btn btn-secondary" onclick="generateRegistrationQr()"><i class="fas fa-qrcode"></i> Generate QR</button><button type="button" class="btn btn-secondary" onclick="downloadAccessQr('registrationAccessQr', 'registration-qr')"><i class="fas fa-download"></i> Download QR</button></article>
+                            <article class="event-access-card"><h3><i class="fas fa-building"></i> Client / QC Access</h3><label for="clientAccessLink">Secure Event Portal Login</label><div class="access-copy-row"><input id="clientAccessLink" title="Client and QC event portal link" readonly><button type="button" onclick="copyAccessValue('clientAccessLink')" title="Copy client portal link"><i class="fas fa-copy"></i> Copy Link</button></div><img id="clientAccessQr" class="access-qr hidden" alt="Client and QC event portal QR code"><button type="button" class="btn btn-secondary" onclick="showClientAccessQr()"><i class="fas fa-qrcode"></i> Show QR</button><button type="button" class="btn btn-secondary" onclick="downloadAccessQr('clientAccessQr', 'client-event-portal-qr')"><i class="fas fa-download"></i> Download QR</button><p class="access-help">This link opens only the selected event portal. Users must still authenticate.</p></article>
+                            <article class="event-access-card event-access-facilitators"><h3><i class="fas fa-qrcode"></i> Facilitator Access</h3><div class="access-copy-row"><label for="facilitatorAccessUser" class="visually-hidden">Assigned facilitator</label><select id="facilitatorAccessUser" title="Assigned facilitator"><option value="">Select assigned facilitator</option></select><button type="button" onclick="generateFacilitatorAccess()"><i class="fas fa-key"></i> Generate</button></div><div id="facilitatorAccessList"></div></article>
+                            <article class="event-access-card"><h3><i class="fas fa-user-shield"></i> Event Team Assignment</h3><div class="access-copy-row"><label for="eventAssignmentUser" class="visually-hidden">Event team user</label><select id="eventAssignmentUser" title="Event team user"><option value="">Select user</option></select><label for="eventAssignmentRole" class="visually-hidden">Event team role</label><select id="eventAssignmentRole" title="Event team role"><option value="FACILITATOR">Facilitator</option><option value="QC">QC</option><option value="CLIENT_ADMIN">Client admin</option></select><button type="button" onclick="assignEventUser()"><i class="fas fa-user-plus"></i> Assign</button></div><p class="access-help">Only users assigned to this client can be added to its event team.</p></article>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Staff Management Section (super_admin only) -->
             <section id="staffSection" class="dashboard-section">
-                <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <div class="section-header admin-inline-001">
                     <div>
                         <h1>Staff Accounts</h1>
-                        <p style="color:#718096; margin:4px 0 0;">Manage admin and staff users</p>
+                        <p class="admin-inline-001">Manage admin and staff users</p>
                     </div>
                     <button class="btn btn-primary" onclick="openCreateStaffModal()">
                         <i class="fas fa-user-plus"></i> Add Staff
                     </button>
                 </div>
-                <div class="card" style="padding:0; overflow:hidden;">
-                    <table style="width:100%; border-collapse:collapse;">
+                <div class="card admin-inline-001">
+                    <table class="admin-inline-001">
                         <thead>
-                            <tr style="background:#f8fafc; border-bottom:1px solid #e2e8f0;">
-                                <th style="padding:12px 16px; text-align:left; font-size:0.8rem; color:#718096; font-weight:600; text-transform:uppercase;">Name</th>
-                                <th style="padding:12px 16px; text-align:left; font-size:0.8rem; color:#718096; font-weight:600; text-transform:uppercase;">Username</th>
-                                <th style="padding:12px 16px; text-align:left; font-size:0.8rem; color:#718096; font-weight:600; text-transform:uppercase;">Email</th>
-                                <th style="padding:12px 16px; text-align:left; font-size:0.8rem; color:#718096; font-weight:600; text-transform:uppercase;">Role</th>
-                                <th style="padding:12px 16px; text-align:left; font-size:0.8rem; color:#718096; font-weight:600; text-transform:uppercase;">Actions</th>
+                            <tr class="admin-inline-001">
+                                <th class="admin-inline-001">Name</th>
+                                <th class="admin-inline-001">Username</th>
+                                <th class="admin-inline-001">Email</th>
+                                <th class="admin-inline-001">Role</th>
+                                <th class="admin-inline-001">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="staffTableBody">
-                            <tr><td colspan="5" style="padding:24px; text-align:center; color:#718096;">Loading...</td></tr>
+                            <tr><td colspan="5" class="admin-inline-001">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -899,96 +944,69 @@
 
             <!-- Settings Section -->
             <section id="settingsSection" class="dashboard-section">
-                <div class="section-header" style="margin-bottom:24px;">
+                <div class="section-header admin-inline-001">
                     <h1>Settings</h1>
-                    <p style="color:#718096; margin:4px 0 0;">Manage your account and preferences</p>
+                    <p class="admin-inline-001">Manage your account and preferences</p>
                 </div>
                 <div class="settings-grid">
 
                     <!-- Change Password -->
-                    <div class="card" style="padding:24px;">
-                        <h3 style="margin:0 0 16px; font-size:1rem; font-weight:600;"><i class="fas fa-lock" style="color:var(--primary); margin-right:8px;"></i>Change Password</h3>
-                        <div class="form-group" style="margin-bottom:12px;">
+                    <div class="card admin-inline-001">
+                        <h class="admin-inline-001"3><i class="fas fa-lock admin-inline-001"></i>Change Password</h3>
+                        <div class="form-group admin-inline-001">
                             <label class="form-label">Current Password</label>
                             <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password">
                         </div>
-                        <div class="form-group" style="margin-bottom:12px;">
+                        <div class="form-group admin-inline-001">
                             <label class="form-label">New Password</label>
                             <input type="password" id="newPassword" class="form-control" placeholder="Min. 8 characters">
                         </div>
-                        <div class="form-group" style="margin-bottom:16px;">
+                        <div class="form-group admin-inline-001">
                             <label class="form-label">Confirm New Password</label>
                             <input type="password" id="confirmPassword" class="form-control" placeholder="Repeat new password">
                         </div>
-                        <button class="btn btn-primary" onclick="changePassword()" style="width:100%;">
+                        <button class="btn btn-primary admin-inline-001" onclick="changePassword()">
                             <i class="fas fa-save"></i> Update Password
                         </button>
                     </div>
 
                     <!-- Edit Profile -->
-                    <div class="card" style="padding:24px;">
-                        <h3 style="margin:0 0 16px; font-size:1rem; font-weight:600;"><i class="fas fa-user" style="color:var(--primary); margin-right:8px;"></i>Edit Profile</h3>
-                        <div class="form-group" style="margin-bottom:12px;">
+                    <div class="card admin-inline-001">
+                        <h class="admin-inline-001"3><i class="fas fa-user admin-inline-001"></i>Edit Profile</h3>
+                        <div class="form-group admin-inline-001">
                             <label class="form-label">Full Name</label>
                             <input type="text" id="profileFullName" class="form-control" placeholder="Your full name">
                         </div>
-                        <div class="form-group" style="margin-bottom:16px;">
+                        <div class="form-group admin-inline-001">
                             <label class="form-label">Email Address</label>
                             <input type="email" id="profileEmail" class="form-control" placeholder="your@email.com">
                         </div>
-                        <button class="btn btn-primary" onclick="updateProfile()" style="width:100%;">
+                        <button class="btn btn-primary admin-inline-001" onclick="updateProfile()">
                             <i class="fas fa-save"></i> Save Changes
                         </button>
                     </div>
 
                     <!-- Email Test (super_admin only) -->
-                    <div class="card" id="emailTestCard" style="padding:24px; display:none;">
-                        <h3 style="margin:0 0 4px; font-size:1rem; font-weight:600;"><i class="fas fa-envelope" style="color:var(--primary); margin-right:8px;"></i>Email / SMTP</h3>
-                        <p style="color:#718096; font-size:0.85rem; margin:0 0 16px;">Verify that the email server is reachable and credentials are correct.</p>
-                        <div id="emailTestResult" style="display:none; padding:10px 14px; border-radius:8px; font-size:0.85rem; margin-bottom:14px;"></div>
-                        <button class="btn btn-primary" onclick="testEmailConnection()" id="emailTestBtn" style="width:100%;">
+                    <div class="card admin-inline-001" id="emailTestCard">
+                        <h class="admin-inline-001"3><i class="fas fa-envelope admin-inline-001"></i>Email / SMTP</h3>
+                        <p class="admin-inline-001">Verify that the email server is reachable and credentials are correct.</p>
+                        <div id="emailTestResult" class="admin-inline-001"></div>
+                        <button class="btn btn-primary admin-inline-001" onclick="testEmailConnection()" id="emailTestBtn">
                             <i class="fas fa-plug"></i> Test SMTP Connection
                         </button>
                     </div>
 
-                    <!-- Site Branding (super_admin only) -->
-                    <div class="card" id="siteBrandingCard" style="padding:24px; display:none; grid-column: 1 / -1;">
-                        <h3 style="margin:0 0 4px; font-size:1rem; font-weight:600;"><i class="fas fa-paint-brush" style="color:var(--primary); margin-right:8px;"></i>Site Branding</h3>
-                        <p style="color:#718096; font-size:0.85rem; margin:0 0 16px;">Change the site name shown on the header, registration page, and browser tab.</p>
-                        <div class="form-group" style="margin-bottom:12px;">
-                            <label class="form-label">Site Name</label>
-                            <input type="text" id="brandingSiteName" class="form-control" placeholder="e.g. Samsung Event Registration" maxlength="100">
-                            <small style="color:#94a3b8;">Shown in the page header and browser tab on all pages.</small>
-                        </div>
-                        <div class="form-group" style="margin-bottom:16px;">
-                            <label class="form-label">Tagline <span style="color:#94a3b8;font-weight:400;">(optional)</span></label>
-                            <input type="text" id="brandingTagline" class="form-control" placeholder="e.g. Official Event Registration Portal" maxlength="150">
-                            <small style="color:#94a3b8;">Shown below the site name on the registration page.</small>
-                        </div>
-<label class="form-label">Font Style</label>
-<select id="brandingFontStyle" class="form-control" style="margin-bottom:12px;">
-    <option value="inter">Inter (Default)</option>
-    <option value="poppins">Poppins (Modern)</option>
-    <option value="roboto">Roboto (Clean)</option>
-    <option value="playfair">Playfair Display (Elegant)</option>
-    <option value="montserrat">Montserrat (Bold)</option>
-</select>
-
-<label class="form-label">Font Size</label>
-<select id="brandingFontSize" class="form-control" style="margin-bottom:16px;">
-    <option value="14px">Small (14px)</option>
-    <option value="16px">Medium (16px) — Default</option>
-    <option value="18px">Large (18px)</option>
-    <option value="20px">Extra Large (20px)</option>
-</select>
-
-<label class="form-label">Footer Text</label>
-<input type="text" id="brandingFooterText" class="form-control" placeholder="e.g. All rights reserved." maxlength="200" style="margin-bottom:16px;">
-
-<button class="btn btn-primary" onclick="saveSiteBranding()" style="width:100%;">
-    <i class="fas fa-save"></i> Save Branding
-</button>
+                    <div class="card admin-inline-001" id="clientBrandingCard">
+                        <h class="admin-inline-001"3><i class="fas fa-palette admin-inline-001"></i>Client White-Label Branding</h3>
+                        <p class="admin-inline-001">These defaults apply to the selected client’s events unless an event overrides them.</p>
+                        <div class="form-group admin-inline-001"><label class="form-label" for="brandingClientSelect">Client</label><select id="brandingClientSelect" class="form-control"></select></div>
+                        <div class="form-group admin-inline-001"><label class="form-label" for="clientBrandName">Brand name</label><input id="clientBrandName" class="form-control"></div>
+                        <div class="form-group admin-inline-001"><label class="form-label" for="clientBrandLogo">Logo URL</label><input id="clientBrandLogo" class="form-control" placeholder="/uploads/event-logos/... or https://..."></div>
+                        <div class="event-form-grid admin-inline-001"><div><label class="form-label" for="clientPrimaryColor">Primary color</label><input id="clientPrimaryColor" type="color" value="#0f766e"></div><div><label class="form-label" for="clientSecondaryColor">Secondary color</label><input id="clientSecondaryColor" type="color" value="#0f172a"></div><div><label class="form-label" for="clientBackgroundColor">Background</label><input id="clientBackgroundColor" type="color" value="#f6faf9"></div></div>
+                        <div class="form-group admin-inline-001"><label class="form-label" for="clientRegistrationContent">Registration page content</label><textarea id="clientRegistrationContent" class="form-control" rows="3"></textarea></div>
+                        <button class="btn btn-primary admin-inline-001" onclick="saveClientBranding()"><i class="fas fa-save"></i> Save Client Branding</button>
                     </div>
+
                 </div>
             </section>
 
@@ -997,30 +1015,31 @@
         </div> <!-- End app-layout -->
 
     <!-- Add Guest Modal -->
-    <div id="addGuestModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div id="addGuestModal" class="admin-inline-001">
         <div class="admin-modal-box">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0; font-size:1.1rem;"><i class="fas fa-user-plus" style="color:#667eea; margin-right:8px;"></i>Add Guest Manually</h3>
-                <button onclick="closeAddGuestModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#718096;">&times;</button>
+            <div class="admin-inline-001">
+                <h class="admin-inline-001"3><i class="fas fa-user-plus admin-inline-001"></i>Add Guest Manually</h3>
+                <button onclick="closeAddGuestModal()" class="admin-inline-001">&times;</button>
             </div>
-            <div class="form-group" style="margin-bottom:12px;">
+            <div class="form-group admin-inline-001">
                 <label class="form-label">Full Name *</label>
                 <input type="text" id="newGuestName" class="form-control" placeholder="Guest full name">
             </div>
-            <div class="form-group" style="margin-bottom:12px;">
+            <div class="form-group admin-inline-001">
                 <label class="form-label">Email</label>
                 <input type="email" id="newGuestEmail" class="form-control" placeholder="guest@email.com">
             </div>
-            <div class="form-group" style="margin-bottom:12px;">
+            <div class="form-group admin-inline-001">
                 <label class="form-label">Contact Number</label>
                 <input type="text" id="newGuestContact" class="form-control" placeholder="09xxxxxxxxx">
             </div>
-            <div class="form-group" style="margin-bottom:12px;">
+            <div class="form-group admin-inline-001">
                 <label class="form-label">Company / Organization</label>
                 <input type="text" id="newGuestCompany" class="form-control" placeholder="Optional">
             </div>
-            <div class="form-group" style="margin-bottom:20px;">
+            <div class="form-group admin-inline-001">
                 <label class="form-label">Category</label>
+                <label for="newGuestCategory" class="visually-hidden">Guest category</label>
                 <select id="newGuestCategory" class="form-control">
                     <option value="Regular">Regular</option>
                     <option value="VIP">VIP</option>
@@ -1029,39 +1048,40 @@
                     <option value="Media">Media</option>
                 </select>
             </div>
-            <div style="display:flex; gap:12px;">
-                <button onclick="closeAddGuestModal()" class="btn" style="flex:1; background:#f1f5f9; color:#475569;">Cancel</button>
-                <button onclick="addGuestManually()" class="btn btn-primary" style="flex:1;"><i class="fas fa-user-plus"></i> Add Guest</button>
+            <div class="admin-inline-001">
+                <button onclick="closeAddGuestModal()" class="btn admin-inline-001">Cancel</button>
+                <button onclick="addGuestManually()" class="btn btn-primary admin-inline-001"><i class="fas fa-user-plus"></i> Add Guest</button>
             </div>
         </div>
     </div>
 
     <!-- Edit Guest Modal -->
-    <div id="editGuestModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div id="editGuestModal" class="admin-inline-001">
         <div class="admin-modal-box">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0; font-size:1.1rem;">Edit Guest</h3>
-                <button onclick="closeEditGuestModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#718096;">&times;</button>
+            <div class="admin-inline-001">
+                <h class="admin-inline-001"3>Edit Guest</h3>
+                <button onclick="closeEditGuestModal()" class="admin-inline-001">&times;</button>
             </div>
             <input type="hidden" id="editGuestId">
-            <div class="form-group" style="margin-bottom:12px;">
+            <div class="form-group admin-inline-001">
                 <label class="form-label">Full Name *</label>
-                <input type="text" id="editGuestName" class="form-control">
+                <input type="text" id="editGuestName" class="form-control" placeholder="Guest full name">
             </div>
-            <div class="form-group" style="margin-bottom:12px;">
+            <div class="form-group admin-inline-001">
                 <label class="form-label">Email</label>
-                <input type="email" id="editGuestEmail" class="form-control">
+                <input type="email" id="editGuestEmail" class="form-control" placeholder="guest@email.com">
             </div>
-            <div class="form-group" style="margin-bottom:12px;">
+            <div class="form-group admin-inline-001">
                 <label class="form-label">Contact Number</label>
-                <input type="text" id="editGuestContact" class="form-control">
+                <input type="text" id="editGuestContact" class="form-control" placeholder="09xxxxxxxxx">
             </div>
-            <div class="form-group" style="margin-bottom:12px;">
+            <div class="form-group admin-inline-001">
                 <label class="form-label">Company</label>
-                <input type="text" id="editGuestCompany" class="form-control">
+                <input type="text" id="editGuestCompany" class="form-control" placeholder="Company or organization">
             </div>
-            <div class="form-group" style="margin-bottom:20px;">
+            <div class="form-group admin-inline-001">
                 <label class="form-label">Category</label>
+                <label for="editGuestCategory" class="visually-hidden">Guest category</label>
                 <select id="editGuestCategory" class="form-control">
                     <option value="Regular">Regular</option>
                     <option value="VIP">VIP</option>
@@ -1070,46 +1090,47 @@
                     <option value="Media">Media</option>
                 </select>
             </div>
-            <div style="display:flex; gap:12px;">
-                <button onclick="closeEditGuestModal()" class="btn" style="flex:1; background:#f1f5f9; color:#475569;">Cancel</button>
-                <button onclick="saveGuestEdit()" class="btn btn-primary" style="flex:1;">Save Changes</button>
+            <div class="admin-inline-001">
+                <button onclick="closeEditGuestModal()" class="btn admin-inline-001">Cancel</button>
+                <button onclick="saveGuestEdit()" class="btn btn-primary admin-inline-001">Save Changes</button>
             </div>
         </div>
     </div>
 
     <!-- Create Staff Modal -->
-    <div id="createStaffModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div id="createStaffModal" class="admin-inline-001">
         <div class="admin-modal-box">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0; font-size:1.1rem;">Add Staff Account</h3>
-                <button onclick="closeCreateStaffModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#718096;">&times;</button>
+            <div class="admin-inline-001">
+                <h class="admin-inline-001"3>Add Staff Account</h3>
+                <button onclick="closeCreateStaffModal()" class="admin-inline-001">&times;</button>
             </div>
-            <div class="form-group" style="margin-bottom:12px;">
+            <div class="form-group admin-inline-001">
                 <label class="form-label">Full Name</label>
                 <input type="text" id="newStaffName" class="form-control" placeholder="Staff full name">
             </div>
-            <div class="form-group" style="margin-bottom:12px;">
+            <div class="form-group admin-inline-001">
                 <label class="form-label">Username</label>
                 <input type="text" id="newStaffUsername" class="form-control" placeholder="login username">
             </div>
-            <div class="form-group" style="margin-bottom:12px;">
+            <div class="form-group admin-inline-001">
                 <label class="form-label">Email</label>
                 <input type="email" id="newStaffEmail" class="form-control" placeholder="staff@email.com">
             </div>
-            <div class="form-group" style="margin-bottom:12px;">
+            <div class="form-group admin-inline-001">
                 <label class="form-label">Password</label>
                 <input type="password" id="newStaffPassword" class="form-control" placeholder="Min. 8 characters">
             </div>
-            <div class="form-group" style="margin-bottom:20px;">
+            <div class="form-group admin-inline-001">
                 <label class="form-label">Role</label>
+                <label for="newStaffRole" class="visually-hidden">Staff role</label>
                 <select id="newStaffRole" class="form-control">
                     <option value="staff">Staff</option>
                     <option value="super_admin">Super Admin</option>
                 </select>
             </div>
-            <div style="display:flex; gap:12px;">
-                <button onclick="closeCreateStaffModal()" class="btn" style="flex:1; background:#f1f5f9; color:#475569;">Cancel</button>
-                <button onclick="createStaffAccount()" class="btn btn-primary" style="flex:1;">Create Account</button>
+            <div class="admin-inline-001">
+                <button onclick="closeCreateStaffModal()" class="btn admin-inline-001">Cancel</button>
+                <button onclick="createStaffAccount()" class="btn btn-primary admin-inline-001">Create Account</button>
             </div>
         </div>
     </div>

@@ -39,16 +39,17 @@ if (missingEnvVars.length > 0) {
     process.exit(1);
 }
 
-// Set APP_URL dynamically for production (Render, Railway, etc.)
+// Derive the public URL only when the platform provides an authoritative value.
 if (process.env.NODE_ENV === 'production' && !process.env.APP_URL) {
-    const port = process.env.PORT || 10000;
-    // Try to detect cloud platform
-    if (process.env.RENDER) {
+    if (process.env.RENDER_EXTERNAL_HOSTNAME) {
         process.env.APP_URL = `https://${process.env.RENDER_EXTERNAL_HOSTNAME}`;
     } else if (process.env.RAILWAY_STATIC_URL) {
-        process.env.APP_URL = process.env.RAILWAY_STATIC_URL;
+        process.env.APP_URL = process.env.RAILWAY_STATIC_URL.startsWith('http')
+            ? process.env.RAILWAY_STATIC_URL
+            : `https://${process.env.RAILWAY_STATIC_URL}`;
     } else {
-        process.env.APP_URL = `http://localhost:${port}`;
+        console.error('❌ FATAL: APP_URL must be set in production');
+        process.exit(1);
     }
     console.log(`🌐 Auto-detected APP_URL: ${process.env.APP_URL}`);
 }

@@ -30,12 +30,26 @@ db.exec(`
     password TEXT NOT NULL,
     full_name TEXT,
     role TEXT DEFAULT 'staff' CHECK(role IN ('super_admin', 'admin', 'staff')),
+    client_id INTEGER,
+    active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0, 1)),
+    auth_version INTEGER NOT NULL DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS clients (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'suspended', 'archived')),
+    branding_config TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
   CREATE TABLE IF NOT EXISTS events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    client_id INTEGER,
     event_name TEXT NOT NULL,
     event_code TEXT UNIQUE NOT NULL,
     event_qr_code TEXT,
@@ -46,10 +60,48 @@ db.exec(`
     max_capacity INTEGER,
     registration_open INTEGER DEFAULT 1,
     registration_form_config TEXT,
+    event_slug TEXT,
+    status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('draft', 'active', 'closed', 'archived')),
     created_by INTEGER,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE RESTRICT,
     FOREIGN KEY (created_by) REFERENCES admin_users(id) ON DELETE SET NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS client_user_assignments (
+    client_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    role TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (client_id, user_id),
+    FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES admin_users(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS event_user_assignments (
+    event_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    role TEXT NOT NULL,
+    permissions_json TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (event_id, user_id),
+    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES admin_users(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS facilitator_access_tokens (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    token_hash TEXT UNIQUE NOT NULL,
+    token_ciphertext TEXT,
+    expires_at DATETIME NOT NULL,
+    status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'inactive', 'revoked')),
+    revoked_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES admin_users(id) ON DELETE CASCADE
   );
 
   CREATE TABLE IF NOT EXISTS guests (
@@ -61,8 +113,13 @@ db.exec(`
     email TEXT,
     contact_number TEXT,
     home_address TEXT,
+    address TEXT,
     company_name TEXT,
+    company TEXT,
     guest_category TEXT DEFAULT 'Regular',
+    registration_status TEXT NOT NULL DEFAULT 'CONFIRMED',
+    attendance_status TEXT NOT NULL DEFAULT 'NOT_ATTENDED',
+    unique_guest_qr_identifier TEXT,
     registration_type TEXT DEFAULT 'self_registered' CHECK(registration_type IN ('pre_registered', 'self_registered')),
     registration_source TEXT DEFAULT 'online_form' CHECK(registration_source IN ('excel_upload', 'online_form', 'manual')),
     attended INTEGER DEFAULT 0,
@@ -93,6 +150,9 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_admin_email ON admin_users(email);
   CREATE INDEX IF NOT EXISTS idx_admin_username ON admin_users(username);
   CREATE INDEX IF NOT EXISTS idx_event_code ON events(event_code);
+  CREATE INDEX IF NOT EXISTS idx_client_user_user ON client_user_assignments(user_id);
+  CREATE INDEX IF NOT EXISTS idx_event_user_user ON event_user_assignments(user_id);
+  CREATE INDEX IF NOT EXISTS idx_facilitator_token_hash ON facilitator_access_tokens(token_hash);
   CREATE INDEX IF NOT EXISTS idx_event_date ON events(event_date);
   CREATE INDEX IF NOT EXISTS idx_guest_code ON guests(guest_code);
   CREATE INDEX IF NOT EXISTS idx_qr_code ON guests(qr_code);
@@ -101,6 +161,51 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_guest_attended ON guests(attended);
   CREATE INDEX IF NOT EXISTS idx_guest_event ON guests(event_id);
 `);
+
+try { db.exec('ALTER TABLE admin_users ADD COLUMN auth_version INTEGER NOT NULL DEFAULT 1'); } catch (e) { /* column already exists */ }
+try { db.exec('ALTER TABLE admin_users ADD COLUMN client_id INTEGER'); } catch (e) { /* column already exists */ }
+try { db.exec('ALTER TABLE admin_users ADD COLUMN active INTEGER NOT NULL DEFAULT 1'); } catch (e) { /* column already exists */ }
+try { db.exec('ALTER TABLE events ADD COLUMN client_id INTEGER'); } catch (e) { /* column already exists */ }
+try { db.exec('ALTER TABLE events ADD COLUMN event_slug TEXT'); } catch (e) { /* column already exists */ }
+try { db.exec("ALTER TABLE events ADD COLUMN status TEXT NOT NULL DEFAULT 'active'"); } catch (e) { /* column already exists */ }
+try { db.exec('ALTER TABLE guests ADD COLUMN address TEXT'); } catch (e) { /* column already exists */ }
+try { db.exec('ALTER TABLE guests ADD COLUMN company TEXT'); } catch (e) { /* column already exists */ }
+try { db.exec("ALTER TABLE guests ADD COLUMN registration_status TEXT NOT NULL DEFAULT 'CONFIRMED'"); } catch (e) { /* column already exists */ }
+try { db.exec("ALTER TABLE guests ADD COLUMN attendance_status TEXT NOT NULL DEFAULT 'NOT_ATTENDED'"); } catch (e) { /* column already exists */ }
+try { db.exec('ALTER TABLE guests ADD COLUMN unique_guest_qr_identifier TEXT'); } catch (e) { /* column already exists */ }
+try { db.exec("ALTER TABLE facilitator_access_tokens ADD COLUMN status TEXT NOT NULL DEFAULT 'active'"); } catch (e) { /* column already exists */ }
+try { db.exec('ALTER TABLE facilitator_access_tokens ADD COLUMN token_ciphertext TEXT'); } catch (e) { /* column already exists */ }
+
+// Existing single-tenant data is assigned to one migration client. New data
+// must always provide an explicit client through the authorization layer.
+db.prepare(`INSERT OR IGNORE INTO clients (id, name, slug, status) VALUES (1, ?, ?, 'active')`)
+  .run(process.env.LEGACY_CLIENT_NAME || 'Default Client', process.env.LEGACY_CLIENT_SLUG || 'default-client');
+db.exec('UPDATE events SET client_id = 1 WHERE client_id IS NULL');
+db.exec('UPDATE events SET event_slug = lower(replace(event_code, \' \', \'-\')) WHERE event_slug IS NULL');
+db.exec('UPDATE guests SET address = home_address WHERE address IS NULL');
+db.exec('UPDATE guests SET company = company_name WHERE company IS NULL');
+db.exec("UPDATE guests SET registration_status = 'CONFIRMED' WHERE registration_status IS NULL OR registration_status = ''");
+db.exec("UPDATE guests SET attendance_status = CASE WHEN attended = 1 THEN 'ATTENDED' ELSE 'NOT_ATTENDED' END");
+db.exec('UPDATE guests SET unique_guest_qr_identifier = guest_code WHERE unique_guest_qr_identifier IS NULL');
+db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_guest_qr_identifier ON guests(unique_guest_qr_identifier) WHERE unique_guest_qr_identifier IS NOT NULL');
+db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_event_client_slug ON events(client_id, event_slug) WHERE event_slug IS NOT NULL');
+db.exec(`
+  CREATE TRIGGER IF NOT EXISTS events_require_client_on_insert
+  BEFORE INSERT ON events WHEN NEW.client_id IS NULL
+  BEGIN SELECT RAISE(ABORT, 'events.client_id is required'); END;
+  CREATE TRIGGER IF NOT EXISTS events_require_client_on_update
+  BEFORE UPDATE OF client_id ON events WHEN NEW.client_id IS NULL
+  BEGIN SELECT RAISE(ABORT, 'events.client_id is required'); END;
+`);
+db.exec('CREATE INDEX IF NOT EXISTS idx_event_client_id ON events(client_id)');
+db.exec('CREATE INDEX IF NOT EXISTS idx_admin_client_id ON admin_users(client_id)');
+db.exec('CREATE INDEX IF NOT EXISTS idx_client_assignment_user ON client_user_assignments(user_id)');
+db.exec('CREATE INDEX IF NOT EXISTS idx_event_assignment_user ON event_user_assignments(user_id)');
+
+// Preserve access for existing users while making their scope explicit.
+db.exec("UPDATE admin_users SET client_id = 1 WHERE client_id IS NULL AND role = 'admin'");
+db.exec(`INSERT OR IGNORE INTO client_user_assignments (client_id, user_id, role)
+  SELECT 1, id, 'CLIENT_ADMIN' FROM admin_users WHERE role = 'admin'`);
 
 // Seed default admin user if none exists
 const adminCount = db.prepare('SELECT COUNT(*) as count FROM admin_users').get();
@@ -135,9 +240,11 @@ db.exec(`
   );
 `);
 const _insertSetting = db.prepare(`INSERT OR IGNORE INTO site_settings (key, value) VALUES (?, ?)`);
-_insertSetting.run('site_name', 'Event Registration System');
-_insertSetting.run('site_tagline', '');
+_insertSetting.run('site_name', 'BOH+ Event Operations and Solution');
+_insertSetting.run('site_tagline', 'Everything behind the Experience');
 _insertSetting.run('footer_text', 'All rights reserved.');
+db.prepare(`UPDATE site_settings SET value = ? WHERE key = 'site_name' AND value IN ('Event Registration System', 'ONSET', 'Eventura')`).run('BOH+ Event Operations and Solution');
+db.prepare(`UPDATE site_settings SET value = ? WHERE key = 'site_tagline' AND (value IS NULL OR value = '')`).run('Everything behind the Experience');
 
 console.log('✅ SQLite Database connected and ready');
 

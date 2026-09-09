@@ -41,9 +41,7 @@ npm install
    The system uses SQLite - no separate database server needed!
    Database file: `data/event_registration.db`
 
-   The database is already initialized with:
-   - Admin user: `admin` / `admin123`
-   - All necessary tables and schemas
+  On first startup, set `ADMIN_INITIAL_PASSWORD` to create the administrator. No default password is used.
 
 5. **Start the Server**
 ```bash
@@ -158,7 +156,7 @@ event-registration-system/
 ```json
 {
   "username": "admin",
-  "password": "admin123"
+  "password": "your-initial-password"
 }
 ```
 Response:
@@ -204,18 +202,13 @@ Response:
 | `JWT_SECRET` | JWT secret key | Change in production! |
 | `AUTO_BACKUP` | Enable auto backups | `true` |
 | `BACKUP_INTERVAL_HOURS` | Backup frequency | `24` |
-| `CORS_ORIGIN` | CORS allowed origin | `*` |
+| `CORS_ORIGIN` | CORS allowed origin | `http://localhost:5000` |
 
 ---
 
-## 📝 Default Credentials
+## 📝 Initial Credentials
 
-**Admin Account:**
-- Username: `admin`
-- Password: `admin123`
-- Role: `super_admin`
-
-⚠️ **IMPORTANT**: Change the default password in production!
+Set `ADMIN_INITIAL_PASSWORD` before first startup. Optionally set `ADMIN_INITIAL_USERNAME` and `ADMIN_INITIAL_EMAIL`.
 
 ---
 
@@ -233,7 +226,7 @@ taskkill /PID <process-id> /F
 ### Database issues
 ```bash
 # Reinitialize database
-node backend/config/init-sqlite.js
+npm run init-db
 ```
 
 ### Tests failing
@@ -259,7 +252,7 @@ node test-auth.js
 - [ ] Change `JWT_SECRET` to a secure random string
 - [ ] Update `APP_URL` to your production domain
 - [ ] Set `NODE_ENV=production`
-- [ ] Change default admin password
+- [ ] Set a strong `ADMIN_INITIAL_PASSWORD`
 - [ ] Configure `CORS_ORIGIN` to your domain
 - [ ] Enable HTTPS
 - [ ] Set up database backups
