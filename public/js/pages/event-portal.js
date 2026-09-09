@@ -42,7 +42,7 @@ function applyPortalBranding(portal) {
     document.getElementById('eventName').textContent = event.event_name;
     document.getElementById('clientLabel').textContent = branding.tagline || `${branding.brand_name || event.client_slug} Event Portal`;
     document.getElementById('eventMeta').textContent = [formatPortalDate(event.event_date), event.event_time, event.venue].filter(Boolean).join('  •  ');
-    const logo = branding.logo_url;
+    const logo = branding.logo_url || '/assets/images/boh-logo-tight.png';
     if (logo) {
         document.getElementById('portalLogo').src = logo;
         document.getElementById('portalLogo').classList.remove('hidden');

@@ -8,7 +8,7 @@
     <meta http-equiv="Expires" content="0">
     <title>Admin Dashboard - BOH+ Event Operations and Solution</title>
     <meta name="description" content="Admin dashboard for event management and guest tracking">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/assets/images/boh-favicon.svg">
     <link rel="stylesheet" href="../css/style.css">
 <link rel="stylesheet" href="../css/admin.css"> 
     <link rel="stylesheet" href="../css/theme/modern-theme.css?v=20251126">
@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="../css/layouts/mobile-responsive.css">
     <link rel="stylesheet" href="../css/layouts/admin.css?v=20251126">
     <link rel="stylesheet" href="../css/boh-ui.css">
+    <link rel="stylesheet" href="../css/admin-dashboard.css">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
 </head>
@@ -55,7 +56,7 @@
                         <i class="fas fa-bars"></i>
                 </button>
                 <a href="#" class="app-header-logo">
-                    <i class="fas fa-calendar-check"></i>
+                    <img class="boh-company-logo" src="/assets/images/boh-logo-tight.png" alt="BOH+ logo">
                     <span id="siteNameHeader">BOH+ Event Operations and Solution</span>
                 </a>
             </div>
@@ -75,10 +76,14 @@
         <div class="app-layout">
             <!-- Sidebar -->
             <aside class="app-sidebar" id="appSidebar">
+                <div class="admin-sidebar-brand">
+                    <img src="/assets/images/boh-logo-tight.png" alt="BOH+ logo">
+                    <div><strong>BOH+</strong><span>Event Operations</span></div>
+                </div>
                 <nav class="sidebar-nav">
                     <a href="#" onclick="showSection('overview'); closeMobileMenu();" class="sidebar-nav-link active" data-section="overview">
                         <i class="fas fa-chart-line"></i>
-                        <span>Overview</span>
+                        <span>Dashboard</span>
                     </a>
                     <a href="#" onclick="showSection('events'); closeMobileMenu();" class="sidebar-nav-link" data-section="events">
                         <i class="fas fa-calendar"></i>
@@ -90,11 +95,11 @@
                     </a>
                     <a href="#" onclick="showSection('upload'); closeMobileMenu();" class="sidebar-nav-link" data-section="upload">
                         <i class="fas fa-file-upload"></i>
-                        <span>Import Guests</span>
+                        <span>Guest Import</span>
                     </a>
                     <a href="#" onclick="showSection('reports'); closeMobileMenu();" class="sidebar-nav-link" data-section="reports">
                         <i class="fas fa-chart-bar"></i>
-                        <span>Reports & Export</span>
+                        <span>Reports</span>
                     </a>
                     <a href="#" onclick="showSection('event-access'); closeMobileMenu();" class="sidebar-nav-link admin-inline-003" data-section="event-access" id="eventAccessNavLink">
                         <i class="fas fa-link"></i>
@@ -115,7 +120,7 @@
 
                     <a href="/pages/checkin.html" target="_blank" class="sidebar-nav-link" title="Open QR scanner for guest check-in at event entrance (New Tab)">
                         <i class="fas fa-qrcode"></i>
-                        <span>QR Scanner</span>
+                        <span>Check-in</span>
                         <i class="fas fa-external-link-alt admin-inline-007"></i>
                     </a>
 
@@ -151,28 +156,28 @@
 
                 <!-- Stats Summary Cards -->
                 <div class="stats-grid">
-                    <div class="stat-card blue clickable" onclick="showSection('events')" title="Click to view events">
-                        <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
-                        <div class="stat-content">
-                            <div class="stat-value" id="totalEvents">0</div>
-                            <div class="stat-label">Total Events</div>
-                            <div class="stat-detail" id="activeEventsDetail">0 open now</div>
-                        </div>
-                    </div>
-                    <div class="stat-card green clickable" onclick="showSection('guests')" title="Click to view guests">
+                    <div class="stat-card blue clickable" onclick="showSection('guests')" title="Click to view guests">
                         <div class="stat-icon"><i class="fas fa-users"></i></div>
                         <div class="stat-content">
                             <div class="stat-value" id="totalGuests">0</div>
-                            <div class="stat-label">Total Registered</div>
-                            <div class="stat-detail" id="guestSourceDetail">Across all events</div>
+                            <div class="stat-label">Registered</div>
+                            <div class="stat-detail">Across all events</div>
                         </div>
                     </div>
-                    <div class="stat-card purple clickable" onclick="showSection('guests')" title="Click to view guests">
+                    <div class="stat-card green clickable" onclick="showSection('guests')" title="Click to view guests">
                         <div class="stat-icon"><i class="fas fa-user-check"></i></div>
                         <div class="stat-content">
                             <div class="stat-value" id="totalAttended">0</div>
-                            <div class="stat-label">Checked-In Today</div>
-                            <div class="stat-detail" id="noShowDetail">0 not yet checked in</div>
+                            <div class="stat-label">Attended</div>
+                            <div class="stat-detail">Checked in</div>
+                        </div>
+                    </div>
+                    <div class="stat-card purple clickable" onclick="showSection('guests')" title="Click to view guests">
+                        <div class="stat-icon"><i class="fas fa-user-clock"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="noShowCount">0</div>
+                            <div class="stat-label">No-show</div>
+                            <div class="stat-detail" id="noShowDetail">Not yet checked in</div>
                         </div>
                     </div>
                     <div class="stat-card orange clickable" onclick="showSection('reports')" title="Click to view reports">
@@ -182,6 +187,22 @@
                             <div class="stat-label">Attendance Rate</div>
                             <div class="stat-detail">Across all events</div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="admin-activity-card card">
+                    <div class="panel-heading">
+                        <div><p class="eyebrow">Check-in activity</p><h2>Guest arrivals over time</h2></div>
+                        <span class="panel-meta">Last 7 days</span>
+                    </div>
+                    <div class="activity-chart" aria-label="Check-in activity over the last seven days">
+                        <div class="activity-bar" style="--bar-height: 28%"><span>Mon</span></div>
+                        <div class="activity-bar" style="--bar-height: 44%"><span>Tue</span></div>
+                        <div class="activity-bar" style="--bar-height: 37%"><span>Wed</span></div>
+                        <div class="activity-bar" style="--bar-height: 62%"><span>Thu</span></div>
+                        <div class="activity-bar is-current" style="--bar-height: 84%"><span>Fri</span></div>
+                        <div class="activity-bar" style="--bar-height: 53%"><span>Sat</span></div>
+                        <div class="activity-bar" style="--bar-height: 34%"><span>Sun</span></div>
                     </div>
                 </div>
 
@@ -529,15 +550,27 @@
                             </div>
 
                             <div class="form-group admin-inline-020">
-                                <label>Event Logo / Banner <span class="label-optional">(optional)</span></label>
+                                <label>Event Logo <span class="label-optional">(optional)</span></label>
                                 <div class="logo-upload-area" id="logoUploadArea" onclick="document.getElementById('eventLogoInput').click()">
                                     <i class="fas fa-image"></i>
-                                    <p>Click to upload logo or banner</p>
+                                    <p>Click to upload the header logo</p>
                                     <small>JPG, PNG, GIF, WebP — max 2 MB</small>
                                 </div>
-                                <label for="eventLogoInput" class="visually-hidden">Event logo or banner</label>
+                                <label for="eventLogoInput" class="visually-hidden">Event logo</label>
                                 <input type="file" id="eventLogoInput" accept="image/*" class="visually-hidden" onchange="previewLogo(this, 'eventLogoPreview', 'logoUploadArea')">
                                 <img id="eventLogoPreview" class="logo-preview" alt="Selected event logo preview">
+                            </div>
+
+                            <div class="form-group admin-inline-020">
+                                <label>Event Banner <span class="label-optional">(optional)</span></label>
+                                <div class="logo-upload-area" id="bannerUploadArea" onclick="document.getElementById('eventBannerInput').click()">
+                                    <i class="fas fa-panorama"></i>
+                                    <p>Click to upload the hero banner</p>
+                                    <small>Wide JPG, PNG, GIF, WebP — max 2 MB</small>
+                                </div>
+                                <label for="eventBannerInput" class="visually-hidden">Event banner</label>
+                                <input type="file" id="eventBannerInput" accept="image/*" class="visually-hidden" onchange="previewLogo(this, 'eventBannerPreview', 'bannerUploadArea')">
+                                <img id="eventBannerPreview" class="logo-preview banner-preview" alt="Selected event banner preview">
                             </div>
 
                             <div class="event-form-header admin-inline-021">
@@ -904,6 +937,10 @@
                     <div id="eventAccessEmpty" class="dashboard-empty">Select an event to build its access kit.</div>
                     <div id="eventAccessKit" class="event-access-kit admin-inline-053">
                         <div class="event-access-heading"><div><p class="eyebrow">Event Access Kit</p><h2 id="accessKitEventName"></h2><p id="accessKitClientName"></p></div><span id="accessKitEventId" class="badge"></span></div>
+                        <div class="endorsement-control">
+                            <div><span class="eyebrow">Endorsement status</span><strong id="endorsementStatusLabel">Pending review</strong></div>
+                            <div class="endorsement-actions"><select id="endorsementStatus" aria-label="Endorsement status"><option value="pending">Pending review</option><option value="endorsed">Endorsed</option><option value="rejected">Rejected</option></select><input id="endorsementNote" maxlength="500" placeholder="Optional endorsement note" aria-label="Endorsement note"><button type="button" class="btn btn-primary" onclick="saveEventEndorsement()">Save status</button></div>
+                        </div>
                         <div class="event-access-grid">
                             <article class="event-access-card"><h3><i class="fas fa-user-plus"></i> Guest Registration</h3><label for="registrationAccessLink">Registration Link</label><div class="access-copy-row"><input id="registrationAccessLink" title="Registration link" readonly><button type="button" onclick="copyAccessValue('registrationAccessLink')" title="Copy registration link"><i class="fas fa-copy"></i> Copy Link</button></div><img id="registrationAccessQr" class="access-qr hidden" alt="Registration QR code"><button type="button" class="btn btn-secondary" onclick="generateRegistrationQr()"><i class="fas fa-qrcode"></i> Generate QR</button><button type="button" class="btn btn-secondary" onclick="downloadAccessQr('registrationAccessQr', 'registration-qr')"><i class="fas fa-download"></i> Download QR</button></article>
                             <article class="event-access-card"><h3><i class="fas fa-building"></i> Client / QC Access</h3><label for="clientAccessLink">Secure Event Portal Login</label><div class="access-copy-row"><input id="clientAccessLink" title="Client and QC event portal link" readonly><button type="button" onclick="copyAccessValue('clientAccessLink')" title="Copy client portal link"><i class="fas fa-copy"></i> Copy Link</button></div><img id="clientAccessQr" class="access-qr hidden" alt="Client and QC event portal QR code"><button type="button" class="btn btn-secondary" onclick="showClientAccessQr()"><i class="fas fa-qrcode"></i> Show QR</button><button type="button" class="btn btn-secondary" onclick="downloadAccessQr('clientAccessQr', 'client-event-portal-qr')"><i class="fas fa-download"></i> Download QR</button><p class="access-help">This link opens only the selected event portal. Users must still authenticate.</p></article>

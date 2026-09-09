@@ -8,7 +8,7 @@ const database = require('../db/config/database');
  */
 
 const DB_PATH = path.join(__dirname, '../../data/event_registration.db');
-const BACKUP_DIR = path.join(__dirname, '../../backups');
+const BACKUP_DIR = path.resolve(process.env.BACKUP_PATH || path.join(__dirname, '../../backups'));
 
 // Ensure backup directory exists
 if (!fs.existsSync(BACKUP_DIR)) {

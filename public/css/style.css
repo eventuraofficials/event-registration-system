@@ -8,15 +8,15 @@
 
 :root {
     /* Primary Colors */
-    --primary-color: #6366f1;
-    --primary-light: #818cf8;
-    --primary-dark: #4f46e5;
-    --secondary-color: #8b5cf6;
+    --primary-color: #ff4d00;
+    --primary-light: #ff8a5c;
+    --primary-dark: #d83d00;
+    --secondary-color: #0a0a0a;
     --success-color: #10b981;
     --danger-color: #ef4444;
     --warning-color: #f59e0b;
-    --dark-color: #1f2937;
-    --light-color: #f9fafb;
+    --dark-color: #0a0a0a;
+    --light-color: #f3f3f1;
 
     /* Enhanced Spacing System */
     --space-1: 0.25rem;
@@ -56,13 +56,13 @@
     --transition-slow: all 0.5s ease;
 
     /* Glassmorphism */
-    --glass-bg: rgba(255, 255, 255, 0.95);
-    --glass-border: rgba(255, 255, 255, 0.2);
+    --glass-bg: rgba(255, 255, 255, 0.98);
+    --glass-border: rgba(0, 0, 0, 0.12);
 }
 
 body {
     font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #f3f3f1;
     background-attachment: fixed;
     min-height: 100vh;
     color: var(--dark-color);
@@ -80,9 +80,9 @@ body::before {
     width: 100%;
     height: 100%;
     background:
-        radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 40% 20%, rgba(99, 102, 241, 0.2) 0%, transparent 50%);
+        radial-gradient(circle at 20% 50%, rgba(255, 77, 0, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(0, 0, 0, 0.04) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.75) 0%, transparent 50%);
     animation: gradientShift 15s ease infinite;
     z-index: -1;
 }

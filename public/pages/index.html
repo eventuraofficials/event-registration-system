@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Registration Portal</title>
     <meta name="description" content="Register for events and get your QR code entry ticket instantly">
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/assets/images/boh-favicon.svg">
     <link rel="stylesheet" href="../css/theme/modern-theme.css">
     <link rel="stylesheet" href="../css/layouts/minimalist-layout.css">
     <link rel="stylesheet" href="../css/components/components.css">
@@ -16,18 +16,18 @@
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <style>
         :root {
-            --brand-navy: #0f172a;
-            --brand-slate: #334155;
-            --brand-sage: #dff7ef;
-            --brand-teal: #0f766e;
-            --brand-coral: #ea6b57;
-            --brand-coral-deep: #c85442;
-            --brand-surface: #f6faf9;
-            --brand-line: #e2e8f0;
+            --brand-navy: #0a0a0a;
+            --brand-slate: #4a4a4a;
+            --brand-sage: #ece8e4;
+            --brand-teal: #ff4d00;
+            --brand-coral: #ff4d00;
+            --brand-coral-deep: #d83d00;
+            --brand-surface: #f3f3f1;
+            --brand-line: #dedede;
         }
 
         body {
-            background: linear-gradient(180deg, #f5faf8 0%, #eef7f5 100%);
+            background: linear-gradient(180deg, #ffffff 0%, #f3f3f1 100%);
             color: var(--text-dark);
         }
 
@@ -722,6 +722,20 @@
             box-shadow: 0 10px 22px rgba(15, 118, 110, 0.22);
         }
 
+        .app-header-logo-image,
+        .premium-brand-logo {
+            display: block;
+            width: 96px;
+            height: 50px;
+            padding: 3px;
+            border-radius: 8px;
+            object-fit: contain;
+            background: #fff;
+            box-shadow: 0 10px 22px rgba(15, 118, 110, 0.16);
+        }
+
+        .premium-brand-logo { width: 88px; height: 48px; border-radius: 8px; }
+
         /* ── Section toggle ── */
         .section { display: none; }
         .section.active { display: block; }
@@ -1091,13 +1105,15 @@
             .form-card { padding-left: 0; padding-right: 0; }
         }
     </style>
+    <link rel="stylesheet" href="../css/guest-registration.css">
 </head>
 <body class="boh-page">
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <!-- White Sticky Header — no navigation links for guests -->
     <header class="app-header" aria-label="Site header">
         <div class="app-header-logo">
-            <i class="fas fa-calendar-check"></i>
+            <i id="siteHeaderIcon" class="fas fa-calendar-check" style="display:none"></i>
+            <img id="siteHeaderLogo" class="app-header-logo-image" src="/assets/images/boh-logo-tight.png" alt="BOH+ logo">
             <span data-site-name>Loading...</span>
         </div>
     </header>
@@ -1112,8 +1128,8 @@
                 <div class="premium-shell">
                     <header class="premium-event-hero" aria-label="Event hero section">
                         <nav class="premium-nav" aria-label="Event navigation">
-                            <div class="premium-brand" aria-label="Samsung event brand">
-                                <span class="premium-brand-mark"><i class="fas fa-calendar-check" aria-hidden="true"></i></span>
+                            <div class="premium-brand" aria-label="Event brand">
+                                <span class="premium-brand-mark"><i id="heroBrandIcon" class="fas fa-calendar-check" aria-hidden="true" style="display:none"></i><img id="heroBrandLogo" class="premium-brand-logo" src="/assets/images/boh-logo-tight.png" alt="BOH+ logo"></span>
                                 <span data-site-name>Samsung</span>
                             </div>
                             <div class="premium-nav-meta">
@@ -1123,10 +1139,10 @@
 
                         <div class="premium-hero-content">
                             <div class="hero-copy">
-                                <p class="hero-kicker" id="heroKicker">A New Era Begins</p>
-                                <h1 id="heroTitle">SAMSUNG EVENT</h1>
-                                <h2 id="heroSubtitle">INNOVATION LIVES HERE</h2>
-                                <p id="heroDescription">Join us for an exclusive Samsung event and experience what’s next in technology, design, and daily life.</p>
+                                <p class="hero-kicker" id="heroKicker">You're invited.</p>
+                                <h1 id="heroTitle">You're invited.</h1>
+                                <h2 id="heroSubtitle">Register to secure your place at this event.</h2>
+                                <p id="heroDescription">Join us for an experience designed around the people, ideas, and moments that matter.</p>
 
                                 <div class="hero-meta">
                                     <div class="hero-meta-item">
@@ -1245,8 +1261,8 @@
                                         <i class="fas fa-clipboard-list"></i>
                                     </div>
                                     <div>
-                                        <h2>Register Now</h2>
-                                        <p>Fill in your details to receive your QR entry ticket</p>
+                                        <h2>Secure your place</h2>
+                                        <p>Complete your details to receive your digital entry ticket.</p>
                                     </div>
                                 </div>
 
@@ -1293,7 +1309,7 @@
                                         <div class="divider-line">or</div>
                                         <div>
                                             <i class="fas fa-qrcode qr-icon"></i>
-                                            <span>Scan QR Code to Register</span>
+                                            <span>Scan QR to Register</span>
                                         </div>
                                     </div>
                                 </form>

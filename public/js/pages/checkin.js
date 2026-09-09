@@ -661,11 +661,11 @@ function showScanFlash(guest, status) {
         iconEl.className = 'fas fa-check-circle';
         statusEl.textContent = 'Check-In Successful!';
         nameEl.textContent = guest.full_name;
-        subEl.textContent = guest.company_name || guest.guest_code;
+        subEl.textContent = [guest.company_name, `Checked in at: ${formatDateTime(guest.check_in_time || new Date().toISOString())}`].filter(Boolean).join('  |  ');
     } else if (status === 'already-checked-in') {
         flash.classList.add('already-in');
         iconEl.className = 'fas fa-user-clock';
-        statusEl.textContent = 'Already Checked In';
+        statusEl.textContent = 'ALREADY CHECKED IN';
         nameEl.textContent = guest.full_name;
         subEl.textContent = guest.check_in_time
             ? `Checked in at: ${formatDateTime(guest.check_in_time)}`

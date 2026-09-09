@@ -36,10 +36,11 @@ function renderPortal(data) {
     document.getElementById('brandName').textContent = branding.brand_name || 'Facilitator Portal';
     document.getElementById('eventName').textContent = event.name;
     document.getElementById('eventDetails').textContent = [event.date, event.time, event.venue].filter(Boolean).join('  •  ');
-    if (branding.logo_url) {
-        document.getElementById('clientLogo').src = branding.logo_url;
+    const logoUrl = branding.logo_url || '/assets/images/boh-logo-tight.png';
+    if (logoUrl) {
+        document.getElementById('clientLogo').src = logoUrl;
         document.getElementById('clientLogo').classList.remove('hidden');
-        document.getElementById('eventLogo').src = branding.logo_url;
+        document.getElementById('eventLogo').src = logoUrl;
         document.getElementById('eventLogo').classList.remove('hidden');
     }
     renderStats(data.portal.stats);

@@ -12,7 +12,7 @@ function parseConfig(value) {
 async function getEventContext(eventId) {
   const [rows] = await db.execute(
     `SELECT e.id, e.client_id, e.event_name, e.event_code, e.event_slug,
-            e.event_date, e.event_time, e.venue, e.event_logo, e.client_name,
+            e.event_date, e.event_time, e.venue, e.event_logo, e.event_banner, e.client_name,
             e.registration_open, e.registration_form_config,
             c.name AS client_record_name, c.branding_config
      FROM events e JOIN clients c ON c.id = e.client_id WHERE e.id = ?`,
@@ -77,7 +77,8 @@ exports.getPortal = async (req, res) => {
     eventBranding: parseConfig(event.registration_form_config).branding,
     clientName: event.client_name || event.client_record_name,
     eventName: event.event_name,
-    eventLogo: event.event_logo
+    eventLogo: event.event_logo,
+    eventBanner: event.event_banner
   });
   res.json({
     success: true,

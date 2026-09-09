@@ -61,7 +61,7 @@ function meaningfulEventOverrides(raw) {
   return overrides;
 }
 
-function resolveEventBranding({ clientBranding, eventBranding, clientName, eventName, eventLogo }) {
+function resolveEventBranding({ clientBranding, eventBranding, clientName, eventName, eventLogo, eventBanner }) {
   const client = parseBranding(clientBranding);
   const event = meaningfulEventOverrides(parseBranding(eventBranding));
   const merged = { ...DEFAULTS, ...client, ...event };
@@ -76,7 +76,7 @@ function resolveEventBranding({ clientBranding, eventBranding, clientName, event
   merged.hero_title = safeText(merged.hero_title || eventName || 'YOUR EVENT', 140);
   merged.hero_subtitle = safeText(merged.hero_subtitle, 140);
   merged.hero_description = safeText(merged.hero_description || '', 400);
-  merged.hero_image = safeUrl(merged.hero_image);
+  merged.hero_image = safeUrl(eventBanner ? `/uploads/event-logos/${eventBanner}` : merged.hero_image || (eventLogo ? `/uploads/event-logos/${eventLogo}` : ''));
   merged.supporting_image = safeUrl(merged.supporting_image);
   merged.registration_page_content = safeText(merged.registration_page_content, 1000);
   merged.confirmation_title = safeText(merged.confirmation_title, 160);

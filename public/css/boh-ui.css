@@ -1,21 +1,43 @@
 :root {
-    --boh-navy: #0b1f33;
-    --boh-navy-soft: #365269;
-    --boh-muted: #7890a4;
-    --boh-line: #dbe5ec;
-    --boh-surface: #f6f9f8;
+    --boh-navy: #0a0a0a;
+    --boh-navy-soft: #4a4a4a;
+    --boh-muted: #777777;
+    --boh-line: #dedede;
+    --boh-surface: #f3f3f1;
     --boh-white: #ffffff;
-    --boh-mint: #d8f2e9;
-    --boh-teal: #137866;
-    --boh-coral: #ea604d;
-    --boh-coral-dark: #c94b3b;
-    --boh-shadow: 0 18px 55px rgba(11, 31, 51, .1);
-    --boh-radius: 14px;
+    --boh-mint: #ece8e4;
+    --boh-teal: #ff4d00;
+    --boh-coral: #ff4d00;
+    --boh-coral-dark: #d83d00;
+    --boh-shadow: 0 18px 55px rgba(0, 0, 0, .1);
+    --boh-radius: 10px;
+
+    --primary: #ff4d00;
+    --primary-hover: #d83d00;
+    --primary-light: #fff0e9;
+    --primary-color: #ff4d00;
+    --primary-dark: #d83d00;
+    --secondary-color: #0a0a0a;
+    --bg-base: #f3f3f1;
+    --bg-secondary: #ffffff;
+    --border-color: #dedede;
+    --border-light: #eeeeec;
+    --text-dark: #0a0a0a;
+    --text-light: #606060;
+    --text-muted: #898989;
+    --brand-navy: #0a0a0a;
+    --brand-slate: #4a4a4a;
+    --brand-sage: #ece8e4;
+    --brand-teal: #ff4d00;
+    --brand-coral: #ff4d00;
+    --brand-coral-deep: #d83d00;
+    --brand-surface: #f3f3f1;
+    --brand-line: #dedede;
 }
 
 .boh-page {
     color: var(--boh-navy);
-    background: radial-gradient(circle at 90% 0%, rgba(216, 242, 233, .8), transparent 28rem), var(--boh-surface);
+    background: linear-gradient(180deg, #ffffff 0%, var(--boh-surface) 100%);
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -102,6 +124,7 @@
 .boh-page .btn-primary,
 .boh-page button:not(.btn-secondary):not(.secondary) {
     background: var(--boh-coral);
+    color: #ffffff;
 }
 
 .boh-page .btn-primary:hover,
@@ -113,6 +136,54 @@
 .boh-page .portal-brand,
 .boh-page .brand {
     color: var(--boh-navy);
+}
+
+.boh-page .card,
+.boh-page .panel,
+.boh-page .stat,
+.boh-page .section,
+.boh-page .login-card,
+.boh-page .checkin-event-card,
+.boh-page .event-access-card {
+    border-color: var(--boh-line);
+    background: #ffffff;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .06);
+}
+
+.boh-page table th {
+    color: #ffffff;
+    background: var(--boh-navy);
+}
+
+.boh-page table td,
+.boh-page table th { border-color: var(--boh-line); }
+
+.boh-page a:hover,
+.boh-page .active,
+.boh-page .is-active { color: var(--boh-coral); }
+
+.boh-page input:focus,
+.boh-page select:focus,
+.boh-page textarea:focus { border-color: var(--boh-coral); outline-color: var(--boh-coral); }
+
+.boh-company-logo {
+    display: block;
+    width: 104px;
+    height: 48px;
+    border-radius: 7px;
+    object-fit: contain;
+    background: #000;
+}
+
+.boh-page .app-header-logo .boh-company-logo {
+    flex: 0 0 auto;
+}
+
+@media (max-width: 480px) {
+    .boh-company-logo {
+        width: 82px;
+        height: 42px;
+    }
 }
 
 .boh-page .portal-header .portal-brand,

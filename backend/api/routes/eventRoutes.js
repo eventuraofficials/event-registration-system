@@ -63,6 +63,15 @@ router.post('/:id/logo',
   eventController.uploadEventLogo
 );
 
+router.post('/:id/banner',
+  authenticateToken,
+  validateCSRFToken,
+  authorizeEventAccess(),
+  authorizeRole('super_admin', 'admin'),
+  imageUpload.single('banner'),
+  eventController.uploadEventBanner
+);
+
 router.post('/:id/facilitator-access',
   authenticateToken,
   validateCSRFToken,

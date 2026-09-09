@@ -5,6 +5,7 @@ const { sendTicketEmail, isEmailConfigured } = require('../../utils/emailService
 const { buildEventSummary } = require('../../utils/eventSummary');
 const fs = require('fs');
 const ExcelJS = require('exceljs');
+const PDFDocument = require('pdfkit');
 
 // Security: Input sanitization function
 const sanitizeInput = (input) => {
@@ -1031,6 +1032,88 @@ exports.exportGuestList = async (req, res) => {
       success: false,
       message: 'Server error'
     });
+  }
+};
+
+/**
+ * Export a real PDF guest report.
+ */
+exports.exportGuestPdf = async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const { status } = req.query;
+    const [events] = await db.execute(
+      'SELECT event_name, event_code, event_date, venue FROM events WHERE id = ?',
+      [eventId]
+    );
+
+    if (events.length === 0) {
+      return res.status(404).json({ success: false, message: 'Event not found' });
+    }
+
+    let query = `
+      SELECT guest_code, full_name, email, contact_number, company_name,
+        guest_category, attended, check_in_time
+      FROM guests WHERE event_id = ?`;
+    if (status === 'attended') query += ' AND attended = 1';
+    if (status === 'not_attended') query += ' AND attended = 0';
+    query += ' ORDER BY created_at DESC';
+
+    const [guests] = await db.execute(query, [eventId]);
+    if (guests.length === 0) {
+      return res.status(404).json({ success: false, message: 'No guests found for this event' });
+    }
+
+    const event = events[0];
+    const date = event.event_date ? new Date(event.event_date).toISOString().split('T')[0] : '';
+    const suffix = status ? `-${status}` : '';
+    const filename = `${event.event_code}-GuestList${suffix}-${date}.pdf`;
+    const document = new PDFDocument({ size: 'A4', layout: 'landscape', margin: 28 });
+
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Type', 'application/pdf');
+    document.pipe(res);
+    document.fontSize(18).fillColor('#102a2c').text(event.event_name || 'Guest Report');
+    document.fontSize(9).fillColor('#607477').text([date, event.venue].filter(Boolean).join('  |  '));
+    document.moveDown(0.6);
+    document.fontSize(10).fillColor('#102a2c').text(`Guests: ${guests.length}    Checked in: ${guests.filter((guest) => guest.attended).length}`);
+    document.moveDown(0.8);
+
+    const columns = [
+      ['#', 26], ['Guest Code', 78], ['Full Name', 128], ['Email', 168],
+      ['Contact', 82], ['Company', 105], ['Category', 70], ['Status', 78], ['Check-in', 88]
+    ];
+    const startX = document.x;
+    const rowHeight = 19;
+    const drawRow = (values, header = false) => {
+      let x = startX;
+      if (document.y > 540) document.addPage();
+      const y = document.y;
+      if (header) document.rect(startX, y - 3, columns.reduce((sum, column) => sum + column[1], 0), rowHeight).fill('#102a2c');
+      values.forEach((value, index) => {
+        const width = columns[index][1];
+        document.fontSize(header ? 7 : 7.5).fillColor(header ? '#fff' : '#102a2c').text(String(value || ''), x + 3, y, { width: width - 6, height: rowHeight - 2, ellipsis: true });
+        x += width;
+      });
+      document.y = y + rowHeight;
+    };
+
+    drawRow(columns.map((column) => column[0]), true);
+    guests.forEach((guest, index) => drawRow([
+      index + 1,
+      guest.guest_code,
+      guest.full_name,
+      guest.email,
+      guest.contact_number,
+      guest.company_name,
+      guest.guest_category || 'Regular',
+      guest.attended ? 'Checked in' : 'Not checked in',
+      guest.check_in_time || ''
+    ]));
+    document.end();
+  } catch (error) {
+    console.error('Export guest PDF error:', error);
+    if (!res.headersSent) res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 

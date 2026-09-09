@@ -17,7 +17,7 @@ Components.register('Header', function({
         <header class="header">
             ${displayLogo ? `
                 <div class="header-logo">
-                    <i class="fas fa-qrcode"></i>
+                        <img class="boh-company-logo" src="/assets/images/boh-logo-tight.png" alt="BOH+ logo">
                 </div>
             ` : ''}
             <h1>

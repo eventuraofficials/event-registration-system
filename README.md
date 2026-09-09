@@ -17,7 +17,7 @@ A production-ready event registration and attendance tracking system with QR cod
 - **QR Code Check-In** — Camera scanner or manual code entry on any device
 - **Admin Dashboard** — Manage events, guests, staff accounts, and reports
 - **Guest Categories** — Tag guests (VIP, Regular, etc.) for easy filtering
-- **Export Reports** — Download attendance list as Excel, PDF, or CSV
+   - **Export Reports** — Download attendance list as Excel, real PDF, or CSV
 - **Role-based Access** — Super Admin and Staff roles
 - **Staff Management** — Create/delete staff accounts (super admin only)
 - **Activity Logs** — Audit trail of all admin actions
@@ -99,12 +99,12 @@ Set `ADMIN_INITIAL_PASSWORD` (at least 12 characters) before the first startup. 
 Free tier uses **ephemeral storage** — the database and uploaded files reset on every restart. To persist data:
 
 1. Upgrade to **Render Starter** ($7/mo)
-2. Add a **Disk** → mount at `/opt/render/project/src/data` (for the database)
-3. Add a second **Disk** → mount at `/opt/render/project/src/uploads` (for event logos)
+2. Add a **Disk** → mount at `/opt/render/project/src/data` (database, uploads, and backups use this persistent disk)
+3. Keep `UPLOAD_PATH=/opt/render/project/src/data/uploads` and `BACKUP_PATH=/opt/render/project/src/data/backups` configured in the service environment.
 
 ### Multiple Clients
 
-Deploy a **separate Render Web Service** per client (same GitHub repo, different env vars). This provides full isolation — separate database, separate uploads, separate admin accounts.
+Use one deployment for multiple clients. Client and event records are isolated by authorization and assignment rules; do not create a separate website per client unless a separate database is specifically required.
 
 ---
 

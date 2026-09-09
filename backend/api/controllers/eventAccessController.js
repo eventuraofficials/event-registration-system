@@ -43,8 +43,9 @@ async function assertEventManager(req, eventId) {
 
 async function getEvent(eventId) {
   const [rows] = await db.execute(
-    `SELECT e.id, e.client_id, e.event_name, e.event_code, e.event_slug, e.event_qr_code,
-            e.event_date, e.event_logo, e.client_name, c.name AS client_name_record
+        `SELECT e.id, e.client_id, e.event_name, e.event_code, e.event_slug, e.event_qr_code,
+          e.event_date, e.event_logo, e.client_name, e.endorsement_status, e.endorsement_note,
+          c.name AS client_name_record
      FROM events e JOIN clients c ON c.id = e.client_id WHERE e.id = ?`,
     [eventId]
   );
@@ -117,7 +118,7 @@ exports.getKit = async (req, res) => {
   res.json({
     success: true,
     kit: {
-      event: { id: event.id, client_id: event.client_id, name: event.event_name, code: event.event_code },
+      event: { id: event.id, client_id: event.client_id, name: event.event_name, code: event.event_code, endorsement_status: event.endorsement_status, endorsement_note: event.endorsement_note || '' },
       client_name: event.client_name || event.client_name_record,
       registration: { url: registrationUrl, qr: event.event_qr_code || await QRCode.toDataURL(registrationUrl, { width: 320, margin: 2 }) },
       client_qc: { url: clientPortalUrl, qr: await QRCode.toDataURL(clientPortalUrl, { width: 320, margin: 2 }) },
@@ -126,6 +127,19 @@ exports.getKit = async (req, res) => {
       assignable_users: assignableUsers
     }
   });
+};
+
+exports.updateEndorsement = async (req, res) => {
+  const eventId = Number(req.params.eventId);
+  const permission = await assertEventManager(req, eventId);
+  if (!permission.ok) return res.status(permission.status).json({ success: false, message: permission.message });
+  const status = String(req.body.status || '').toLowerCase();
+  const note = String(req.body.note || '').replace(/<[^>]*>/g, '').trim().slice(0, 500);
+  if (!['pending', 'endorsed', 'rejected'].includes(status)) {
+    return res.status(400).json({ success: false, message: 'Invalid endorsement status' });
+  }
+  await db.execute('UPDATE events SET endorsement_status = ?, endorsement_note = ? WHERE id = ?', [status, note || null, eventId]);
+  res.json({ success: true, endorsement: { status, note } });
 };
 
 exports.issueFacilitator = async (req, res) => {

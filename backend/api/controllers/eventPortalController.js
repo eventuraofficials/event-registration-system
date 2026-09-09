@@ -18,7 +18,7 @@ async function getPortalContext(eventId, req) {
   const [events] = await db.execute(
     `SELECT e.id, e.client_id, e.event_name, e.event_code, e.event_slug, e.event_date,
             e.event_time, e.venue, e.description, e.status, e.registration_open,
-            e.max_capacity, e.registration_form_config, e.event_logo,
+            e.max_capacity, e.registration_form_config, e.event_logo, e.event_banner,
             e.client_name, e.font_style, e.font_size,
             c.name AS client_name_from_record, c.slug AS client_slug, c.branding_config
      FROM events e
@@ -41,7 +41,8 @@ async function getPortalContext(eventId, req) {
     eventBranding: registrationConfig.branding,
     clientName: event.client_name || event.client_name_from_record,
     eventName: event.event_name,
-    eventLogo: event.event_logo
+    eventLogo: event.event_logo,
+    eventBanner: event.event_banner
   });
 
   const [statsRows] = await db.execute(

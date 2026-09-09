@@ -227,9 +227,12 @@ if (adminCount.count === 0) {
 
 // Migrations — idempotent (safe to run every startup)
 try { db.exec('ALTER TABLE events ADD COLUMN event_logo TEXT'); } catch(e) { /* column already exists */ }
+try { db.exec('ALTER TABLE events ADD COLUMN event_banner TEXT'); } catch(e) { /* column already exists */ }
 try { db.exec('ALTER TABLE events ADD COLUMN client_name TEXT'); } catch(e) { /* column already exists */ }
 try { db.exec('ALTER TABLE events ADD COLUMN font_style TEXT'); } catch(e) { /* column already exists */ }
 try { db.exec('ALTER TABLE events ADD COLUMN font_size TEXT'); } catch(e) { /* column already exists */ }
+try { db.exec("ALTER TABLE events ADD COLUMN endorsement_status TEXT NOT NULL DEFAULT 'pending'"); } catch(e) { /* column already exists */ }
+try { db.exec('ALTER TABLE events ADD COLUMN endorsement_note TEXT'); } catch(e) { /* column already exists */ }
 
 // Site settings table
 db.exec(`

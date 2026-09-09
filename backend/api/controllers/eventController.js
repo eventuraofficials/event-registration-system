@@ -2,6 +2,7 @@ const db = require('../../db/config/database');
 const { normalizeEventSetup, buildRegistrationFormConfig } = require('../../utils/eventSetup');
 const { normalizedRole, ROLE, canAccessClient } = require('../../middleware/authorization');
 const { resolveEventBranding, parseBranding } = require('../../utils/branding');
+const { eventAssetRoot } = require('../../utils/storagePaths');
 
 function authorizedEventScope(req) {
   const role = normalizedRole(req.user);
@@ -314,7 +315,7 @@ exports.getEventByCode = async (req, res) => {
     const [events] = await db.execute(
       `SELECT
         e.id, e.event_name, e.event_code, e.event_date,
-        e.event_time, e.venue, e.description, e.registration_open, e.registration_form_config, e.event_logo, e.max_capacity, e.client_name, e.font_style, e.font_size,
+        e.event_time, e.venue, e.description, e.registration_open, e.registration_form_config, e.event_logo, e.event_banner, e.max_capacity, e.client_name, e.font_style, e.font_size,
         c.name AS client_name_record, c.branding_config
       FROM events e JOIN clients c ON c.id = e.client_id
       WHERE e.event_code = ? AND e.status = 'active' AND c.status = 'active'`,
@@ -336,7 +337,8 @@ exports.getEventByCode = async (req, res) => {
       eventBranding: parsedRegistrationConfig.branding,
       clientName: event.client_name || event.client_name_record,
       eventName: event.event_name,
-      eventLogo: event.event_logo
+      eventLogo: event.event_logo,
+      eventBanner: event.event_banner
     });
 
     // Include registered guest count for capacity display
@@ -612,12 +614,14 @@ exports.cloneEvent = async (req, res) => {
     });
 
     const [result] = await db.execute(
-      `INSERT INTO events (event_name, event_code, event_qr_code, event_date, event_time,
-        venue, description, max_capacity, registration_open, registration_form_config, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
-      [newName, newCode, eventQRCode, src.event_date, src.event_time,
-       src.venue, src.description, src.max_capacity,
-       src.registration_form_config, req.user.id]
+      `INSERT INTO events (client_id, event_name, event_code, event_qr_code, event_date, event_time,
+        venue, description, max_capacity, registration_open, registration_form_config, event_logo, event_banner,
+        client_name, font_style, font_size, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [src.client_id, newName, newCode, eventQRCode, src.event_date, src.event_time,
+       src.venue, src.description, src.max_capacity, src.registration_form_config,
+       src.event_logo || null, src.event_banner || null, src.client_name || null,
+       src.font_style || null, src.font_size || null, req.user.id]
     );
 
     res.status(201).json({
@@ -635,10 +639,7 @@ exports.cloneEvent = async (req, res) => {
   }
 };
 
-/**
- * Upload event logo
- */
-exports.uploadEventLogo = async (req, res) => {
+async function uploadEventAsset(req, res, column, label) {
   try {
     const { id } = req.params;
 
@@ -646,22 +647,19 @@ exports.uploadEventLogo = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No image file provided' });
     }
 
-    // Get current logo so we can delete the old file
-    const [rows] = await db.execute('SELECT event_logo FROM events WHERE id = ?', [id]);
+    const [rows] = await db.execute(`SELECT ${column} FROM events WHERE id = ?`, [id]);
     if (rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Event not found' });
     }
 
-    const oldLogo = rows[0].event_logo;
+    const oldAsset = rows[0][column];
 
-    // Save new filename to DB
-    await db.execute('UPDATE events SET event_logo = ? WHERE id = ?', [req.file.filename, id]);
+    await db.execute(`UPDATE events SET ${column} = ? WHERE id = ?`, [req.file.filename, id]);
 
-    // Delete old logo file if it exists
-    if (oldLogo) {
+    if (oldAsset) {
       const fs = require('fs');
       const path = require('path');
-      const oldPath = path.join(process.cwd(), 'uploads', 'event-logos', oldLogo);
+      const oldPath = path.join(eventAssetRoot, oldAsset);
       fs.unlink(oldPath, () => {}); // fire-and-forget
     }
 
@@ -671,10 +669,13 @@ exports.uploadEventLogo = async (req, res) => {
       url: `/uploads/event-logos/${req.file.filename}`
     });
   } catch (error) {
-    console.error('Upload event logo error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error(`Upload event ${label} error:`, error);
+    res.status(500).json({ success: false, message: `Unable to upload event ${label}` });
   }
-};
+}
+
+exports.uploadEventLogo = (req, res) => uploadEventAsset(req, res, 'event_logo', 'logo');
+exports.uploadEventBanner = (req, res) => uploadEventAsset(req, res, 'event_banner', 'banner');
 
 exports.updateEventBranding = async (req, res) => {
   try {

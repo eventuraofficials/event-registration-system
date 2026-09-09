@@ -8,16 +8,34 @@ function safeImageUrl(value) {
     return '';
 }
 
+function applyEventLogoToHeaders(logoUrl) {
+    const logo = safeImageUrl(logoUrl) || '/assets/images/boh-logo-tight.png';
+    const headerImage = document.getElementById('siteHeaderLogo');
+    const headerIcon = document.getElementById('siteHeaderIcon');
+    const heroImage = document.getElementById('heroBrandLogo');
+    const heroIcon = document.getElementById('heroBrandIcon');
+    [headerImage, heroImage].forEach((image) => {
+        if (!image) return;
+        if (logo) {
+            image.src = logo;
+            image.style.display = 'block';
+        }
+    });
+    [headerIcon, heroIcon].forEach((icon) => {
+        if (icon) icon.style.display = logo ? 'none' : '';
+    });
+}
+
 function applyEventBranding() {
     const resolvedBranding = currentEvent.branding || {};
     const defaults = {
         brand_name: resolvedBranding.brand_name || currentEvent.client_name || currentEvent.event_name || 'Event Registration',
         tagline: '',
         footer_text: 'All rights reserved.',
-        hero_kicker: 'A New Era Begins',
-        hero_title: `${currentEvent.client_name || currentEvent.event_name || 'YOUR EVENT'} EVENT`.toUpperCase(),
-        hero_subtitle: 'WELCOME TO WHAT\'S NEXT',
-        hero_description: resolvedBranding.hero_description || currentEvent.description || 'Join us for an unforgettable event experience.',
+        hero_kicker: 'YOU\'RE INVITED.',
+        hero_title: 'YOU\'RE INVITED.',
+        hero_subtitle: 'Register to secure your place at this event.',
+        hero_description: resolvedBranding.hero_description || currentEvent.description || 'Join us for an experience designed around the people, ideas, and moments that matter.',
         hero_image: resolvedBranding.logo_url || (currentEvent.event_logo ? `/uploads/event-logos/${currentEvent.event_logo}` : ''),
         supporting_image: '',
         colors: { primary: resolvedBranding.primary_color || '#0f766e', secondary: resolvedBranding.secondary_color || '#0f172a', accent: resolvedBranding.accent_color || '#ea6b57' },
@@ -37,6 +55,7 @@ function applyEventBranding() {
     const panel = { ...defaults.panel, ...(branding.panel || {}) };
     const supporting = { ...defaults.supporting, ...(branding.supporting || {}) };
     const colors = { ...defaults.colors, ...(branding.colors || {}) };
+    applyEventLogoToHeaders(branding.logo_url || (currentEvent.event_logo ? `/uploads/event-logos/${currentEvent.event_logo}` : ''));
 
     document.documentElement.style.setProperty('--primary', colors.primary);
     document.documentElement.style.setProperty('--primary-hover', colors.secondary);

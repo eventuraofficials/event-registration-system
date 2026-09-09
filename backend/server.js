@@ -134,7 +134,8 @@ app.get('/facilitator/:accessToken', (req, res) => {
 // Static files - Serve public folder with no-cache for JS files
 // Use process.cwd() for deployment compatibility
 const publicPath = path.join(process.cwd(), 'public');
-const uploadsPath = path.join(process.cwd(), 'uploads');
+const { uploadRoot } = require('./utils/storagePaths');
+const uploadsPath = uploadRoot;
 
 app.use(express.static(publicPath, {
   setHeaders: (res, filePath) => {

@@ -7,6 +7,7 @@ const { validateCSRFToken } = require('../../middleware/csrf');
 const adminOnly = [authenticateToken, validateCSRFToken, authorizeRole('super_admin', 'admin')];
 
 router.get('/events/:eventId', authenticateToken, authorizeRole('super_admin', 'admin'), controller.getKit);
+router.patch('/events/:eventId/endorsement', ...adminOnly, controller.updateEndorsement);
 router.post('/events/:eventId/facilitators', ...adminOnly, controller.issueFacilitator);
 router.patch('/facilitators/:accessId/status', ...adminOnly, controller.updateFacilitatorStatus);
 router.post('/facilitators/:accessId/regenerate', ...adminOnly, controller.regenerateFacilitator);

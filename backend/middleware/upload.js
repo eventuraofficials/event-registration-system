@@ -1,11 +1,11 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { uploadRoot, eventAssetRoot } = require('../utils/storagePaths');
 
 // Ensure upload directory exists
-const uploadDir = process.env.UPLOAD_PATH || './uploads';
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+if (!fs.existsSync(uploadRoot)) {
+  fs.mkdirSync(uploadRoot, { recursive: true });
 }
 
 
@@ -34,7 +34,7 @@ function sanitizeFilename(filename) {
 // Configure storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, uploadDir);
+    cb(null, uploadRoot);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -80,14 +80,13 @@ const upload = multer({
 
 // ── Event Logo Upload ────────────────────────────────────────────────────────
 
-const logoDir = path.join(uploadDir, 'event-logos');
-if (!fs.existsSync(logoDir)) {
-  fs.mkdirSync(logoDir, { recursive: true });
+if (!fs.existsSync(eventAssetRoot)) {
+  fs.mkdirSync(eventAssetRoot, { recursive: true });
 }
 
 const logoStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, logoDir);
+    cb(null, eventAssetRoot);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);

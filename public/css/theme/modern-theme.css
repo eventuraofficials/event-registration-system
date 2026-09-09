@@ -21,24 +21,24 @@
 :root {
     /* === MINIMALIST COLOR PALETTE === */
     /* Primary Color - Indigo */
-    --primary: #6366f1;
-    --primary-hover: #4f46e5;
-    --primary-light: #eef2ff;
+    --primary: #ff4d00;
+    --primary-hover: #d83d00;
+    --primary-light: #fff0e9;
 
     /* Neutral Palette */
-    --bg-base: #F8FAFC;
+    --bg-base: #f3f3f1;
     --bg-secondary: #FFFFFF;
-    --border-color: #E2E8F0;
-    --border-light: #F1F5F9;
+    --border-color: #dedede;
+    --border-light: #eeeeec;
 
     /* Text Colors */
-    --text-dark: #1E293B;
-    --text-light: #64748B;
-    --text-muted: #94A3B8;
+    --text-dark: #0a0a0a;
+    --text-light: #606060;
+    --text-muted: #898989;
 
     /* Semantic Colors */
     --success: #10B981;
-    --info: #3B82F6;
+    --info: #ff4d00;
     --warning: #F59E0B;
     --danger: #EF4444;
 
@@ -53,7 +53,7 @@
     --gray-600: #475569;
     --gray-700: #334155;
     --gray-800: #1E293B;
-    --gray-900: #0F172A;
+    --gray-900: #0A0A0A;
 
     /* === SPACING SCALE === */
     --space-xs: 12px;

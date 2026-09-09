@@ -36,9 +36,12 @@ services:
         sync: false
       - key: CORS_ORIGIN
         sync: false
+      - key: UPLOAD_PATH
+        value: /opt/render/project/src/data/uploads
+      - key: BACKUP_PATH
+        value: /opt/render/project/src/data/backups
     disk:
       name: data
       mountPath: /opt/render/project/src/data
       sizeGB: 1
-    # Uploads and backups should be moved to object storage for durable production use.
     autoDeploy: true

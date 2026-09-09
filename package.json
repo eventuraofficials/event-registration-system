@@ -10,7 +10,8 @@
     "init-db": "node backend/db/config/init-sqlite.js",
     "backup": "node -e \"require('./backend/utils/backup').createBackup()\"",
     "test": "node --test test/*.test.js",
-    "test:e2e": "node scripts/e2e-smoke.js"
+    "test:e2e": "node scripts/e2e-smoke.js",
+    "test:visual": "node scripts/visual-smoke.js"
   },
   "keywords": [
     "event",
@@ -34,9 +35,11 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^7.0.11",
+    "pdfkit": "^0.20.2",
     "qrcode": "^1.5.3"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.2",
+    "playwright": "^1.63.0"
   }
 }

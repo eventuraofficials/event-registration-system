@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title">
+  <title id="title">BOH+ logo</title>
+  <rect width="256" height="256" rx="28" fill="#000"/>
+  <text x="14" y="154" fill="#fff" font-family="Arial Black, Arial, sans-serif" font-size="112" font-weight="900" letter-spacing="-8" textLength="188" lengthAdjust="spacingAndGlyphs">BOH</text>
+  <rect x="197" y="58" width="28" height="104" fill="#ff4d00"/>
+  <rect x="159" y="96" width="104" height="28" fill="#ff4d00"/>
+</svg>

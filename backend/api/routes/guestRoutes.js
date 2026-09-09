@@ -39,6 +39,7 @@ router.post('/upload-excel',
 router.get('/event/:event_id', authenticateToken, authorizeEventAccess({ field: 'event_id' }), guestController.getGuestsByEvent);
 router.get('/event/:event_id/stats', authenticateToken, authorizeEventAccess({ field: 'event_id' }), guestController.getEventStats);
 router.get('/event/:eventId/export', authenticateToken, authorizeEventAccess({ field: 'eventId' }), guestController.exportGuestList);
+router.get('/event/:eventId/export.pdf', authenticateToken, authorizeEventAccess({ field: 'eventId' }), guestController.exportGuestPdf);
 router.post('/:id/resend-ticket', authenticateToken, validateCSRFToken, authorizeGuestAccess(), authorizeEventRole(ROLE.MASTER_ADMIN, ROLE.CLIENT_ADMIN, ROLE.QC), guestController.resendTicket);
 router.put('/:id', authenticateToken, validateCSRFToken, authorizeGuestAccess(), authorizeEventRole(ROLE.MASTER_ADMIN, ROLE.CLIENT_ADMIN, ROLE.QC), guestController.updateGuest);
 router.delete('/:id', authenticateToken, validateCSRFToken, authorizeGuestAccess(), authorizeEventRole(ROLE.MASTER_ADMIN, ROLE.CLIENT_ADMIN, ROLE.QC), guestController.deleteGuest);

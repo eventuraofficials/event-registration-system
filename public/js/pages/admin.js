@@ -351,6 +351,8 @@ function updateOverviewStats() {
 
     const openEvents = allEvents.filter(event => event.registration_open).length;
     const noShows = Math.max(totalGuests - totalAttended, 0);
+    const noShowCount = document.getElementById('noShowCount');
+    if (noShowCount) noShowCount.textContent = noShows;
     document.getElementById('activeEventsDetail').textContent = `${openEvents} open now`;
     document.getElementById('guestSourceDetail').textContent = `${allEvents.length} event${allEvents.length === 1 ? '' : 's'} tracked`;
     document.getElementById('noShowDetail').textContent = `${noShows} not yet checked in`;
@@ -700,6 +702,10 @@ async function loadEventAccessKit() {
         document.getElementById('accessKitEventName').textContent = data.kit.event.name;
         document.getElementById('accessKitClientName').textContent = data.kit.client_name || 'Client';
         document.getElementById('accessKitEventId').textContent = `Event ID: ${data.kit.event.id}`;
+        const endorsement = data.kit.event.endorsement_status || 'pending';
+        document.getElementById('endorsementStatus').value = endorsement;
+        document.getElementById('endorsementNote').value = data.kit.event.endorsement_note || '';
+        document.getElementById('endorsementStatusLabel').textContent = endorsement === 'endorsed' ? 'Endorsed' : endorsement === 'rejected' ? 'Rejected' : 'Pending review';
         document.getElementById('registrationAccessLink').value = data.kit.registration.url;
         document.getElementById('registrationAccessQr').src = data.kit.registration.qr;
         document.getElementById('registrationAccessQr').classList.add('hidden');
@@ -715,6 +721,24 @@ async function loadEventAccessKit() {
         kit.style.display = 'block';
     } catch (error) {
         showAlert(error.message || 'Unable to load event access kit', 'danger');
+    }
+}
+
+async function saveEventEndorsement() {
+    const eventId = document.getElementById('accessEventSelect')?.value;
+    const status = document.getElementById('endorsementStatus')?.value;
+    const note = document.getElementById('endorsementNote')?.value.trim() || '';
+    if (!eventId || !status) return showAlert('Select an event and endorsement status first', 'warning');
+    try {
+        await fetchAPI(`${API_BASE_URL}/event-access/events/${eventId}/endorsement`, {
+            method: 'PATCH',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ status, note })
+        });
+        showAlert(`Event endorsement ${status}`, 'success');
+        await loadEventAccessKit();
+    } catch (error) {
+        showAlert(error.message || 'Unable to update endorsement', 'danger');
     }
 }
 
@@ -1024,21 +1048,29 @@ function previewLogo(input, previewId, areaId) {
     reader.readAsDataURL(file);
 }
 
-// Upload logo to server after event is created/saved
-async function uploadEventLogo(eventId, fileInput) {
+// Upload event media after the event is created/saved.
+async function uploadEventAsset(eventId, fileInput, assetType) {
     const file = fileInput?.files[0];
     if (!file) return;
     const fd = new FormData();
-    fd.append('logo', file);
+    fd.append(assetType, file);
     try {
-        await fetch(`${API_BASE_URL}/events/${eventId}/logo`, {
+        await fetch(`${API_BASE_URL}/events/${eventId}/${assetType}`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${authToken}`, 'X-CSRF-Token': await getCsrfToken() },
             body: fd
         });
     } catch (err) {
-        console.error('Logo upload failed:', err);
+        console.error(`${assetType} upload failed:`, err);
     }
+}
+
+async function uploadEventLogo(eventId, fileInput) {
+    return uploadEventAsset(eventId, fileInput, 'logo');
+}
+
+async function uploadEventBanner(eventId, fileInput) {
+    return uploadEventAsset(eventId, fileInput, 'banner');
 }
 
 // Handle create event
@@ -1125,6 +1157,10 @@ async function handleCreateEvent(e) {
         const logoInput = document.getElementById('eventLogoInput');
         if (logoInput?.files[0] && data.event?.id) {
             await uploadEventLogo(data.event.id, logoInput);
+        }
+        const bannerInput = document.getElementById('eventBannerInput');
+        if (bannerInput?.files[0] && data.event?.id) {
+            await uploadEventBanner(data.event.id, bannerInput);
         }
 
         hideLoading();
@@ -1385,15 +1421,27 @@ function showEditEventModal(event) {
                     </div>
 
                     <div class="form-group">
-                        <label>Event Logo / Banner <span class="label-optional">(optional)</span></label>
+                        <label>Event Logo <span class="label-optional">(optional)</span></label>
                         ${event.event_logo ? `<img src="/uploads/event-logos/${SecurityUtils.escapeHtml(event.event_logo)}" class="current-logo-thumb" alt="Current logo">` : ''}
                         <div class="logo-upload-area" id="editLogoUploadArea" onclick="document.getElementById('editEventLogoInput').click()">
                             <i class="fas fa-image"></i>
-                            <p>${event.event_logo ? 'Click to replace logo' : 'Click to upload logo or banner'}</p>
+                            <p>${event.event_logo ? 'Click to replace logo' : 'Click to upload logo'}</p>
                             <small>JPG, PNG, GIF, WebP — max 2 MB</small>
                         </div>
                         <input type="file" id="editEventLogoInput" accept="image/*" class="visually-hidden" onchange="previewLogo(this, 'editLogoPreview', 'editLogoUploadArea')">
                         <img id="editLogoPreview" class="logo-preview">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Event Banner <span class="label-optional">(optional)</span></label>
+                        ${event.event_banner ? `<img src="/uploads/event-logos/${SecurityUtils.escapeHtml(event.event_banner)}" class="current-logo-thumb banner-preview" alt="Current event banner">` : ''}
+                        <div class="logo-upload-area" id="editBannerUploadArea" onclick="document.getElementById('editEventBannerInput').click()">
+                            <i class="fas fa-panorama"></i>
+                            <p>${event.event_banner ? 'Click to replace banner' : 'Click to upload banner'}</p>
+                            <small>Wide JPG, PNG, GIF, WebP — max 2 MB</small>
+                        </div>
+                        <input type="file" id="editEventBannerInput" accept="image/*" class="visually-hidden" onchange="previewLogo(this, 'editBannerPreview', 'editBannerUploadArea')">
+                        <img id="editBannerPreview" class="logo-preview banner-preview">
                     </div>
 
                     <div class="form-group">
@@ -1493,6 +1541,10 @@ async function handleEditEventSubmit(e) {
         const editLogoInput = document.getElementById('editEventLogoInput');
         if (editLogoInput?.files[0]) {
             await uploadEventLogo(eventId, editLogoInput);
+        }
+        const editBannerInput = document.getElementById('editEventBannerInput');
+        if (editBannerInput?.files[0]) {
+            await uploadEventBanner(eventId, editBannerInput);
         }
 
         hideLoading();
@@ -2337,72 +2389,29 @@ async function exportToPDF() {
     showLoading();
 
     try {
-        const data = await fetchAPI(`${API_BASE_URL}/guests/event/${eventId}`, {
-            headers: getAuthHeaders()
-        });
-
-        if (!data.success) throw new Error(data.message);
-
         const statusFilter = document.getElementById('reportStatusFilter')?.value || '';
-        let guests = data.guests;
-        if (statusFilter === 'attended') guests = guests.filter(g => g.attended);
-        else if (statusFilter === 'not_attended') guests = guests.filter(g => !g.attended);
-        const event = allEvents.find(e => e.id == eventId);
-        const eventName = event ? event.event_name : 'Event';
-        const eventDate = event ? formatDate(event.event_date) : '';
-        const attended = guests.filter(g => g.attended).length;
+        const exportUrl = `${API_BASE_URL}/guests/event/${eventId}/export.pdf${statusFilter ? `?status=${encodeURIComponent(statusFilter)}` : ''}`;
+        const response = await fetch(exportUrl, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        if (!response.ok) {
+            const data = await response.json().catch(() => ({}));
+            throw new Error(data.message || 'Failed to export PDF');
+        }
 
-        const e = SecurityUtils.escapeHtml;
-        const rows = guests.map((g, i) => `
-            <tr>
-                <td>${i + 1}</td>
-                <td>${e(g.guest_code || '')}</td>
-                <td>${e(g.full_name || '')}</td>
-                <td>${e(g.email || '')}</td>
-                <td>${e(g.contact_number || '')}</td>
-                <td>${e(g.company_name || '')}</td>
-                <td style="text-align:center;">${g.attended ? '&#10003;' : ''}</td>
-                <td>${g.check_in_time ? e(formatDateTime(g.check_in_time)) : ''}</td>
-            </tr>
-        `).join('');
-
-        const win = window.open('', '_blank');
-        win.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>${eventName} - Guest List</title>
-                <style>
-                    body { font-family: Arial, sans-serif; margin: 20px; color: #000; }
-                    h1 { font-size: 18px; margin-bottom: 4px; }
-                    .meta { font-size: 12px; color: #555; margin-bottom: 16px; }
-                    .summary { font-size: 13px; margin-bottom: 12px; }
-                    table { width: 100%; border-collapse: collapse; font-size: 11px; }
-                    th { background: #333; color: #fff; padding: 6px 8px; text-align: left; }
-                    td { padding: 5px 8px; border-bottom: 1px solid #ddd; }
-                    tr:nth-child(even) { background: #f9f9f9; }
-                    @media print { button { display: none; } }
-                </style>
-            </head>
-            <body>
-                <h1>${e(eventName)}</h1>
-                <div class="meta">${e(eventDate)}${event && event.venue ? ' &bull; ' + e(event.venue) : ''}</div>
-                <div class="summary">Total Guests: <strong>${guests.length}</strong> &nbsp;|&nbsp; Attended: <strong>${attended}</strong> &nbsp;|&nbsp; Pending: <strong>${guests.length - attended}</strong></div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th><th>Guest Code</th><th>Full Name</th><th>Email</th>
-                            <th>Contact</th><th>Company</th><th>Attended</th><th>Check-in Time</th>
-                        </tr>
-                    </thead>
-                    <tbody>${rows}</tbody>
-                </table>
-                <script>window.onload = function() { window.print(); }<\/script>
-            </body>
-            </html>
-        `);
-        win.document.close();
+        const contentDisposition = response.headers.get('Content-Disposition') || '';
+        const filename = contentDisposition.match(/filename="?([^";]+)"?/i)?.[1] || 'guest-list.pdf';
+        const blobUrl = window.URL.createObjectURL(await response.blob());
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(blobUrl);
         hideLoading();
+        showAlert('PDF report downloaded successfully!', 'success');
 
     } catch (error) {
         hideLoading();
