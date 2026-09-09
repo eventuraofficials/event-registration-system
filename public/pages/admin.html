@@ -533,6 +533,84 @@
                                 <input type="file" id="eventLogoInput" accept="image/*" class="visually-hidden" onchange="previewLogo(this, 'eventLogoPreview', 'logoUploadArea')">
                                 <img id="eventLogoPreview" class="logo-preview">
                             </div>
+
+                            <div class="event-form-header" style="margin-top: 24px;">
+                                <h3><i class="fas fa-palette"></i> Registration Page Theme</h3>
+                                <p class="event-form-note">Customize the guest-facing page before publishing</p>
+                            </div>
+
+                            <div class="event-form-grid">
+                                <div class="form-group">
+                                    <label for="eventBrandName">Brand Name</label>
+                                    <input type="text" id="eventBrandName" placeholder="e.g. Samsung, Acme, Nike">
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventHeroKicker">Hero Kicker</label>
+                                    <input type="text" id="eventHeroKicker" placeholder="e.g. A New Era Begins">
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventHeroTitle">Hero Title</label>
+                                    <input type="text" id="eventHeroTitle" placeholder="e.g. Innovation Lives Here">
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventHeroSubtitle">Hero Subtitle</label>
+                                    <input type="text" id="eventHeroSubtitle" placeholder="e.g. Experience what is next">
+                                </div>
+                            </div>
+
+                            <div class="event-form-grid" style="margin-top: 16px;">
+                                <div class="form-group">
+                                    <label for="eventHeroDescription">Hero Description</label>
+                                    <textarea id="eventHeroDescription" rows="3" placeholder="Short introduction shown in the hero"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventSupportingTitle">Supporting Section Title</label>
+                                    <input type="text" id="eventSupportingTitle" placeholder="Be Part of the Next Chapter">
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventSupportingLead">Supporting Section Copy</label>
+                                    <textarea id="eventSupportingLead" rows="3" placeholder="A short supporting message"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventSupportingImage">Supporting Image URL</label>
+                                    <input type="url" id="eventSupportingImage" placeholder="https://.../image.jpg">
+                                </div>
+                            </div>
+
+                            <div class="event-form-grid" style="margin-top: 16px;">
+                                <div class="form-group">
+                                    <label for="eventHeroImage">Hero Image URL</label>
+                                    <input type="url" id="eventHeroImage" placeholder="https://.../hero.jpg">
+                                    <small style="color: #666; font-size: 0.85rem; display: block; margin-top: 6px;">Use a public image URL, or upload the event logo above as the hero image.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventPanelTitle">Hero Panel Title</label>
+                                    <input type="text" id="eventPanelTitle" placeholder="Your Next Chapter">
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventPanelBody">Hero Panel Copy</label>
+                                    <textarea id="eventPanelBody" rows="3" placeholder="Short panel description"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventPanelStat">Hero Panel Stat</label>
+                                    <input type="text" id="eventPanelStat" placeholder="Special Access">
+                                </div>
+                            </div>
+
+                            <div class="event-form-grid" style="margin-top: 16px;">
+                                <div class="form-group">
+                                    <label for="eventPrimaryColor">Primary Color</label>
+                                    <input type="color" id="eventPrimaryColor" value="#0f766e">
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventSecondaryColor">Secondary Color</label>
+                                    <input type="color" id="eventSecondaryColor" value="#0f172a">
+                                </div>
+                                <div class="form-group">
+                                    <label for="eventAccentColor">Accent Color</label>
+                                    <input type="color" id="eventAccentColor" value="#ea6b57">
+                                </div>
+                            </div>
                         </div>
 
                         <button type="submit" class="btn btn-success">

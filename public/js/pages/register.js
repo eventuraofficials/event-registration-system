@@ -2,6 +2,77 @@
 let currentEvent = null;
 let registrationInProgress = false;
 
+function safeImageUrl(value) {
+    const url = String(value || '').trim();
+    if (url.startsWith('/uploads/') || /^https:\/\//i.test(url) || /^http:\/\//i.test(url)) return url;
+    return '';
+}
+
+function applyEventBranding() {
+    const defaults = {
+        brand_name: currentEvent.client_name || currentEvent.event_name || 'Event Registration',
+        hero_kicker: 'A New Era Begins',
+        hero_title: `${currentEvent.client_name || currentEvent.event_name || 'YOUR EVENT'} EVENT`.toUpperCase(),
+        hero_subtitle: 'WELCOME TO WHAT\'S NEXT',
+        hero_description: currentEvent.description || 'Join us for an unforgettable event experience.',
+        hero_image: currentEvent.event_logo ? `/uploads/event-logos/${currentEvent.event_logo}` : '',
+        supporting_image: '',
+        colors: { primary: '#0f766e', secondary: '#0f172a', accent: '#ea6b57' },
+        panel: {
+            badge: 'Exclusive Access',
+            title: 'Your Next Chapter',
+            body: 'Discover the ideas, people, and experiences that make this event worth remembering.',
+            stat_label: 'Guests',
+            stat_value: 'Special Access'
+        },
+        supporting: {
+            title: 'Be Part of the Next Chapter',
+            lead: 'Connect, discover, and experience what is next.'
+        }
+    };
+    const branding = currentEvent.registration_form_config?.branding || {};
+    const panel = { ...defaults.panel, ...(branding.panel || {}) };
+    const supporting = { ...defaults.supporting, ...(branding.supporting || {}) };
+    const colors = { ...defaults.colors, ...(branding.colors || {}) };
+
+    document.documentElement.style.setProperty('--primary', colors.primary);
+    document.documentElement.style.setProperty('--primary-hover', colors.secondary);
+    document.documentElement.style.setProperty('--primary-light', `${colors.primary}18`);
+    document.documentElement.style.setProperty('--brand-teal', colors.primary);
+    document.documentElement.style.setProperty('--brand-navy', colors.secondary);
+    document.documentElement.style.setProperty('--brand-coral', colors.accent);
+
+    const setText = (id, value) => {
+        const element = document.getElementById(id);
+        if (element && value) element.textContent = value;
+    };
+
+    setText('heroBrandName', branding.brand_name || defaults.brand_name);
+    setText('heroKicker', branding.hero_kicker || defaults.hero_kicker);
+    setText('heroTitle', branding.hero_title || defaults.hero_title);
+    setText('heroSubtitle', branding.hero_subtitle || defaults.hero_subtitle);
+    setText('heroDescription', branding.hero_description || defaults.hero_description);
+    setText('heroPanelBadge', panel.badge);
+    setText('heroPanelTitle', panel.title);
+    setText('heroPanelBody', panel.body);
+    setText('heroPanelStatLabel', panel.stat_label);
+    setText('heroPanelStatValue', panel.stat_value);
+    setText('supportingTitle', supporting.title);
+    setText('supportingLead', supporting.lead);
+
+    const heroImage = safeImageUrl(branding.hero_image || defaults.hero_image);
+    const hero = document.querySelector('.premium-event-hero');
+    if (heroImage && hero) {
+        hero.style.backgroundImage = `linear-gradient(120deg, ${colors.secondary}d1 0%, ${colors.secondary}a6 35%, ${colors.primary}2e 100%), url(${JSON.stringify(heroImage)})`;
+    }
+
+    const supportingImage = safeImageUrl(branding.supporting_image);
+    const supportingVisual = document.getElementById('supportingVisual');
+    if (supportingImage && supportingVisual) {
+        supportingVisual.style.backgroundImage = `linear-gradient(140deg, ${colors.secondary}59, ${colors.primary}14), url(${JSON.stringify(supportingImage)})`;
+    }
+}
+
 function getRegistrationDraftKey() {
     const eventCode = new URLSearchParams(window.location.search).get('event');
     return eventCode ? `registration-draft:${eventCode}` : null;
@@ -72,6 +143,7 @@ async function loadEventFromURL() {
         }
 
         currentEvent = data.event;
+        applyEventBranding();
 
         // Display event information
         document.getElementById('loadingEvent').style.display = 'none';
@@ -117,6 +189,9 @@ async function loadEventFromURL() {
         document.getElementById('eventTime').textContent = formatTime(currentEvent.event_time);
         document.getElementById('eventVenue').textContent = currentEvent.venue || 'TBA';
         document.getElementById('eventDescription').textContent = currentEvent.description || '';
+        document.getElementById('heroEventDate').textContent = formatDate(currentEvent.event_date);
+        document.getElementById('heroEventTime').textContent = formatTime(currentEvent.event_time);
+        document.getElementById('heroEventVenue').textContent = currentEvent.venue || 'TBA';
         document.getElementById('eventName').focus({ preventScroll: true });
 
         // Check if registration is open

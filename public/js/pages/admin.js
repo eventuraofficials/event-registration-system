@@ -940,6 +940,29 @@ async function handleCreateEvent(e) {
             size: document.getElementById('eventQrSize')?.value || 'medium',
             foreground_color: '#111111',
             background_color: '#ffffff'
+        },
+        branding: {
+            brand_name: document.getElementById('eventBrandName')?.value?.trim() || document.getElementById('eventClientName')?.value?.trim() || '',
+            hero_kicker: document.getElementById('eventHeroKicker')?.value?.trim() || '',
+            hero_title: document.getElementById('eventHeroTitle')?.value?.trim() || '',
+            hero_subtitle: document.getElementById('eventHeroSubtitle')?.value?.trim() || '',
+            hero_description: document.getElementById('eventHeroDescription')?.value?.trim() || '',
+            hero_image: document.getElementById('eventHeroImage')?.value?.trim() || '',
+            supporting_image: document.getElementById('eventSupportingImage')?.value?.trim() || '',
+            colors: {
+                primary: document.getElementById('eventPrimaryColor')?.value || '#0f766e',
+                secondary: document.getElementById('eventSecondaryColor')?.value || '#0f172a',
+                accent: document.getElementById('eventAccentColor')?.value || '#ea6b57'
+            },
+            panel: {
+                title: document.getElementById('eventPanelTitle')?.value?.trim() || '',
+                body: document.getElementById('eventPanelBody')?.value?.trim() || '',
+                stat_value: document.getElementById('eventPanelStat')?.value?.trim() || ''
+            },
+            supporting: {
+                title: document.getElementById('eventSupportingTitle')?.value?.trim() || '',
+                lead: document.getElementById('eventSupportingLead')?.value?.trim() || ''
+            }
         }
       };
   
