@@ -106,11 +106,18 @@ db.exec(`
 const adminCount = db.prepare('SELECT COUNT(*) as count FROM admin_users').get();
 if (adminCount.count === 0) {
   const bcrypt = require('bcryptjs');
-  const hashedPassword = bcrypt.hashSync('admin123', 10);
+  const initialPassword = process.env.ADMIN_INITIAL_PASSWORD;
+  if (!initialPassword || initialPassword.length < 12) {
+    throw new Error('No admin user exists. Set ADMIN_INITIAL_PASSWORD to a strong password before starting the server.');
+  }
+
+  const initialUsername = process.env.ADMIN_INITIAL_USERNAME || 'admin';
+  const initialEmail = process.env.ADMIN_INITIAL_EMAIL || 'admin@event.com';
+  const hashedPassword = bcrypt.hashSync(initialPassword, 12);
   db.prepare(
     'INSERT INTO admin_users (username, email, password, full_name, role) VALUES (?, ?, ?, ?, ?)'
-  ).run('admin', 'admin@event.com', hashedPassword, 'System Administrator', 'super_admin');
-  console.log('✅ Default admin user created (admin / admin123)');
+  ).run(initialUsername, initialEmail, hashedPassword, 'System Administrator', 'super_admin');
+  console.log(`✅ Initial admin user created (${initialUsername})`);
 }
 
 // Migrations — idempotent (safe to run every startup)

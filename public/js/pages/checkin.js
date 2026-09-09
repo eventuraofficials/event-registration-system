@@ -9,6 +9,7 @@ let stats = {
 };
 let recentCheckIns = [];
 let activeCheckInMode = 'scan';
+let scannerStartInProgress = false;
 
 function getCheckInAuthHeaders() {
     const token = localStorage.getItem('admin_token');
@@ -270,22 +271,27 @@ async function selectEventForCheckIn(eventCode) {
 
 // Initialize QR Code Scanner
 function initializeScanner() {
+    if (scannerStartInProgress) return;
+    scannerStartInProgress = true;
 
     // iOS/Android: camera requires HTTPS (except localhost)
     const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
     if (window.location.protocol !== 'https:' && !isLocalhost) {
         showAlert('⚠️ Camera access requires a secure connection (HTTPS). Please use manual entry below.', 'warning');
         document.querySelector('.manual-input').scrollIntoView({ behavior: 'smooth' });
+        scannerStartInProgress = false;
         return;
     }
 
     if (typeof Html5Qrcode === 'undefined') {
         showAlert('QR Scanner library failed to load. Please refresh the page.', 'danger');
+        scannerStartInProgress = false;
         return;
     }
 
     if (!document.getElementById('qr-reader')) {
         showAlert('Scanner element not found. Please refresh the page.', 'danger');
+        scannerStartInProgress = false;
         return;
     }
 
@@ -304,41 +310,66 @@ function initializeScanner() {
             onScanSuccess,
             onScanFailure
         ).then(() => {
-
+            scannerStartInProgress = false;
         }).catch(err => {
+            scannerStartInProgress = false;
             console.error("❌ Scanner initialization error:", err);
-            const msg = err && err.toString().includes('Permission')
+            const errorName = err && (err.name || err.code || '');
+            const errorText = err && err.toString ? err.toString() : '';
+            const permissionDenied = ['NotAllowedError', 'PermissionDeniedError', 'SecurityError'].includes(errorName)
+                || /permission|notallowed|denied/i.test(errorText);
+            const msg = permissionDenied
                 ? 'Camera permission denied. Please allow camera access in your browser settings, or use manual entry below.'
                 : 'Failed to start camera. Please check camera permissions or use manual entry below.';
             showAlert(msg, 'danger');
             document.querySelector('.manual-input').scrollIntoView({ behavior: 'smooth' });
         });
     } catch (error) {
+        scannerStartInProgress = false;
         console.error('❌ Error creating Html5Qrcode instance:', error);
         showAlert('Failed to initialize scanner. Please use manual entry below.', 'danger');
         document.querySelector('.manual-input').scrollIntoView({ behavior: 'smooth' });
     }
 }
 
+async function restartScanner() {
+    if (scannerStartInProgress) return;
+
+    try {
+        if (html5QrCode) {
+            await html5QrCode.stop().catch(() => {});
+            await html5QrCode.clear().catch(() => {});
+            html5QrCode = null;
+        }
+        document.getElementById('qr-reader').innerHTML = '';
+        showAlert('Restarting camera…', 'info');
+        initializeScanner();
+    } catch (error) {
+        console.error('Scanner restart error:', error);
+        showAlert('Unable to restart the camera. Use manual guest search instead.', 'danger');
+    }
+}
+
 // Handle successful QR scan
 async function onScanSuccess(decodedText, decodedResult) {
     try {
-        // Parse QR code data
         const qrData = JSON.parse(decodedText);
-        const { guestCode, eventId } = qrData;
+        const { guestCode, eventId, signature } = qrData || {};
 
-        // Verify it's for the current event
-        if (eventId !== currentCheckInEvent.id) {
+        if (!guestCode || eventId === undefined || !signature) {
+            throw new Error('QR code is missing required fields');
+        }
+
+        if (Number(eventId) !== Number(currentCheckInEvent.id)) {
             throw new Error('QR code is for a different event');
         }
 
-        // Perform check-in
-        await performCheckIn(guestCode);
+        await performCheckIn(guestCode, decodedText);
 
     } catch (error) {
         console.error('QR scan error:', error);
         playErrorSound();
-        showAlert('Invalid QR code', 'danger');
+        showAlert(error.message || 'Invalid QR code', 'danger');
         updateStats('error');
     }
 }
@@ -349,13 +380,14 @@ function onScanFailure(error) {
 }
 
 // Perform check-in
-async function performCheckIn(guestCode) {
+async function performCheckIn(guestCode, qrPayload = '') {
     try {
         const token = localStorage.getItem('admin_token');
         const authHeaders = token ? { 'Authorization': `Bearer ${token}` } : {};
 
+        const qrParam = qrPayload ? `&qr_payload=${encodeURIComponent(qrPayload)}` : '';
         const guestData = await requestWithRetry(() => fetchAPI(
-            `${API.verifyGuest}?guest_code=${encodeURIComponent(guestCode)}&event_id=${currentCheckInEvent.id}`,
+            `${API.verifyGuest}?guest_code=${encodeURIComponent(guestCode)}&event_id=${currentCheckInEvent.id}${qrParam}`,
             { headers: authHeaders }
         ), {
             retries: 2,
@@ -384,7 +416,8 @@ async function performCheckIn(guestCode) {
             headers: authHeaders,
             body: JSON.stringify({
                 guest_code: guestCode,
-                event_id: currentCheckInEvent.id
+                event_id: currentCheckInEvent.id,
+                ...(qrPayload ? { qr_payload: qrPayload } : {})
             })
         }), {
             retries: 2,

@@ -1,5 +1,5 @@
 const db = require('../../db/config/database');
-const { generateGuestCode, generateQRCode } = require('../../utils/qrGenerator');
+const { generateGuestCode, generateQRCode, verifySignedQrPayload } = require('../../utils/qrGenerator');
 const { parseExcelFile, validateGuestData, checkDuplicates } = require('../../utils/excelParser');
 const { sendTicketEmail, isEmailConfigured } = require('../../utils/emailService');
 const { buildEventSummary } = require('../../utils/eventSummary');
@@ -12,6 +12,40 @@ const sanitizeInput = (input) => {
   if (!input) return input;
   // Remove HTML tags and trim
   return input.replace(/<[^>]*>/g, '').trim();
+};
+
+const validateQrForEvent = (qrPayload, guestCode, eventId, eventDate) => {
+  if (!qrPayload) return { valid: true };
+
+  const verification = verifySignedQrPayload(qrPayload);
+  if (!verification.valid) {
+    return { valid: false, status: 400, message: 'Invalid QR code signature' };
+  }
+
+  const payload = verification.payload;
+  if (String(payload.guestCode) !== String(guestCode)) {
+    return { valid: false, status: 400, message: 'QR code does not match the guest code' };
+  }
+
+  if (Number(payload.eventId) !== Number(eventId)) {
+    return { valid: false, status: 409, message: 'QR code belongs to another event' };
+  }
+
+  const eventEnd = new Date(eventDate);
+  const createdAt = new Date(payload.timestamp);
+  if (Number.isNaN(createdAt.getTime())) {
+    return { valid: false, status: 400, message: 'QR code timestamp is invalid' };
+  }
+
+  if (!Number.isNaN(eventEnd.getTime())) {
+    eventEnd.setHours(23, 59, 59, 999);
+    eventEnd.setTime(eventEnd.getTime() + 24 * 60 * 60 * 1000);
+    if (Date.now() > eventEnd.getTime()) {
+      return { valid: false, status: 410, message: 'QR code has expired' };
+    }
+  }
+
+  return { valid: true };
 };
 
 /**
@@ -398,9 +432,31 @@ exports.selfRegister = async (req, res) => {
 
     const result = { insertId: txResult.insertId };
 
+    let emailStatus = 'not_configured';
+    try {
+      const emailResult = await Promise.race([
+        sendTicketEmail({
+          guestName: full_name,
+          guestEmail: email,
+          guestCode: guestCode,
+          eventName: events[0].event_name,
+          eventDate: events[0].event_date,
+          eventTime: events[0].event_time,
+          venue: events[0].venue,
+          qrCodeDataUrl: qrCode
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Email delivery timed out')), 8000))
+      ]);
+      emailStatus = emailResult.sent ? 'sent' : 'not_configured';
+    } catch (emailError) {
+      emailStatus = 'failed';
+      console.error(`Registration ticket email failed for ${email}:`, emailError.message);
+    }
+
     res.status(201).json({
       success: true,
       message: 'Registration successful! Your QR code has been generated.',
+      emailStatus,
       guest: {
         id: result.insertId,
         guestCode: guestCode,
@@ -410,20 +466,6 @@ exports.selfRegister = async (req, res) => {
         guest_category: category,
         event_name: events[0].event_name
       }
-    });
-
-    // Send ticket email (non-blocking — runs after response is sent)
-    sendTicketEmail({
-      guestName: full_name,
-      guestEmail: email,
-      guestCode: guestCode,
-      eventName: events[0].event_name,
-      eventDate: events[0].event_date,
-      eventTime: events[0].event_time,
-      venue: events[0].venue,
-      qrCodeDataUrl: qrCode
-    }).catch(err => {
-      console.error(`Registration ticket email failed for ${email}:`, err.message);
     });
 
   } catch (error) {
@@ -532,7 +574,7 @@ exports.addGuestManual = async (req, res) => {
  */
 exports.getGuestByQR = async (req, res) => {
   try {
-    const { guest_code, event_id } = req.query;
+    const { guest_code, event_id, qr_payload } = req.query;
 
     if (!guest_code || !event_id) {
       return res.status(400).json({
@@ -561,6 +603,14 @@ exports.getGuestByQR = async (req, res) => {
       });
     }
 
+    const qrValidation = validateQrForEvent(qr_payload, guest_code, event_id, guests[0].event_date);
+    if (!qrValidation.valid) {
+      return res.status(qrValidation.status).json({
+        success: false,
+        message: qrValidation.message
+      });
+    }
+
     res.json({
       success: true,
       guest: guests[0]
@@ -580,7 +630,7 @@ exports.getGuestByQR = async (req, res) => {
  */
 exports.checkIn = async (req, res) => {
   try {
-    const { guest_code, event_id } = req.body;
+    const { guest_code, event_id, qr_payload } = req.body;
     const checkedInBy = req.user ? req.user.id : null;
 
     if (!guest_code || !event_id) {
@@ -592,7 +642,10 @@ exports.checkIn = async (req, res) => {
 
     // Check if guest exists
     const [guests] = await db.execute(
-      'SELECT id, full_name, attended FROM guests WHERE guest_code = ? AND event_id = ?',
+      `SELECT g.id, g.full_name, g.attended, e.event_date
+       FROM guests g
+       JOIN events e ON g.event_id = e.id
+       WHERE g.guest_code = ? AND g.event_id = ?`,
       [guest_code, event_id]
     );
 
@@ -604,6 +657,14 @@ exports.checkIn = async (req, res) => {
     }
 
     const guest = guests[0];
+
+    const qrValidation = validateQrForEvent(qr_payload, guest_code, event_id, guest.event_date);
+    if (!qrValidation.valid) {
+      return res.status(qrValidation.status).json({
+        success: false,
+        message: qrValidation.message
+      });
+    }
 
     if (guest.attended) {
       return res.status(400).json({

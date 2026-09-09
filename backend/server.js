@@ -4,6 +4,7 @@ const path = require('path');
 const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 // Validate critical environment variables
@@ -22,6 +23,7 @@ const { scheduleAutoBackup } = require('./utils/backup');
 
 // Import logger
 const logger = require('./utils/logger');
+const { setCSRFToken, sendCSRFToken } = require('./middleware/csrf');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -99,12 +101,14 @@ app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token']
 }));
 
 // Body Parser Middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
+app.use(setCSRFToken);
 
 // Request logging middleware (production only)
 if (process.env.NODE_ENV === 'production') {
@@ -155,17 +159,32 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/guests', guestRoutes);
 app.use('/api/settings', settingsRoutes);
+app.get('/api/csrf-token', sendCSRFToken);
 
 // Export loginLimiter for use in routes
 app.set('loginLimiter', loginLimiter);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Event Registration System API is running',
-    timestamp: new Date().toISOString()
-  });
+  try {
+    const db = require('./db/config/database');
+    db.db.prepare('SELECT 1').get();
+
+    res.json({
+      success: true,
+      status: 'ready',
+      message: 'Event Registration System API is running',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    logger.error('Health check database failure', { message: error.message });
+    res.status(503).json({
+      success: false,
+      status: 'degraded',
+      message: 'Database is temporarily unavailable',
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // System diagnostics endpoint (super_admin only)

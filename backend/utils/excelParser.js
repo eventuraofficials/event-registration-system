@@ -135,23 +135,50 @@ function validateGuestData(guests) {
 /**
  * Check for duplicate entries within the data
  */
+function normalizeIdentityValue(value = '') {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '');
+}
+
 function checkDuplicates(guests) {
   const seen = new Map();
   const duplicates = [];
 
   guests.forEach((guest, index) => {
-    const key = `${guest.full_name.toLowerCase()}-${guest.email.toLowerCase()}`;
+    const normalizedName = normalizeIdentityValue(guest.full_name);
+    const normalizedEmail = normalizeIdentityValue(guest.email);
+    const normalizedPhone = normalizeIdentityValue(guest.contact_number);
+    const normalizedCompany = normalizeIdentityValue(guest.company_name);
 
-    if (seen.has(key)) {
+    const candidateKeys = [];
+
+    if (normalizedEmail) candidateKeys.push(`email:${normalizedEmail}`);
+    if (normalizedPhone) candidateKeys.push(`phone:${normalizedPhone}`);
+    if (normalizedName && normalizedCompany) candidateKeys.push(`identity:${normalizedName}:${normalizedCompany}`);
+
+    let duplicateOf = null;
+    for (const key of candidateKeys) {
+      if (seen.has(key)) {
+        duplicateOf = seen.get(key);
+        break;
+      }
+    }
+
+    if (duplicateOf) {
       duplicates.push({
         row: index + 2,
         name: guest.full_name,
         email: guest.email,
-        duplicateOf: seen.get(key)
+        duplicateOf
       });
-    } else {
-      seen.set(key, index + 2);
+      return;
     }
+
+    candidateKeys.forEach((key) => seen.set(key, index + 2));
   });
 
   return duplicates;

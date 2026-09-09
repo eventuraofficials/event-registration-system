@@ -1,5 +1,43 @@
 // Global state
 let currentEvent = null;
+let registrationInProgress = false;
+
+function getRegistrationDraftKey() {
+    const eventCode = new URLSearchParams(window.location.search).get('event');
+    return eventCode ? `registration-draft:${eventCode}` : null;
+}
+
+function saveRegistrationDraft() {
+    const key = getRegistrationDraftKey();
+    const form = document.getElementById('guestForm');
+    if (!key || !form) return;
+
+    const values = {};
+    form.querySelectorAll('input, textarea, select').forEach((field) => {
+        if (field.id) values[field.id] = field.value;
+    });
+    sessionStorage.setItem(key, JSON.stringify(values));
+}
+
+function restoreRegistrationDraft() {
+    const key = getRegistrationDraftKey();
+    if (!key) return;
+
+    try {
+        const values = JSON.parse(sessionStorage.getItem(key) || '{}');
+        Object.entries(values).forEach(([id, value]) => {
+            const field = document.getElementById(id);
+            if (field) field.value = value;
+        });
+    } catch (error) {
+        sessionStorage.removeItem(key);
+    }
+}
+
+function clearRegistrationDraft() {
+    const key = getRegistrationDraftKey();
+    if (key) sessionStorage.removeItem(key);
+}
 
 // Initialize page on load
 document.addEventListener('DOMContentLoaded', () => {
@@ -117,6 +155,7 @@ async function loadEventFromURL() {
 
         // Show registration form
         document.getElementById('registrationFormCard').style.display = 'block';
+        restoreRegistrationDraft();
 
     } catch (error) {
         console.error('Load event error:', error);
@@ -279,6 +318,8 @@ function createFormField(id, type, label, required, options) {
 async function handleRegistration(e) {
     e.preventDefault();
 
+    if (registrationInProgress) return;
+
     if (!currentEvent) {
         showAlert('Please select an event first', 'danger');
         return;
@@ -308,6 +349,14 @@ async function handleRegistration(e) {
         return;
     }
 
+    registrationInProgress = true;
+    const submitButton = e.target.querySelector('button[type="submit"]');
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.setAttribute('aria-busy', 'true');
+    }
+    saveRegistrationDraft();
+
     showLoading();
 
     try {
@@ -322,6 +371,7 @@ async function handleRegistration(e) {
 
         if (data.duplicate && data.guest) {
             displayQRCode(data.guest);
+            clearRegistrationDraft();
             showAlert('You are already registered for this event. Your saved ticket is shown below.', 'info');
             hideLoading();
             return;
@@ -329,12 +379,23 @@ async function handleRegistration(e) {
 
         // Display QR code and success message
         displayQRCode(data.guest);
+        clearRegistrationDraft();
+
+        if (data.emailStatus === 'failed') {
+            showAlert('Registration succeeded, but the ticket email could not be delivered. Please download the QR code below.', 'warning');
+        }
 
         hideLoading();
 
     } catch (error) {
         hideLoading();
         showAlert(error.message || 'Registration failed. Please try again.', 'danger');
+    } finally {
+        registrationInProgress = false;
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.removeAttribute('aria-busy');
+        }
     }
 }
 

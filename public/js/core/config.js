@@ -1,8 +1,8 @@
 // API Configuration
-// Automatically detect protocol and use current origin for API calls
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname.startsWith('192.168')
-    ? `http://${window.location.hostname}:5000/api`  // Local development
-    : `${window.location.origin}/api`;                // Production (uses same protocol and no port)
+// Use the same origin so deployed and alternate-port instances call their own API.
+const API_BASE_URL = window.location.protocol === 'file:'
+    ? 'http://localhost:5000/api'
+    : `${window.location.origin}/api`;
 
 // API Endpoints
 const API = {
@@ -62,6 +62,24 @@ const showAlert = (message, type = 'success') => {
 
 // Auto token refresh mechanism
 let tokenRefreshTimer = null;
+let csrfToken = null;
+let csrfTokenRequest = null;
+
+const getCsrfToken = async () => {
+    if (csrfToken) return csrfToken;
+    if (!csrfTokenRequest) {
+        csrfTokenRequest = fetch(`${API_BASE_URL}/csrf-token`, { credentials: 'same-origin' })
+            .then(response => response.json())
+            .then(data => {
+                csrfToken = data.csrfToken;
+                return csrfToken;
+            })
+            .finally(() => {
+                csrfTokenRequest = null;
+            });
+    }
+    return csrfTokenRequest;
+};
 
 /**
  * Validate JWT token format and expiration
@@ -184,13 +202,20 @@ const fetchAPI = async (url, options = {}) => {
     try {
         // Extract headers from options to avoid overwriting
         const { headers: customHeaders, ...restOptions } = options;
+        const method = (restOptions.method || 'GET').toUpperCase();
+        const requestHeaders = {
+            'Content-Type': 'application/json',
+            ...customHeaders
+        };
+
+        if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+            requestHeaders['X-CSRF-Token'] = await getCsrfToken();
+        }
 
         const response = await fetch(url, {
             ...restOptions,
-            headers: {
-                'Content-Type': 'application/json',
-                ...customHeaders
-            }
+            headers: requestHeaders,
+            credentials: 'same-origin'
         });
 
         // Handle different response types

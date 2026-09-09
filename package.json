@@ -5,6 +5,7 @@
   "main": "backend/server.js",
   "scripts": {
     "start": "node backend/server.js",
+    "production": "node start-production.js",
     "dev": "nodemon backend/server.js",
     "init-db": "node backend/db/config/init-sqlite.js",
     "backup": "node -e \"require('./backend/utils/backup').createBackup()\"",
@@ -23,6 +24,7 @@
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^12.4.1",
     "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "exceljs": "^4.4.0",
