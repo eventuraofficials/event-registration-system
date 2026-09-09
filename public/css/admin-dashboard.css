@@ -20,33 +20,11 @@
 .admin-body .app-sidebar {
     top: 60px;
     width: 248px;
-    padding: 0 14px 22px;
+    padding: 18px 14px 22px;
     color: #fff;
     background: #0a0a0a;
     border-right: 0;
 }
-
-.admin-sidebar-brand {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    min-height: 88px;
-    padding: 18px 12px 17px;
-    border-bottom: 1px solid #292929;
-}
-
-.admin-sidebar-brand img {
-    width: 76px;
-    height: 34px;
-    object-fit: contain;
-    border-radius: 5px;
-    background: #000;
-}
-
-.admin-sidebar-brand strong,
-.admin-sidebar-brand span { display: block; }
-.admin-sidebar-brand strong { color: #fff; font-size: .94rem; letter-spacing: .08em; }
-.admin-sidebar-brand span { margin-top: 3px; color: #989898; font-size: .61rem; letter-spacing: .08em; text-transform: uppercase; }
 
 .admin-body .sidebar-nav { padding: 18px 0 0; }
 .admin-body .sidebar-nav-link {

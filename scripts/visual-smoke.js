@@ -4,7 +4,7 @@ const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
 const pages = [
   { name: 'landing', path: '/pages/landing.html', selectors: ['.brand-mark img', '#hero-title'] },
   { name: 'registration', path: '/pages/index.html', selectors: ['#siteHeaderLogo', '#heroTitle', '#guestForm'] },
-  { name: 'admin', path: '/pages/admin.html', selectors: ['.app-sidebar', '.admin-sidebar-brand img', '#loginScreen'] },
+  { name: 'admin', path: '/pages/admin.html', selectors: ['.app-sidebar', '.app-header-logo .boh-company-logo', '#loginScreen'] },
   { name: 'checkin', path: '/pages/checkin.html', selectors: ['.app-header', '.boh-company-logo', '#loginGate'] }
 ];
 const viewports = [
